@@ -23,6 +23,14 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Desactiva la verificación de claves foráneas
+        Schema::disableForeignKeyConstraints();
+    
+        // Elimina la tabla categories
         Schema::dropIfExists('categories');
+    
+        // Reactiva la verificación de claves foráneas
+        Schema::enableForeignKeyConstraints();
     }
+    
 };

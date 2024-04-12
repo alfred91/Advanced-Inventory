@@ -6,27 +6,24 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('customer_id');
-            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('set null');
+            $table->unsignedBigInteger('customer_id')->nullable(); // Hacer que customer_id sea nullable
             $table->date('order_date');
             $table->decimal('total_amount', 10, 2);
             $table->string('status')->default('pending');
             $table->boolean('notification_sent')->default(false);
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('customer_id')
+                  ->references('id')->on('customers')
+                  ->onDelete('set null'); // Permite que el valor se establezca en null al eliminar el customer
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('orders');
