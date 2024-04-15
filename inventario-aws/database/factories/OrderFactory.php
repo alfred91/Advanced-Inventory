@@ -17,6 +17,7 @@ class OrderFactory extends Factory
      */
     public function definition(): array
     {
+        $this->faker->locale('es_ES');
         return [
             'customer_id' => Customer::factory(), // Esto generará un cliente si no existe uno.
             'order_date' => fake()->date(),

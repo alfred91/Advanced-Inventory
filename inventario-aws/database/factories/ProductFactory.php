@@ -18,6 +18,7 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
+        $this->faker->locale('es_ES');
         return [
             'name' => fake()->word(),
             'description' => fake()->sentence(),

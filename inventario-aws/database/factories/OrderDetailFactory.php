@@ -18,6 +18,7 @@ class OrderDetailFactory extends Factory
      */
     public function definition(): array
     {
+        $this->faker->locale('es_ES');
         return [
             'order_id' => Order::factory(), // Esto generará una orden si no existe una.
             'product_id' => Product::factory(), // Esto generará un producto si no existe uno.

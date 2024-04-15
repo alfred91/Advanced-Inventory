@@ -16,8 +16,9 @@ class CategoryFactory extends Factory
      */
     public function definition(): array
     {
+        $this->faker->locale('es_ES');
         return [
-            'name' => fake()->words(5, true), 
+            'name' => fake()->words(5, true),
         ];
     }
 }

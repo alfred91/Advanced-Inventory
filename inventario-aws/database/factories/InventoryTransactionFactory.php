@@ -17,6 +17,7 @@ class InventoryTransactionFactory extends Factory
      */
     public function definition(): array
     {
+        $this->faker->locale('es_ES');
         return [
             'product_id' => Product::factory(), // Esto generará un producto si no existe uno.
             'transaction_type' => fake()->randomElement(['purchase', 'sale', 'adjustment']),
