@@ -5,16 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Scout\Searchable;
 
 class Product extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Searchable;
 
     protected $fillable = [
-        'name', 
-        'description', 
-        'quantity', 
-        'price', 
+        'name',
+        'description',
+        'quantity',
+        'price',
         'category_id',
         'supplier_id'
     ];
@@ -32,8 +33,8 @@ class Product extends Model
     public function orders()
     {
         return $this->belongsToMany(Order::class, 'order_details')
-                    ->withPivot('quantity', 'unit_price')
-                    ->withTimestamps();
+            ->withPivot('quantity', 'unit_price')
+            ->withTimestamps();
     }
 
     public function inventoryTransactions()
