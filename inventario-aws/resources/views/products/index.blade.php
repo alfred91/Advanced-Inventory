@@ -1,36 +1,43 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h1>Lista de Productos</h1>
-    <a href="{{ route('products.create') }}" class="btn btn-primary">Agregar Producto</a>
-    <table class="table mt-3 table-bordered">
+<div class="container p-4 mx-auto">
+    <h1 class="text-xl font-semibold">Lista de Productos</h1>
+    <table class="w-full table-auto">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Acciones</th>
+                <th class="px-4 py-2">Nombre</th>
+                <th class="px-4 py-2">Descripción</th>
+                <th class="px-4 py-2">Precio</th>
+                <th class="px-4 py-2">Cantidad</th>
+                <th class="px-4 py-2">Imagen</th>
+                <th class="px-4 py-2">Acciones</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($products as $product)
-                <tr>
-                    <td>{{ $product->id }}</td>
-                    <td>{{ $product->name }}</td>
-                    <td>{{ $product->description }}</td>
-                    <td>
-                        <a href="{{ route('products.show', $product->id) }}" class="btn btn-info">Ver</a>
-                        <a href="{{ route('products.edit', $product->id) }}" class="btn btn-warning">Editar</a>
-                        <form action="{{ route('products.destroy', $product->id) }}" method="POST" style="display: inline-block;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger" onclick="return confirm('¿Está seguro de querer eliminar este producto?')">Eliminar</button>
-                        </form>
-                    </td>
-                </tr>
+            <tr>
+                <td class="border px-4 py-2">{{ $product->name }}</td>
+                <td class="border px-4 py-2">{{ $product->description }}</td>
+                <td class="border px-4 py-2">{{ number_format($product->price, 2) }} €</td>
+                <td class="border px-4 py-2">{{ $product->quantity }}</td>
+                <td class="border px-4 py-2">
+                    <img src="{{ asset('storage/' . $product->image) }}" alt="Imagen de {{ $product->name }}" style="width:100px; height:auto;">
+                </td>
+                <td class="border px-4 py-2">
+                    <a href="{{ route('products.edit', $product->id) }}" class="text-blue-500">Editar</a>
+                    <form action="{{ route('products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de querer eliminar este producto?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-red-500">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
             @endforeach
         </tbody>
     </table>
+    @if($products->isEmpty())
+    <p class="text-center mt-4">No hay productos disponibles.</p>
+    @endif
 </div>
 @endsection

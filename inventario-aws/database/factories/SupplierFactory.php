@@ -22,6 +22,7 @@ class SupplierFactory extends Factory
             'email' => fake()->unique()->companyEmail(),
             'phone_number' => fake()->phoneNumber(),
             'address' => fake()->address(),
+            'image' => 'images/suppliers/Default.png',
         ];
     }
 }

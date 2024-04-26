@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -21,26 +22,31 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('products.create');
+        $suppliers = Supplier::all();
+        return view('products.create', compact('suppliers'));
     }
-
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'required|string'
+            'description' => 'required|string',
+            'quantity' => 'required|integer',
+            'price' => 'required|numeric',
+            'category_id' => 'required|exists:categories,id',
+            'supplier_id' => 'nullable|exists:suppliers,id',
+            'image' => 'nullable|image|max:2048',
         ]);
 
-        $product = new Product();
-        $product->name = $request->name;
-        $product->description = $request->description;
-        $product->save();
+        $validatedData['image'] = $request->file('image') ? $request->file('image')->store('products', 'public') : null;
+
+        $product = Product::create($validatedData);
 
         return redirect()->route('products.index')->with('success', 'Product created successfully.');
     }
+
 
     /**
      * Display the specified resource.
@@ -67,16 +73,23 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'required|string'
+            'description' => 'required|string',
+            'image' => 'nullable|image|max:2048',
         ]);
 
         $product = Product::findOrFail($id);
-        $product->name = $request->name;
-        $product->description = $request->description;
+
+        $product->fill($request->except(['image']));
+
+        if ($request->hasFile('image')) {
+            $product->image = $request->file('image')->store('products', 'public');
+        }
+
         $product->save();
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }
+
 
     /**
      * Remove the specified resource from storage.
