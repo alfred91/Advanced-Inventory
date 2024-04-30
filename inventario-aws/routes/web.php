@@ -25,8 +25,11 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-Route::get('/search', [ProductController::class, 'index'])->name('products.index');
+//Route::get('/search', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/search', [ProductController::class, 'search'])->name('products.search');
+Route::get('/test-modal', function () {
+    return view('livewire/test-modal');
+});
 
 
 require __DIR__ . '/auth.php';

@@ -22,7 +22,7 @@
             </div>
             <div class="flex">
                 <!-- Formulario de búsqueda -->
-                <form action="{{ route('products.search') }}" method="GET" class="flex items-center">
+                <form action="{{ route('products.index') }}" method="GET" class="flex items-center">
                     @csrf
                     <input type="text" name="query" placeholder="Buscar productos..." class="px-4 py-2 border focus:ring-blue-500 focus:border-blue-500">
                     <button type="submit" class="px-4 py-2 text-white bg-blue-500">Buscar</button>

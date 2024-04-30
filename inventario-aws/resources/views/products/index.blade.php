@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+
 <div class="container p-4 mx-auto">
     <h1 class="text-xl font-semibold">Lista de Productos</h1>
     <table class="w-full table-auto">
@@ -22,14 +23,14 @@
                 <td class="border px-4 py-2">{{ number_format($product->price, 2) }} €</td>
                 <td class="border px-4 py-2">{{ $product->quantity }}</td>
                 <td class="border px-4 py-2">
-                    <img src="{{ asset('storage/' . $product->image) }}" alt="Imagen de {{ $product->name }}" style="width:100px; height:auto;">
+                    <img src="{{ asset('storage/images/products/' . $product->image) }}" alt="Imagen de {{ $product->name }}" style="width:100px; height:auto;">
                 </td>
                 <td class="border px-4 py-2">
-                    <a href="{{ route('products.edit', $product->id) }}" class="text-blue-500">Editar</a>
+                    @livewire('edit-product', ['productId' => $product->id])
                     <form action="{{ route('products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de querer eliminar este producto?');">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="text-red-500">Eliminar</button>
+                        <button type="submit" class="ml-2 text-red-500">Eliminar</button>
                     </form>
                 </td>
             </tr>
@@ -40,4 +41,5 @@
     <p class="text-center mt-4">No hay productos disponibles.</p>
     @endif
 </div>
+
 @endsection

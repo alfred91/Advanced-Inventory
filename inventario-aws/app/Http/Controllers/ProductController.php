@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -16,6 +17,7 @@ class ProductController extends Controller
         $products = Product::all();
         return view('products.index', compact('products'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -78,10 +80,14 @@ class ProductController extends Controller
         ]);
 
         $product = Product::findOrFail($id);
+        $oldImage = $product->image;
 
         $product->fill($request->except(['image']));
 
         if ($request->hasFile('image')) {
+            if ($oldImage) {
+                Storage::delete('public/' . $oldImage);
+            }
             $product->image = $request->file('image')->store('products', 'public');
         }
 
@@ -89,6 +95,7 @@ class ProductController extends Controller
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }
+
 
 
     /**
