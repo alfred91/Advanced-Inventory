@@ -16,13 +16,12 @@ class SupplierFactory extends Factory
      */
     public function definition(): array
     {
-        $this->faker->locale('es_ES');
         return [
             'name' => fake()->company(),
             'email' => fake()->unique()->companyEmail(),
             'phone_number' => fake()->phoneNumber(),
             'address' => fake()->address(),
-            'image' => 'images/suppliers/Default.png',
+            'image' => 'images/suppliers/company.svg',
         ];
     }
 }

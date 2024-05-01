@@ -2,25 +2,42 @@
     <button wire:click="openModal">Editar Producto</button>
 
     @if ($showModal)
-    <div style="background-color: rgba(0,0,0,0.5); position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
-        <div style="background: white; padding: 20px; border-radius: 8px;">
-            <h2>Editando Producto: {{ $name }}</h2>
+    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white p-6 rounded shadow-lg">
+            <h2 class="text-xl font-semibold">Editando Producto: {{ $name }}</h2>
             <form wire:submit.prevent="saveChanges" enctype="multipart/form-data">
-                <input type="text" wire:model="name" placeholder="Nombre" class="block w-full mb-2">
-                <textarea wire:model="description" placeholder="Descripción" class="block w-full mb-2"></textarea>
-                <input type="text" wire:model="price" placeholder="Precio" class="block w-full mb-2">
-                <input type="number" wire:model="quantity" placeholder="Cantidad" class="block w-full mb-2">
+                <div class="mb-4">
+                    <label for="name" class="block text-sm font-medium text-gray-700">Nombre</label>
+                    <input type="text" wire:model="name" id="name" class="mt-1 block w-full">
+                </div>
+                <div class="mb-4">
+                    <label for="description" class="block text-sm font-medium text-gray-700">Descripción</label>
+                    <textarea wire:model="description" id="description" class="mt-1 block w-full"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="price" class="block text-sm font-medium text-gray-700">Precio</label>
+                    <input type="text" wire:model="price" id="price" class="mt-1 block w-full">
+                </div>
+                <div class="mb-4">
+                    <label for="quantity" class="block text-sm font-medium text-gray-700">Cantidad</label>
+                    <input type="number" wire:model="quantity" id="quantity" class="mt-1 block w-full">
+                </div>
 
-                <!-- Mostrar la imagen actual -->
                 @if ($image)
-                <img src="{{ asset('storage/images/products/' . $image) }}" alt="Imagen actual" class="mb-2">
+                <div class="mb-4">
+                    <img src="{{ asset('storage/' . $image) }}" alt="Imagen actual" class="w-20 h-20 object-cover">
+                </div>
                 @endif
 
-                <!-- Campo para actualizar la imagen -->
-                <input type="file" wire:model="newImage" class="block w-full mb-2">
+                <div class="mb-4">
+                    <label for="newImage" class="block text-sm font-medium text-gray-700">Nueva Imagen</label>
+                    <input type="file" wire:model="newImage" id="newImage" class="mt-1 block w-full">
+                </div>
 
-                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700">Guardar Cambios</button>
-                <button type="button" wire:click="closeModal" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700">Cerrar</button>
+                <div class="flex justify-end">
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700">Guardar Cambios</button>
+                    <button type="button" wire:click="closeModal" class="ml-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700">Cerrar</button>
+                </div>
             </form>
         </div>
     </div>

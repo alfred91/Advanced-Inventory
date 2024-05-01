@@ -3,14 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Livewire\ProductsList;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-
-//RUTAS CON AUTENTICACIÓN
-
+// Rutas con autenticación
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -20,16 +19,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 });
 
+// Rutas CRUD para productos
 Route::middleware('auth')->group(function () {
-    Route::resource('products', ProductController::class);  // Rutas CRUD para productos
+    Route::resource('products', ProductController::class)->except(['index']); // Excluir 'index' si usas Livewire para esta vista
 });
 
-Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-//Route::get('/search', [ProductController::class, 'index'])->name('products.index');
+// Usar Livewire para la lista de productos
+Route::get('/products', ProductsList::class)->name('products.index');
+
+// Búsqueda de productos
 Route::get('/products/search', [ProductController::class, 'search'])->name('products.search');
+
+// Test Modal View
 Route::get('/test-modal', function () {
     return view('livewire/test-modal');
 });
 
-
+// Rutas de autenticación
 require __DIR__ . '/auth.php';

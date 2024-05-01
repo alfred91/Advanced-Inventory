@@ -19,12 +19,11 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        $this->faker->locale('es_ES');
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => Hash::make('12345678'),  // Contraseña fija hasheada
+            'password' => Hash::make('12345678'),
             'remember_token' => Str::random(10),
         ];
     }

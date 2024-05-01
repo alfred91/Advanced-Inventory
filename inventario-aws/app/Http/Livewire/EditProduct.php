@@ -4,9 +4,11 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use App\Models\Product;
+use Livewire\WithFileUploads;
 
 class EditProduct extends Component
 {
+    use WithFileUploads;
     public $showModal = false;
     public $productId;
     public $name;
@@ -14,6 +16,8 @@ class EditProduct extends Component
     public $price;
     public $quantity;
     public $image;
+    public $newImage;
+
 
     public function mount($productId)
     {
@@ -35,15 +39,23 @@ class EditProduct extends Component
             'description' => 'required|string',
             'price' => 'required|numeric',
             'quantity' => 'required|integer',
+            'newImage' => 'nullable|image|max:2048',
         ]);
 
         $product = Product::find($this->productId);
         if ($product) {
             $product->update($validatedData);
+
+            if ($this->newImage) {
+                $imageName = $this->newImage->store('products', 'public');
+                $product->image = $imageName;
+                $product->save();
+            }
+
             $this->showModal = false;
         }
+        $this->dispatch('productUpdated'); //EMIT DESAPARECE DE LA V3
     }
-
 
 
     public function openModal()
