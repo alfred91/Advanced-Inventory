@@ -1,5 +1,4 @@
 <!-- resources/views/components/table.blade.php -->
-
 <div class="table-responsive mt-3">
     <table class="table table-bordered">
         <thead>
@@ -13,18 +12,17 @@
         <tbody>
             @foreach ($data as $row)
             <tr>
-                @foreach ($row as $cell)
+                @foreach ($row as $key => $cell)
+                @if($key !== 'actions')
                 <td>{{ $cell }}</td>
-                @endforeach
+                @else
                 <td>
-                    <a href="{{ route('products.show', $row['id']) }}" class="btn btn-info" title="Ver"><i class="fas fa-eye"></i></a>
-                    <a href="{{ route('products.edit', $row['id']) }}" class="btn btn-warning" title="Editar"><i class="fas fa-edit"></i></a>
-                    <form action="{{ route('products.destroy', $row['id']) }}" method="POST" style="display: inline-block;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger" title="Eliminar" onclick="return confirm('¿Está seguro de querer eliminar este producto?')"><i class="fas fa-trash-alt"></i></button>
-                    </form>
+                    @foreach ($cell as $action)
+                    {!! $action !!}
+                    @endforeach
                 </td>
+                @endif
+                @endforeach
             </tr>
             @endforeach
         </tbody>

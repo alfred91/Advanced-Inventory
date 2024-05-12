@@ -1,5 +1,7 @@
 <div>
-    <button wire:click="openModal">Editar Producto</button>
+    <button wire:click="openModal" class="inline-flex items-center justify-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        <i class="fas fa-edit mr-2"></i>
+    </button>
 
     @if ($showModal)
     <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -23,6 +25,26 @@
                     <input type="number" wire:model="quantity" id="quantity" class="mt-1 block w-full">
                 </div>
 
+                <div class="mb-4">
+                    <label for="category_id" class="block text-sm font-medium text-gray-700">Categoría</label>
+                    <select wire:model="category_id" id="category_id" class="mt-1 block w-full form-select">
+                        <option value="">Seleccione una categoría</option>
+                        @foreach(App\Models\Category::all() as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="supplier_id" class="block text-sm font-medium text-gray-700">Proveedor</label>
+                    <select wire:model="supplier_id" id="supplier_id" class="mt-1 block w-full form-select">
+                        <option value="">Seleccione un proveedor</option>
+                        @foreach(App\Models\Supplier::all() as $supplier)
+                        <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
                 @if ($image)
                 <div class="mb-4">
                     <img src="{{ asset('storage/' . $image) }}" alt="Imagen actual" class="w-20 h-20 object-cover">
@@ -33,10 +55,13 @@
                     <label for="newImage" class="block text-sm font-medium text-gray-700">Nueva Imagen</label>
                     <input type="file" wire:model="newImage" id="newImage" class="mt-1 block w-full">
                 </div>
-
-                <div class="flex justify-end">
-                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700">Guardar Cambios</button>
-                    <button type="button" wire:click="closeModal" class="ml-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700">Cerrar</button>
+                <div class="flex justify-end space-x-2">
+                    <x-primary-button type="submit">
+                        Guardar Cambios
+                    </x-primary-button>
+                    <x-secondary-button type="button" wire:click="closeModal">
+                        Cerrar
+                    </x-secondary-button>
                 </div>
             </form>
         </div>

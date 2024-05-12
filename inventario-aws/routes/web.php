@@ -1,9 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Livewire\ProductsList;
+use App\Http\Livewire\SuppliersList;
+use App\Http\Livewire\OrdersList;
 
 Route::get('/', function () {
     return view('welcome');
@@ -21,19 +22,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // Rutas CRUD para productos
 Route::middleware('auth')->group(function () {
-    Route::resource('products', ProductController::class)->except(['index']); // Excluir 'index' si usas Livewire para esta vista
+    Route::resource('products', ProductsList::class)->except(['index']);
 });
 
-// Usar Livewire para la lista de productos
 Route::get('/products', ProductsList::class)->name('products.index');
 
-// Búsqueda de productos
-Route::get('/products/search', [ProductController::class, 'search'])->name('products.search');
+Route::get('/suppliers', SuppliersList::class)->name('suppliers.index');
 
-// Test Modal View
-Route::get('/test-modal', function () {
-    return view('livewire/test-modal');
-});
+Route::get('/orders', OrdersList::class)->name('orders.index');
+
 
 // Rutas de autenticación
 require __DIR__ . '/auth.php';
