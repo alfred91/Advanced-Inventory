@@ -16,9 +16,8 @@ class CreateOrder extends Component
     public $showModal = false;
 
     protected $rules = [
-        'selectedCustomerId' => 'required',
+        'selectedCustomerId' => 'required|exists:customers,id',
         'orderProducts.*.quantity' => 'required|integer|min:1',
-        'orderProducts.*.product_id' => 'required|exists:products,id'
     ];
 
     public function mount()
@@ -46,7 +45,7 @@ class CreateOrder extends Component
     public function addProduct($productId)
     {
         if (!array_key_exists($productId, $this->orderProducts)) {
-            $this->orderProducts[$productId] = ['quantity' => 1, 'product_id' => $productId];
+            $this->orderProducts[$productId] = ['quantity' => 1];
         }
     }
 
@@ -69,21 +68,22 @@ class CreateOrder extends Component
         DB::transaction(function () {
             $order = Order::create([
                 'customer_id' => $this->selectedCustomerId,
-                'total_amount' => array_sum(array_map(function ($product) {
-                    return Product::find($product['product_id'])->price * $product['quantity'];
-                }, $this->orderProducts)),
+                'order_date' => now(),
+                'total_amount' => array_sum(array_map(function ($quantity, $productId) {
+                    return Product::find($productId)->price * $quantity;
+                }, array_column($this->orderProducts, 'quantity'), array_keys($this->orderProducts))),
                 'status' => 'pending' // assuming a default status
             ]);
 
-            foreach ($this->orderProducts as $product) {
-                $order->products()->attach($product['product_id'], [
+            foreach ($this->orderProducts as $productId => $product) {
+                $order->products()->attach($productId, [
                     'quantity' => $product['quantity'],
-                    'unit_price' => Product::find($product['product_id'])->price
+                    'unit_price' => Product::find($productId)->price
                 ]);
             }
         });
 
-        $this->dispatchBrowserEvent('order-created', ['message' => 'Order created successfully!']);
+        $this->dispatch('order-created', ['message' => 'Order created successfully!']);
         $this->closeModal();
         $this->reset('selectedCustomerId', 'orderProducts');
     }

@@ -3,18 +3,28 @@
 namespace App\Http\Livewire;
 
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use App\Models\Order;
 use App\Models\Customer;
 use App\Models\Product;
 
 class EditOrder extends Component
 {
-    use WithFileUploads;
-
-    public $order;
-    public $orderId, $customerId, $products = [], $selectedProducts = [];
+    public $orderId;
+    public $customerId;
+    public $status;
+    public $totalAmount;
+    public $selectedProducts = [];
+    public $newProductId;
+    public $newProductQuantity = 1;
     public $showModal = false;
+
+    protected $rules = [
+        'customerId' => 'required',
+        'status' => 'required|in:pending,completed,cancelled',
+        'selectedProducts.*.quantity' => 'required|integer|min:0',
+        'newProductId' => 'nullable|exists:products,id',
+        'newProductQuantity' => 'required|integer|min:1'
+    ];
 
     public function mount($orderId)
     {
@@ -24,9 +34,13 @@ class EditOrder extends Component
 
     public function loadOrder()
     {
-        $this->order = Order::with(['customer', 'products'])->find($this->orderId);
-        $this->customerId = $this->order->customer_id;
-        $this->selectedProducts = $this->order->products->pluck('pivot.quantity', 'id');
+        $order = Order::with(['customer', 'products'])->find($this->orderId);
+        $this->customerId = $order->customer_id;
+        $this->status = $order->status;
+        $this->totalAmount = $order->total_amount;
+        $this->selectedProducts = $order->products->mapWithKeys(function ($product) {
+            return [$product->id => ['quantity' => $product->pivot->quantity, 'unit_price' => $product->pivot->unit_price]];
+        })->toArray();
     }
 
     public function render()
@@ -34,40 +48,69 @@ class EditOrder extends Component
         $customers = Customer::all();
         $allProducts = Product::all();
         return view('livewire.edit-order', [
-            'order' => $this->order,
             'customers' => $customers,
             'allProducts' => $allProducts
         ]);
     }
+
+    public function addProduct()
+    {
+        $this->validate([
+            'newProductId' => 'required|exists:products,id',
+            'newProductQuantity' => 'required|integer|min:1'
+        ]);
+
+        $product = Product::find($this->newProductId);
+
+        if (isset($this->selectedProducts[$this->newProductId])) {
+            $this->selectedProducts[$this->newProductId]['quantity'] += $this->newProductQuantity;
+        } else {
+            $this->selectedProducts[$this->newProductId] = [
+                'quantity' => $this->newProductQuantity,
+                'unit_price' => $product->price
+            ];
+        }
+
+        $this->newProductId = null;
+        $this->newProductQuantity = 1;
+
+        $this->updateTotalAmount();
+    }
+
     public function updateOrder()
     {
-        // Validación de campos
-        $this->validate([
-            'customerId' => 'required',
-            //'order.total_amount' => 'required|numeric',
-            'order.status' => 'required|in:pending,completed,cancelled',
-        ]);
+        $this->validate();
 
-        // Actualización del pedido
-        $this->order->update([
+        $order = Order::find($this->orderId);
+        $order->update([
             'customer_id' => $this->customerId,
-            'total_amount' => $this->order->total_amount,
-            'status' => $this->order->status,
-
+            'status' => $this->status,
         ]);
 
-        // Actualización de detalles
-        foreach ($this->selectedProducts as $productId => $quantity) {
-            if ($quantity > 0) {
-                $this->order->products()->updateExistingPivot($productId, ['quantity' => $quantity]);
+        foreach ($this->selectedProducts as $productId => $product) {
+            if ($product['quantity'] > 0) {
+                $order->products()->syncWithoutDetaching([
+                    $productId => ['quantity' => $product['quantity'], 'unit_price' => $product['unit_price']]
+                ]);
             } else {
-                $this->order->products()->detach($productId);
+                $order->products()->detach($productId);
             }
         }
 
-        $this->dispatch('order-updated', ['message' => 'Order has been updated successfully!']);
+        $this->updateTotalAmount();
+
+        $order->total_amount = $this->totalAmount;
+        $order->save();
+
         $this->closeModal();
         return redirect()->to('/orders');
+    }
+
+    public function updateTotalAmount()
+    {
+        $this->totalAmount = collect($this->selectedProducts)->sum(function ($product) {
+            return $product['quantity'] * $product['unit_price'];
+        });
     }
 
     public function openModal()

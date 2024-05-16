@@ -2,7 +2,6 @@
     <!-- Primary Navigation Menu -->
     <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
-            <!-- Logo y navegación centrados en lugar de alinear a la izquierda -->
             <div class="flex justify-center flex-1">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
@@ -24,6 +23,9 @@
                     </x-nav-link>
                     <x-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')" class="text-gray-900 dark:text-gray-100">
                         {{ __('Pedidos') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.*')" class="text-gray-900 dark:text-gray-100">
+                        {{ __('Clientes') }}
                     </x-nav-link>
                 </div>
             </div>
@@ -82,6 +84,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')">
                 {{ __('Pedidos') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.*')">
+                {{ __('Clientes') }}
             </x-responsive-nav-link>
         </div>
 

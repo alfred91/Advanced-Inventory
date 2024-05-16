@@ -1,5 +1,4 @@
 <?php
-// app/Http/Livewire/OrderDetails.php
 
 namespace App\Http\Livewire;
 
@@ -8,17 +7,8 @@ use App\Models\Order;
 
 class OrderDetails extends Component
 {
-    public $order, $orderId;
+    public $order;
     public $showModal = false;
-
-    protected $listeners = ['loadOrder' => 'loadOrder'];
-
-    public function mount($orderId = null)
-    {
-        if ($orderId) {
-            $this->loadOrder($orderId);
-        }
-    }
 
     public function loadOrder($orderId)
     {

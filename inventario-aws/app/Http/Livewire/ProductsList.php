@@ -3,6 +3,8 @@
 namespace App\Http\Livewire;
 
 use App\Models\Product;
+use App\Models\Category;
+use App\Models\Supplier;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -11,53 +13,76 @@ class ProductsList extends Component
     use WithPagination;
 
     public $search = '';
+    public $categories;
+    public $suppliers;
     public $editingProductId = null;
+    public $isLoading = false;
 
-    protected $listeners = ['productDeleted' => 'render'];
+    protected $listeners = ['productDeleted' => 'render', 'productCreated' => 'render'];
     protected $queryString = ['search'];
+
+    public function mount()
+    {
+        $this->categories = Category::all();
+        $this->suppliers = Supplier::all();
+    }
 
     public function updatingSearch()
     {
+        $this->isLoading = true;
         $this->resetPage();
     }
+
+    public function updatedSearch()
+    {
+        if (empty($this->search)) {
+            $this->resetPage();
+        }
+        $this->isLoading = false;
+    }
+
     public function reloadProducts()
     {
+        $this->isLoading = true;
         $this->resetPage();
     }
+
     public function editProduct($productId)
     {
         $this->editingProductId = $productId;
-        $this->dispatch('edit-product-modal', ['productId' => $productId]);
+        $this->dispatchBrowserEvent('edit-product-modal', ['productId' => $productId]); // Dispatch browser event
     }
+
     public function deleteProduct($productId)
     {
         $product = Product::find($productId);
         if ($product) {
             $product->delete();
-            return redirect()->to('/products');
+            $this->resetPage();
+            $this->dispatchBrowserEvent('productDeleted');
         }
     }
 
     public function render()
     {
-        $products = Product::where('name', 'like', '%' . $this->search . '%')->paginate(10);
-        $headers = ['Nombre', 'Descripción', 'Precio', 'Cantidad', 'Imagen'];
+        $query = Product::with(['category', 'supplier']);
 
-        $data = $products->map(function ($product) {
-            return [
-                'Nombre' => $product->name,
-                'Descripción' => $product->description,
-                'Precio' => number_format($product->price, 2) . ' €',
-                'Cantidad' => $product->quantity,
-                'Imagen' => '<img src="' . asset('storage/' . $product->image) . '" style="width:100px; height:auto;">',
-                'id' => $product->id
-            ];
-        });
+        if ($this->search) {
+            $query->where(function ($q) {
+                $q->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhereHas('category', function ($q) {
+                        $q->where('name', 'like', '%' . $this->search . '%');
+                    })
+                    ->orWhereHas('supplier', function ($q) {
+                        $q->where('name', 'like', '%' . $this->search . '%');
+                    });
+            });
+        }
+
+        $products = $query->paginate(10);
 
         return view('livewire.products-list', [
             'products' => $products,
-            'headers' => $headers,
-            'data' => $data,
         ]);
     }
 }

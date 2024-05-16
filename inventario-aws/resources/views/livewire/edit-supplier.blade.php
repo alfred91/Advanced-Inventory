@@ -1,6 +1,6 @@
 <div>
-    <button wire:click="openModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-        <i class="fas fa-edit mr-2"></i>
+    <button wire:click="openModal" class="inline-flex items-center justify-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
+        <i class="fas fa-edit mr-2"></i> Editar
     </button>
 
     @if ($showModal)

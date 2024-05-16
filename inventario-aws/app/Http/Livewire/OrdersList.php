@@ -13,8 +13,9 @@ class OrdersList extends Component
     public $search = '';
     public $selectedOrder = null;
     public $showModal = false;
+    public $isLoading = false;
 
-    protected $listeners = ['orderUpdated' => '$refresh'];
+
     protected $queryString = ['search'];
 
     public function updatingSearch()
@@ -36,6 +37,11 @@ class OrdersList extends Component
     {
         $this->showModal = false;
     }
+    public function reloadOrders()
+    {
+        $this->isLoading = true;
+        $this->resetPage();
+    }
 
     public function deleteOrder($orderId)
     {
@@ -43,8 +49,10 @@ class OrdersList extends Component
         if ($order) {
             $order->delete();
             session()->flash('message', 'Order deleted successfully.');
-            //$this->resetPage(); FUNCIONA MAL DE MOMENTO
-            return redirect()->to('/orders');
+            $this->showModal = false;
+            $this->reset('selectedOrder');
+            $this->resetPage();
+            return redirect('/orders'); //ARREGLO TEMPORAL PARA CARGAR BIEN LOS PEDIDOS AL BORRAR
         } else {
             session()->flash('error', 'Order not found.');
         }

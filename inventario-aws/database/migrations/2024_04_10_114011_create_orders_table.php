@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('customer_id')->nullable(); // Hacer que customer_id sea nullable
+            $table->unsignedBigInteger('customer_id')->nullable();
             $table->date('order_date');
             $table->decimal('total_amount', 10, 2);
             $table->string('status')->default('pending');
@@ -19,8 +19,8 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->foreign('customer_id')
-                  ->references('id')->on('customers')
-                  ->onDelete('set null'); // Permite que el valor se establezca en null al eliminar el customer
+                ->references('id')->on('customers')
+                ->onDelete('set null');
         });
     }
 
