@@ -3,23 +3,45 @@
 namespace App\Http\Livewire;
 
 use App\Models\Product;
+use Livewire\Component;
 use App\Models\Category;
 use App\Models\Supplier;
-use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
 
 class ProductsList extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     public $search = '';
     public $categories;
     public $suppliers;
-    public $editingProductId = null;
     public $isLoading = false;
 
-    protected $listeners = ['productDeleted' => 'render', 'productCreated' => 'render'];
+    // Editar producto
+    public $showModal = false;
+    public $productId;
+    public $name;
+    public $description;
+    public $price;
+    public $quantity;
+    public $image;
+    public $newImage;
+    public $category_id;
+    public $supplier_id;
+
     protected $queryString = ['search'];
+
+    protected $rules = [
+        'name' => 'required|string|max:255',
+        'description' => 'required|string',
+        'price' => 'required|numeric',
+        'quantity' => 'required|integer',
+        'category_id' => 'required|exists:categories,id',
+        'supplier_id' => 'nullable|exists:suppliers,id',
+        'newImage' => 'nullable|image|max:2048',
+    ];
 
     public function mount()
     {
@@ -49,18 +71,70 @@ class ProductsList extends Component
 
     public function editProduct($productId)
     {
-        $this->editingProductId = $productId;
-        $this->dispatchBrowserEvent('edit-product-modal', ['productId' => $productId]); // Dispatch browser event
+        $this->productId = $productId;
+        $product = Product::findOrFail($productId);
+
+        $this->name = $product->name;
+        $this->description = $product->description;
+        $this->price = $product->price;
+        $this->quantity = $product->quantity;
+        $this->image = $product->image;
+        $this->category_id = $product->category_id;
+        $this->supplier_id = $product->supplier_id;
+
+        $this->showModal = true;
     }
 
     public function deleteProduct($productId)
     {
         $product = Product::find($productId);
         if ($product) {
+            if ($product->image && $product->image !== 'products/Default.png') {
+                Storage::delete('public/' . $product->image);
+            }
             $product->delete();
             $this->resetPage();
-            $this->dispatchBrowserEvent('productDeleted');
         }
+    }
+
+    public function saveChanges()
+    {
+        $validatedData = $this->validate();
+
+        $product = Product::findOrFail($this->productId);
+        $product->update($validatedData);
+
+        if ($this->newImage) {
+            if ($product->image && $product->image !== 'products/default.png') {
+                Storage::delete('public/' . $product->image);
+            }
+            $imageName = $this->newImage->store('products', 'public');
+            $product->image = $imageName;
+            $product->save();
+        }
+
+        session()->flash('message', 'Producto actualizado correctamente.');
+        $this->showModal = false;
+        $this->resetInputFields();
+        $this->render();
+    }
+
+    public function closeModal()
+    {
+        $this->showModal = false;
+        $this->resetInputFields();
+    }
+
+    private function resetInputFields()
+    {
+        $this->name = '';
+        $this->description = '';
+        $this->price = '';
+        $this->quantity = '';
+        $this->image = '';
+        $this->newImage = null;
+        $this->category_id = '';
+        $this->supplier_id = '';
     }
 
     public function render()

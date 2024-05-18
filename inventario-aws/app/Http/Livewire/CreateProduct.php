@@ -71,6 +71,6 @@ class CreateProduct extends Component
 
         $this->closeModal();
         $this->reset('name', 'description', 'price', 'quantity', 'newImage', 'category_id', 'supplier_id');
-        $this->dispatch('productCreated'); // Emit an event to notify that the product was created
+        $this->dispatch('product-created');
     }
 }

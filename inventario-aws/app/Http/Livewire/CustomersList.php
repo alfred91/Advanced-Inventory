@@ -11,6 +11,9 @@ class CustomersList extends Component
     use WithPagination;
 
     public $search = '';
+    public $isLoading = false;
+
+    // Editar cliente
     public $showModal = false;
     public $isEdit = false;
     public $customerId;
@@ -21,19 +24,31 @@ class CustomersList extends Component
 
     protected $rules = [
         'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255',
+        'email' => 'required|email|max:255',
         'phone_number' => 'required|string|max:20',
         'address' => 'required|string|max:255',
     ];
 
-    public function render()
-    {
-        $customers = Customer::where('name', 'like', '%' . $this->search . '%')
-            ->orWhere('email', 'like', '%' . $this->search . '%')
-            ->orWhere('phone_number', 'like', '%' . $this->search . '%')
-            ->paginate(10);
+    protected $queryString = ['search'];
 
-        return view('livewire.customers-list', ['customers' => $customers]);
+    public function updatingSearch()
+    {
+        $this->isLoading = true;
+        $this->resetPage();
+    }
+
+    public function updatedSearch()
+    {
+        if (empty($this->search)) {
+            $this->resetPage();
+        }
+        $this->isLoading = false;
+    }
+
+    public function reloadCustomers()
+    {
+        $this->isLoading = true;
+        $this->resetPage();
     }
 
     public function showCreateModal()
@@ -77,13 +92,18 @@ class CustomersList extends Component
             ]);
         }
 
-        $this->closeModal();
+        session()->flash('message', $this->isEdit ? 'Cliente actualizado correctamente.' : 'Cliente creado correctamente.');
+        $this->showModal = false;
+        $this->resetInputFields();
+        $this->render();
     }
 
     public function deleteCustomer($id)
     {
         $customer = Customer::findOrFail($id);
         $customer->delete();
+        session()->flash('message', 'Cliente eliminado correctamente.');
+        $this->resetPage();
     }
 
     public function closeModal()
@@ -98,5 +118,25 @@ class CustomersList extends Component
         $this->email = '';
         $this->phone_number = '';
         $this->address = '';
+    }
+
+    public function render()
+    {
+        $query = Customer::query();
+
+        if ($this->search) {
+            $query->where(function ($q) {
+                $q->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhere('email', 'like', '%' . $this->search . '%')
+                    ->orWhere('phone_number', 'like', '%' . $this->search . '%')
+                    ->orWhere('address', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        $customers = $query->paginate(10);
+
+        return view('livewire.customers-list', [
+            'customers' => $customers,
+        ]);
     }
 }

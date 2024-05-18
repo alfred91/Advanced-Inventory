@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('inventory_transactions', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('product_id');
-            $table->string('transaction_type'); // Tipo de transacción (compra, venta, ajuste, etc.)
-            $table->integer('quantity'); // Cantidad de productos involucrados en la transacción
+            $table->string('transaction_type');
+            $table->integer('quantity');
             $table->timestamps();
             $table->softDeletes();
         });

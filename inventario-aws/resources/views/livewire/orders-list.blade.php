@@ -1,7 +1,7 @@
 <div class="container mx-auto p-4">
     <h1 class="text-xl font-semibold">Lista de Pedidos</h1>
     <div class="flex justify-between items-center mb-4">
-        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por producto, categoría o proveedor..." wire:model="search" wire:input.debounce.500ms="reloadOrders">
+        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por nombre del cliente, ID de pedido, monto total o estado..." wire:model="search" wire:input.debounce.500ms="reloadOrders">
         @livewire('create-order')
     </div>
     <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
@@ -12,7 +12,6 @@
                     <th class="px-6 py-3">Customer Name</th>
                     <th class="px-6 py-3">Total Amount</th>
                     <th class="px-6 py-3">Status</th>
-                    <th class="px-6 py-3">Details</th>
                     <th class="px-6 py-3">Actions</th>
                 </tr>
             </thead>
@@ -20,15 +19,14 @@
                 @foreach ($orders as $order)
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                     <td class="px-6 py-4">{{ $order->id }}</td>
-                    <td class="px-6 py-4">{{ $order->customer->name }}</td>
+                    <td class="px-6 py-4">{{ $order->customer->name ?? 'No existe' }}</td>
                     <td class="px-6 py-4">${{ number_format($order->total_amount, 2) }}</td>
                     <td class="px-6 py-4">{{ $order->status }}</td>
-                    <td class="px-6 py-4">
-                        <button wire:click="showOrderDetails({{ $order->id }})" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Detalles</button>
-                    </td>
                     <td class="px-6 py-4 flex items-center gap-2">
-                        @livewire('edit-order', ['orderId' => $order->id], key('edit-order-'.$order->id))
-                        <button class="bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded" onclick="confirm('Are you sure you want to delete this order?')" wire:click="deleteOrder({{ $order->id }})">
+                        <button wire:click="showOrderDetails({{ $order->id }})" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            <i class="fas fa-edit mr-2"></i>Detalles/Editar
+                        </button>
+                        <button class="bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded" onclick="confirm('Are you sure you want to delete this order?') || event.stopImmediatePropagation()" wire:click="deleteOrder({{ $order->id }})">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </td>
@@ -36,67 +34,88 @@
                 @endforeach
             </tbody>
         </table>
-        {{ $orders->links() }}
+        <div class="mt-4 flex justify-center">
+            {{ $orders->links('pagination::tailwind') }}
+        </div>
     </div>
 
     <!-- Modal for Order Details -->
     @if ($showModal)
-    <div class="fixed inset-0 z-10 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="modal-title">Detalles del Pedido: #{{ $selectedOrder->id }}</h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <p><strong>Fecha de Pedido:</strong> {{ $selectedOrder->order_date }}</p>
-                                    <p><strong>Cliente:</strong> {{ $selectedOrder->customer->name }}</p>
-                                    <p><strong>Email:</strong> {{ $selectedOrder->customer->email }}</p>
-                                    <p><strong>Teléfono:</strong> {{ $selectedOrder->customer->phone_number }}</p>
-                                </div>
-                                <div>
-                                    <p><strong>Total:</strong> {{ number_format($selectedOrder->total_amount, 2) }} € </p>
-                                    <p><strong>Estado:</strong> {{ $selectedOrder->status }}</p>
-                                    <p><strong>Notificación Enviada:</strong> {{ $selectedOrder->notification_sent ? 'Sí' : 'No' }}</p>
-                                    <p><strong>Dirección de Envío:</strong> {{ $selectedOrder->customer->address }}</p>
-                                </div>
-                            </div>
-                            <div class="mt-4">
-                                <div class="overflow-x-auto">
-                                    <table class="min-w-full divide-y divide-gray-200">
-                                        <thead class="bg-gray-50">
-                                            <tr>
-                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
-                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
-                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Unitario</th>
-                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="bg-white divide-y divide-gray-200">
-                                            @foreach ($selectedOrder->products as $product)
-                                            <tr>
-                                                <td class="px-6 py-4 whitespace-nowrap">{{ $product->name }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap">{{ $product->pivot->quantity }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap">€{{ number_format($product->pivot->unit_price, 2) }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap">€{{ number_format($product->pivot->quantity * $product->pivot->unit_price, 2) }}</td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="mt-4 flex justify-end space-x-2">
-                                <button type="button" wire:click="closeModal" class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">
-                                    Cerrar
-                                </button>
-                            </div>
-                        </div>
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
+            <h2 class="text-xl font-semibold mb-4">Detalles del Pedido: #{{ $orderId }}</h2>
+            <form wire:submit.prevent="saveChanges" class="space-y-4">
+                <div>
+                    <label for="customer_id" class="block text-sm font-medium text-gray-700">Cliente</label>
+                    <select wire:model.defer="customerId" id="customer_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                        @foreach($customers as $customer)
+                        <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700">Estado</label>
+                    <select wire:model.defer="status" id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                        <option value="pending">Pendiente</option>
+                        <option value="completed">Completado</option>
+                        <option value="cancelled">Cancelado</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="total_amount" class="block text-sm font-medium text-gray-700">Monto Total</label>
+                    <input type="text" wire:model="totalAmount" disabled class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Productos</label>
+                    <div class="max-h-60 overflow-y-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Unitario</th>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach($selectedProducts as $productId => $product)
+                                <tr>
+                                    <td class="px-4 py-2 text-sm text-gray-700">{{ $allProducts->find($productId)->name }}</td>
+                                    <td class="px-4 py-2 text-sm text-gray-700">{{ number_format($product['unit_price'], 2) }} €</td>
+                                    <td class="px-4 py-2 flex items-center">
+                                        <input type="number" min="0" wire:model.lazy="selectedProducts.{{ $productId }}.quantity" id="product_{{ $productId }}" class="block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad">
+                                        @if($product['quantity'] <= 0) <button type="button" wire:click="removeProduct({{ $productId }})" class="ml-2 text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button>
+                                            @endif
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700">Añadir Producto</label>
+                    <div class="flex space-x-2">
+                        <select wire:model="newProductId" class="mt-1 block w-3/4 form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Seleccione un producto</option>
+                            @foreach($allProducts as $product)
+                            <option value="{{ $product->id }}">{{ $product->name }}</option>
+                            @endforeach
+                        </select>
+                        <input type="number" min="0" wire:model="newProductQuantity" class="mt-1 block w-1/4 form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad" min="1">
+                        <button type="button" wire:click="addProduct" class="inline-flex items-center px-4 py-2 bg-green-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 active:bg-green-900 focus:outline-none focus:border-green-900 focus:ring focus:ring-green-300 disabled:opacity-25 transition">
+                            Añadir
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-4 flex justify-end space-x-2">
+                    <button type="button" wire:click="closeModal" class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">
+                        Cerrar
+                    </button>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring focus:ring-blue-300 disabled:opacity-25 transition">
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
     @endif

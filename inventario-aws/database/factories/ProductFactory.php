@@ -26,7 +26,7 @@ class ProductFactory extends Factory
             'price' => fake()->randomFloat(2, 0, 1000),
             'category_id' => Category::inRandomOrder()->first()->id,
             'supplier_id' => Supplier::inRandomOrder()->first()->id,
-            'image' => 'images/products/Default.png',
+            'image' => 'products/Default.png',
         ];
     }
 }

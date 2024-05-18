@@ -1,7 +1,7 @@
 <div class="container mx-auto p-4">
     <h1 class="text-xl font-semibold mb-4">Lista de Clientes</h1>
     <div class="flex justify-between items-center mb-4">
-        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por nombre, email o teléfono..." wire:model="search">
+        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por nombre, email o teléfono..." wire:model="search" wire:input.debounce.500ms="reloadCustomers">
         <button wire:click="showCreateModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
             Nuevo Cliente
         </button>
@@ -38,54 +38,46 @@
                 @endforeach
             </tbody>
         </table>
-        {{ $customers->links() }}
+        <div class="mt-4">
+            {{ $customers->links() }}
+        </div>
     </div>
 
     <!-- Modal for Creating and Editing Customers -->
     @if ($showModal)
-    <div class="fixed inset-0 z-10 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="modal-title">{{ $isEdit ? 'Editar Cliente' : 'Nuevo Cliente' }}</h3>
-                            <form wire:submit.prevent="saveCustomer" class="space-y-4">
-                                <div class="mb-4">
-                                    <label for="name" class="block text-sm font-medium text-gray-700">Nombre</label>
-                                    <input type="text" wire:model="name" id="name" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500">
-                                    @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                                </div>
-                                <div class="mb-4">
-                                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                                    <input type="email" wire:model="email" id="email" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500">
-                                    @error('email') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                                </div>
-                                <div class="mb-4">
-                                    <label for="phone_number" class="block text-sm font-medium text-gray-700">Teléfono</label>
-                                    <input type="text" wire:model="phone_number" id="phone_number" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500">
-                                    @error('phone_number') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                                </div>
-                                <div class="mb-4">
-                                    <label for="address" class="block text-sm font-medium text-gray-700">Dirección</label>
-                                    <input type="text" wire:model="address" id="address" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500">
-                                    @error('address') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                                </div>
-                                <div class="mt-4 flex justify-end space-x-2">
-                                    <button type="button" wire:click="closeModal" class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">
-                                        Cerrar
-                                    </button>
-                                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring focus:ring-blue-300 disabled:opacity-25 transition">
-                                        Guardar Cambios
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
+            <h2 class="text-xl font-semibold mb-4">{{ $isEdit ? 'Editar Cliente: ' . $name : 'Nuevo Cliente' }}</h2>
+            <form wire:submit.prevent="saveCustomer" class="space-y-4">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700">Nombre</label>
+                    <input type="text" wire:model.defer="name" id="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                    @error('name') <span class="error text-red-500">{{ $message }}</span> @enderror
                 </div>
-            </div>
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
+                    <input type="email" wire:model.defer="email" id="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                    @error('email') <span class="error text-red-500">{{ $message }}</span> @enderror
+                </div>
+                <div>
+                    <label for="phone_number" class="block text-sm font-medium text-gray-700">Teléfono</label>
+                    <input type="text" wire:model.defer="phone_number" id="phone_number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                    @error('phone_number') <span class="error text-red-500">{{ $message }}</span> @enderror
+                </div>
+                <div>
+                    <label for="address" class="block text-sm font-medium text-gray-700">Dirección</label>
+                    <input type="text" wire:model.defer="address" id="address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                    @error('address') <span class="error text-red-500">{{ $message }}</span> @enderror
+                </div>
+                <div class="flex justify-end space-x-2 mt-4">
+                    <button type="button" wire:click="closeModal" class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">
+                        Cerrar
+                    </button>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring focus:ring-blue-300 disabled:opacity-25 transition">
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
     @endif
