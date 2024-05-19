@@ -8,11 +8,55 @@
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                    <th class="px-6 py-3">Order ID</th>
-                    <th class="px-6 py-3">Customer Name</th>
-                    <th class="px-6 py-3">Total Amount</th>
-                    <th class="px-6 py-3">Status</th>
-                    <th class="px-6 py-3">Actions</th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('id')" class="focus:outline-none">
+                            ID de Pedido
+                            @if($sortField === 'id')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('customer_id')" class="focus:outline-none">
+                            Nombre del Cliente
+                            @if($sortField === 'customer_id')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('total_amount')" class="focus:outline-none">
+                            Monto Total
+                            @if($sortField === 'total_amount')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('status')" class="focus:outline-none">
+                            Estado
+                            @if($sortField === 'status')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -20,7 +64,7 @@
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                     <td class="px-6 py-4">{{ $order->id }}</td>
                     <td class="px-6 py-4">{{ $order->customer->name ?? 'No existe' }}</td>
-                    <td class="px-6 py-4">${{ number_format($order->total_amount, 2) }}</td>
+                    <td class="px-6 py-4">{{ number_format($order->total_amount, 2) }}</td>
                     <td class="px-6 py-4">{{ $order->status }}</td>
                     <td class="px-6 py-4 flex items-center gap-2">
                         <button wire:click="showOrderDetails({{ $order->id }})" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
@@ -38,7 +82,6 @@
             {{ $orders->links('pagination::tailwind') }}
         </div>
     </div>
-
     <!-- Modal for Order Details -->
     @if ($showModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -62,6 +105,10 @@
                     </select>
                 </div>
                 <div>
+                    <label for="order_date" class="block text-sm font-medium text-gray-700">Fecha del Pedido</label>
+                    <input type="date" wire:model="orderDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                </div>
+                <div>
                     <label for="total_amount" class="block text-sm font-medium text-gray-700">Monto Total</label>
                     <input type="text" wire:model="totalAmount" disabled class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
                 </div>
@@ -82,7 +129,7 @@
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ $allProducts->find($productId)->name }}</td>
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ number_format($product['unit_price'], 2) }} €</td>
                                     <td class="px-4 py-2 flex items-center">
-                                        <input type="number" min="0" wire:model.lazy="selectedProducts.{{ $productId }}.quantity" id="product_{{ $productId }}" class="block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad">
+                                        <input type="number" min="0" wire:model.lazy="selectedProducts.{{ $productId }}.quantity" id="product_{{ $productId }}" class="block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad" max="{{ $product['available_quantity'] }}">
                                         @if($product['quantity'] <= 0) <button type="button" wire:click="removeProduct({{ $productId }})" class="ml-2 text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button>
                                             @endif
                                     </td>
@@ -98,10 +145,10 @@
                         <select wire:model="newProductId" class="mt-1 block w-3/4 form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500">
                             <option value="">Seleccione un producto</option>
                             @foreach($allProducts as $product)
-                            <option value="{{ $product->id }}">{{ $product->name }}</option>
+                            <option value="{{ $product->id }}">{{ $product->name }} (Disponible: {{ $product->quantity }})</option>
                             @endforeach
                         </select>
-                        <input type="number" min="0" wire:model="newProductQuantity" class="mt-1 block w-1/4 form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad" min="1">
+                        <input type="number" min="1" wire:model="newProductQuantity" class="mt-1 block w-1/4 form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad">
                         <button type="button" wire:click="addProduct" class="inline-flex items-center px-4 py-2 bg-green-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 active:bg-green-900 focus:outline-none focus:border-green-900 focus:ring focus:ring-green-300 disabled:opacity-25 transition">
                             Añadir
                         </button>
@@ -119,4 +166,6 @@
         </div>
     </div>
     @endif
+
+
 </div>

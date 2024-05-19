@@ -10,10 +10,54 @@
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
-                        <th class="px-6 py-3">Nombre</th>
-                        <th class="px-6 py-3">Email</th>
-                        <th class="px-6 py-3">Teléfono</th>
-                        <th class="px-6 py-3">Dirección</th>
+                        <th class="px-6 py-3">
+                            <button wire:click="sortBy('name')" class="focus:outline-none">
+                                Nombre
+                                @if($sortField === 'name')
+                                @if($sortDirection === 'asc')
+                                &#9650;
+                                @else
+                                &#9660;
+                                @endif
+                                @endif
+                            </button>
+                        </th>
+                        <th class="px-6 py-3">
+                            <button wire:click="sortBy('email')" class="focus:outline-none">
+                                Email
+                                @if($sortField === 'email')
+                                @if($sortDirection === 'asc')
+                                &#9650;
+                                @else
+                                &#9660;
+                                @endif
+                                @endif
+                            </button>
+                        </th>
+                        <th class="px-6 py-3">
+                            <button wire:click="sortBy('phone_number')" class="focus:outline-none">
+                                Teléfono
+                                @if($sortField === 'phone_number')
+                                @if($sortDirection === 'asc')
+                                &#9650;
+                                @else
+                                &#9660;
+                                @endif
+                                @endif
+                            </button>
+                        </th>
+                        <th class="px-6 py-3">
+                            <button wire:click="sortBy('address')" class="focus:outline-none">
+                                Dirección
+                                @if($sortField === 'address')
+                                @if($sortDirection === 'asc')
+                                &#9650;
+                                @else
+                                &#9660;
+                                @endif
+                                @endif
+                            </button>
+                        </th>
                         <th class="px-6 py-3">Imagen</th>
                         <th class="px-6 py-3">Acciones</th>
                     </tr>
@@ -86,6 +130,51 @@
                     <input type="file" wire:model="newImage" id="newImage" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
                     @error('newImage') <span class="error text-red-500">{{ $message }}</span> @enderror
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Productos</label>
+                    <div class="max-h-60 overflow-y-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
+                                    <th scope="col" class="px-4 py-2"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach($products as $product)
+                                <tr>
+                                    <td class="px-4 py-2 text-sm text-gray-700">{{ $product['name'] }}</td>
+                                    <td class="px-4 py-2 text-sm text-gray-700">
+                                        <input type="number" step="0.01" min="0" wire:model.defer="products.{{ $loop->index }}.price" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        <button type="button" wire:click="removeProduct({{ $product['id'] }})" class="text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700">Añadir Producto</label>
+                    <div class="space-y-2">
+                        <input type="text" wire:model="newProductName" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Nombre del producto">
+                        <textarea wire:model="newProductDescription" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Descripción del producto"></textarea>
+                        <input type="number" step="0.01" min="0" wire:model="newProductPrice" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Precio">
+                        <input type="number" min="0" wire:model="newProductQuantity" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad">
+                        <select wire:model="newProductCategoryId" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Seleccione una categoría</option>
+                            @foreach($categories as $category)
+                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                        <button type="button" wire:click="addProduct" class="inline-flex items-center px-4 py-2 bg-green-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 active:bg-green-900 focus:outline-none focus:border-green-900 focus:ring focus:ring-green-300 disabled:opacity-25 transition">
+                            Añadir
+                        </button>
+                    </div>
+                </div>
                 <div class="flex justify-end space-x-2 mt-4">
                     <button type="button" wire:click="closeModal" class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">
                         Cerrar
@@ -98,4 +187,5 @@
         </div>
     </div>
     @endif
+
 </div>

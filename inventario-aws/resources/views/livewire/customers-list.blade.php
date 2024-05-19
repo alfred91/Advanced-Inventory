@@ -6,15 +6,72 @@
             Nuevo Cliente
         </button>
     </div>
+
     <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                    <th class="px-6 py-3">ID</th>
-                    <th class="px-6 py-3">Nombre</th>
-                    <th class="px-6 py-3">Email</th>
-                    <th class="px-6 py-3">Teléfono</th>
-                    <th class="px-6 py-3">Dirección</th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('id')" class="focus:outline-none">
+                            ID
+                            @if($sortField === 'id')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('name')" class="focus:outline-none">
+                            Nombre
+                            @if($sortField === 'name')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('email')" class="focus:outline-none">
+                            Email
+                            @if($sortField === 'email')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('phone_number')" class="focus:outline-none">
+                            Teléfono
+                            @if($sortField === 'phone_number')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('address')" class="focus:outline-none">
+                            Dirección
+                            @if($sortField === 'address')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">Pedidos</th>
                     <th class="px-6 py-3">Acciones</th>
                 </tr>
             </thead>
@@ -26,6 +83,13 @@
                     <td class="px-6 py-4">{{ $customer->email }}</td>
                     <td class="px-6 py-4">{{ $customer->phone_number }}</td>
                     <td class="px-6 py-4">{{ $customer->address }}</td>
+                    <td class="px-6 py-4">
+                        @if($customer->orders()->count() > 0)
+                        <button wire:click="showCustomerOrders({{ $customer->id }})" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        @endif
+                    </td>
                     <td class="px-6 py-4 flex items-center gap-2">
                         <button wire:click="showEditModal({{ $customer->id }})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
                             Editar
@@ -78,6 +142,50 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+    @endif
+
+    <!-- Modal for Viewing Customer Orders -->
+    @if ($showOrdersModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full mx-2">
+            <h2 class="text-xl font-semibold mb-4">Pedidos del Cliente</h2>
+            <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
+                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <tr>
+                            <th class="px-6 py-3">ID Pedido</th>
+                            <th class="px-6 py-3">Fecha</th>
+                            <th class="px-6 py-3">Estado</th>
+                            <th class="px-6 py-3">Monto Total</th>
+                            <th class="px-6 py-3">Productos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($orders as $order)
+                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                            <td class="px-6 py-4">{{ $order->id }}</td>
+                            <td class="px-6 py-4">{{ $order->order_date }}</td>
+                            <td class="px-6 py-4">{{ $order->status }}</td>
+                            <td class="px-6 py-4">{{ number_format($order->total_amount, 2) }} €</td>
+                            <td class="px-6 py-4">
+                                <ul>
+                                    @foreach ($order->products as $product)
+                                    <li>{{ $product->name }} ({{ $product->pivot->quantity }} x {{ number_format($product->pivot->unit_price, 2) }} €)</li>
+                                    @endforeach
+                                </ul>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-end space-x-2 mt-4">
+                <button type="button" wire:click="closeOrdersModal" class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">
+                    Cerrar
+                </button>
+            </div>
         </div>
     </div>
     @endif

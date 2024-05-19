@@ -10,12 +10,78 @@
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                    <th class="px-6 py-3">Nombre</th>
-                    <th class="px-6 py-3">Descripción</th>
-                    <th class="px-6 py-3">Precio</th>
-                    <th class="px-6 py-3">Cantidad</th>
-                    <th class="px-6 py-3">Categoría</th>
-                    <th class="px-6 py-3">Proveedor</th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('name')" class="focus:outline-none">
+                            Nombre
+                            @if($sortField === 'name')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('description')" class="focus:outline-none">
+                            Descripción
+                            @if($sortField === 'description')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('price')" class="focus:outline-none">
+                            Precio
+                            @if($sortField === 'price')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('quantity')" class="focus:outline-none">
+                            Cantidad
+                            @if($sortField === 'quantity')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('category_id')" class="focus:outline-none">
+                            Categoría
+                            @if($sortField === 'category_id')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('supplier_id')" class="focus:outline-none">
+                            Proveedor
+                            @if($sortField === 'supplier_id')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
                     <th class="px-6 py-3">Imagen</th>
                     <th class="px-6 py-3">Acciones</th>
                 </tr>
@@ -49,7 +115,7 @@
         </div>
     </div>
 
-    <!-- Modal for Editing Products -->
+    <!-- Modal Editar Producto -->
     @if ($showModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
@@ -64,9 +130,10 @@
                     <textarea wire:model="description" id="description" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"></textarea>
                 </div>
                 <div>
-                    <label for="price" class="block text-sm font-medium text-gray-700">Precio</label>
-                    <input type="text" wire:model.lazy="price" id="price" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" pattern="^\d+(\.\d{0,2})?$">
+                    <label for="price" class="block text-sm font-medium text-gray-700">Precio (€)</label>
+                    <input type="number" wire:model.lazy="price" id="price" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" step="0.01" min="0">
                 </div>
+
 
                 <div>
                     <label for="quantity" class="block text-sm font-medium text-gray-700">Cantidad</label>
@@ -115,4 +182,5 @@
         </div>
     </div>
     @endif
+
 </div>

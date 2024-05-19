@@ -31,13 +31,17 @@ class ProductsList extends Component
     public $category_id;
     public $supplier_id;
 
-    protected $queryString = ['search'];
+    // Ordenamiento
+    public $sortField = 'name';
+    public $sortDirection = 'asc';
+
+    protected $queryString = ['search', 'sortField', 'sortDirection'];
 
     protected $rules = [
         'name' => 'required|string|max:255',
         'description' => 'required|string',
-        'price' => 'required|numeric',
-        'quantity' => 'required|integer',
+        'price' => 'required|numeric|min:0',
+        'quantity' => 'required|integer|min:0',
         'category_id' => 'required|exists:categories,id',
         'supplier_id' => 'nullable|exists:suppliers,id',
         'newImage' => 'nullable|image|max:2048',
@@ -137,6 +141,16 @@ class ProductsList extends Component
         $this->supplier_id = '';
     }
 
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortDirection = 'asc';
+        }
+        $this->sortField = $field;
+    }
+
     public function render()
     {
         $query = Product::with(['category', 'supplier']);
@@ -152,6 +166,8 @@ class ProductsList extends Component
                     });
             });
         }
+
+        $query->orderBy($this->sortField, $this->sortDirection);
 
         $products = $query->paginate(10);
 

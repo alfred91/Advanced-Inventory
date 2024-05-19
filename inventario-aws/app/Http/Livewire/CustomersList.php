@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Customer;
+use App\Models\Order;
 
 class CustomersList extends Component
 {
@@ -22,6 +23,14 @@ class CustomersList extends Component
     public $phone_number;
     public $address;
 
+    // Ordenamiento
+    public $sortField = 'id';
+    public $sortDirection = 'asc';
+
+    // Ver pedidos del cliente
+    public $showOrdersModal = false;
+    public $orders = [];
+
     protected $rules = [
         'name' => 'required|string|max:255',
         'email' => 'required|email|max:255',
@@ -29,7 +38,7 @@ class CustomersList extends Component
         'address' => 'required|string|max:255',
     ];
 
-    protected $queryString = ['search'];
+    protected $queryString = ['search', 'sortField', 'sortDirection'];
 
     public function updatingSearch()
     {
@@ -120,6 +129,29 @@ class CustomersList extends Component
         $this->address = '';
     }
 
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortDirection = 'asc';
+        }
+        $this->sortField = $field;
+    }
+
+    public function showCustomerOrders($customerId)
+    {
+        $this->customerId = $customerId;
+        $this->orders = Order::where('customer_id', $customerId)->with('products')->get();
+        $this->showOrdersModal = true;
+    }
+
+    public function closeOrdersModal()
+    {
+        $this->showOrdersModal = false;
+        $this->orders = [];
+    }
+
     public function render()
     {
         $query = Customer::query();
@@ -132,6 +164,8 @@ class CustomersList extends Component
                     ->orWhere('address', 'like', '%' . $this->search . '%');
             });
         }
+
+        $query->orderBy($this->sortField, $this->sortDirection);
 
         $customers = $query->paginate(10);
 
