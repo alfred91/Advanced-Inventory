@@ -14,7 +14,7 @@ class CustomersList extends Component
     public $search = '';
     public $isLoading = false;
 
-    // Editar cliente
+    // Editar o crear cliente
     public $showModal = false;
     public $isEdit = false;
     public $customerId;
@@ -48,9 +48,6 @@ class CustomersList extends Component
 
     public function updatedSearch()
     {
-        if (empty($this->search)) {
-            $this->resetPage();
-        }
         $this->isLoading = false;
     }
 
@@ -71,8 +68,8 @@ class CustomersList extends Component
     {
         $this->resetInputFields();
         $this->isEdit = true;
-        $this->customerId = $id;
         $customer = Customer::findOrFail($id);
+        $this->customerId = $id;
         $this->name = $customer->name;
         $this->email = $customer->email;
         $this->phone_number = $customer->phone_number;
@@ -92,6 +89,7 @@ class CustomersList extends Component
                 'phone_number' => $this->phone_number,
                 'address' => $this->address,
             ]);
+            session()->flash('message', 'Cliente actualizado correctamente.');
         } else {
             Customer::create([
                 'name' => $this->name,
@@ -99,12 +97,12 @@ class CustomersList extends Component
                 'phone_number' => $this->phone_number,
                 'address' => $this->address,
             ]);
+            session()->flash('message', 'Cliente creado correctamente.');
         }
 
-        session()->flash('message', $this->isEdit ? 'Cliente actualizado correctamente.' : 'Cliente creado correctamente.');
         $this->showModal = false;
         $this->resetInputFields();
-        $this->render();
+        $this->reloadCustomers();
     }
 
     public function deleteCustomer($id)

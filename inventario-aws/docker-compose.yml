@@ -6,7 +6,7 @@ services:
             dockerfile: Dockerfile
             args:
                 WWWGROUP: "1000"
-        image: sail-8.3/app
+        image: sail-8.3/appzz
         restart: always
         extra_hosts:
             - "host.docker.internal:host-gateway"

@@ -2,7 +2,9 @@
     <h1 class="text-xl font-semibold">Lista de Pedidos</h1>
     <div class="flex justify-between items-center mb-4">
         <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por nombre del cliente, ID de pedido, monto total o estado..." wire:model="search" wire:input.debounce.500ms="reloadOrders">
-        @livewire('create-order')
+        <button wire:click="openCreateModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
+            <i class="fas fa-plus mr-2"></i> Crear Pedido
+        </button>
     </div>
     <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -82,15 +84,15 @@
             {{ $orders->links('pagination::tailwind') }}
         </div>
     </div>
-    <!-- Modal for Order Details -->
     @if ($showModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
-            <h2 class="text-xl font-semibold mb-4">Detalles del Pedido: #{{ $orderId }}</h2>
+            <h2 class="text-xl font-semibold mb-4">{{ $isEdit ? 'Detalles del Pedido: #' . $orderId : 'Crear Nuevo Pedido' }}</h2>
             <form wire:submit.prevent="saveChanges" class="space-y-4">
                 <div>
                     <label for="customer_id" class="block text-sm font-medium text-gray-700">Cliente</label>
                     <select wire:model.defer="customerId" id="customer_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                        <option value="">Seleccione un cliente</option>
                         @foreach($customers as $customer)
                         <option value="{{ $customer->id }}">{{ $customer->name }}</option>
                         @endforeach
@@ -129,7 +131,9 @@
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ $allProducts->find($productId)->name }}</td>
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ number_format($product['unit_price'], 2) }} €</td>
                                     <td class="px-4 py-2 flex items-center">
-                                        <input type="number" min="0" wire:model.lazy="selectedProducts.{{ $productId }}.quantity" id="product_{{ $productId }}" class="block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad" max="{{ $product['available_quantity'] }}">
+                                        <button type="button" wire:click="decreaseProductQuantity({{ $productId }})" class="ml-2 text-gray-500 hover:text-gray-700"><i class="fas fa-minus"></i></button>
+                                        <input type="number" min="1" wire:model.lazy="selectedProducts.{{ $productId }}.quantity" id="product_{{ $productId }}" class="block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad" max="{{ $product['available_quantity'] }}">
+                                        <button type="button" wire:click="increaseProductQuantity({{ $productId }})" class="ml-2 text-gray-500 hover:text-gray-700"><i class="fas fa-plus"></i></button>
                                         @if($product['quantity'] <= 0) <button type="button" wire:click="removeProduct({{ $productId }})" class="ml-2 text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button>
                                             @endif
                                     </td>
@@ -166,6 +170,4 @@
         </div>
     </div>
     @endif
-
-
 </div>

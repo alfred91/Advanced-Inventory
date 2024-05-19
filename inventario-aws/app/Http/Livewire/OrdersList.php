@@ -16,18 +16,17 @@ class OrdersList extends Component
     public $search = '';
     public $isLoading = false;
 
-    // Variables para editar pedidos
     public $showModal = false;
+    public $isEdit = false;
     public $orderId;
     public $customerId;
-    public $status;
-    public $totalAmount;
+    public $status = 'pending';
+    public $totalAmount = 0;
     public $orderDate;
     public $selectedProducts = [];
     public $newProductId;
     public $newProductQuantity = 1;
 
-    // Ordenamiento
     public $sortField = 'id';
     public $sortDirection = 'asc';
 
@@ -37,9 +36,9 @@ class OrdersList extends Component
         'customerId' => 'required|exists:customers,id',
         'status' => 'required|in:pending,completed,cancelled',
         'orderDate' => 'required|date',
-        'selectedProducts.*.quantity' => 'required|integer|min:0', // Cambiar min a 0
+        'selectedProducts.*.quantity' => 'required|integer|min:1',
         'newProductId' => 'nullable|exists:products,id',
-        'newProductQuantity' => 'required|integer|min:1'
+        'newProductQuantity' => 'nullable|integer|min:1'
     ];
 
     public function updatingSearch()
@@ -50,9 +49,6 @@ class OrdersList extends Component
 
     public function updatedSearch()
     {
-        if (empty($this->search)) {
-            $this->resetPage();
-        }
         $this->isLoading = false;
     }
 
@@ -62,8 +58,17 @@ class OrdersList extends Component
         $this->resetPage();
     }
 
+    public function openCreateModal()
+    {
+        $this->resetInputFields();
+        $this->isEdit = false;
+        $this->showModal = true;
+    }
+
     public function showOrderDetails($orderId)
     {
+        $this->resetInputFields();
+        $this->isEdit = true;
         $this->orderId = $orderId;
         $order = Order::with(['customer', 'products'])->findOrFail($orderId);
 
@@ -72,7 +77,11 @@ class OrdersList extends Component
         $this->totalAmount = $order->total_amount;
         $this->orderDate = $order->order_date;
         $this->selectedProducts = $order->products->mapWithKeys(function ($product) {
-            return [$product->id => ['quantity' => $product->pivot->quantity, 'unit_price' => $product->pivot->unit_price, 'available_quantity' => $product->quantity]];
+            return [$product->id => [
+                'quantity' => $product->pivot->quantity,
+                'unit_price' => $product->pivot->unit_price,
+                'available_quantity' => $product->quantity
+            ]];
         })->toArray();
 
         $this->showModal = true;
@@ -88,7 +97,6 @@ class OrdersList extends Component
     {
         $order = Order::find($orderId);
         if ($order) {
-            // Devolver el inventario al eliminar el pedido
             foreach ($order->products as $product) {
                 $product->quantity += $product->pivot->quantity;
                 $product->save();
@@ -106,46 +114,83 @@ class OrdersList extends Component
     {
         $this->validate();
 
-        $order = Order::findOrFail($this->orderId);
-        $order->update([
-            'customer_id' => $this->customerId,
-            'status' => $this->status,
-            'order_date' => $this->orderDate,
-        ]);
+        if ($this->isEdit) {
+            $order = Order::findOrFail($this->orderId);
 
-        // Filtrar productos con cantidad 0 antes de actualizar el pedido
-        $this->selectedProducts = array_filter($this->selectedProducts, function ($product) {
-            return $product['quantity'] > 0;
-        });
-
-        // Actualizar productos en el pedido
-        DB::transaction(function () use ($order) {
-            $order->products()->detach();
-            foreach ($this->selectedProducts as $productId => $product) {
-                if ($product['quantity'] > 0) {
-                    $productModel = Product::findOrFail($productId);
-                    // Verificar si hay suficiente inventario disponible
-                    if ($product['quantity'] > $productModel->quantity) {
-                        session()->flash('error', 'Cantidad no disponible para el producto ' . $productModel->name);
-                        return;
-                    }
-                    $order->products()->attach($productId, [
-                        'quantity' => $product['quantity'],
-                        'unit_price' => $product['unit_price']
-                    ]);
-
-                    // Restar la cantidad del inventario
-                    $productModel->quantity -= $product['quantity'];
-                    $productModel->save();
-                }
+            foreach ($order->products as $product) {
+                $product->quantity += $product->pivot->quantity;
+                $product->save();
             }
-        });
 
-        $this->updateTotalAmount($order);
-        $order->total_amount = $this->totalAmount;
-        $order->save();
+            $order->update([
+                'customer_id' => $this->customerId,
+                'status' => $this->status,
+                'order_date' => $this->orderDate,
+            ]);
 
-        session()->flash('message', 'Order updated successfully.');
+            $this->selectedProducts = array_filter($this->selectedProducts, function ($product) {
+                return $product['quantity'] > 0;
+            });
+
+            DB::transaction(function () use ($order) {
+                $order->products()->detach();
+                foreach ($this->selectedProducts as $productId => $product) {
+                    if ($product['quantity'] > 0) {
+                        $productModel = Product::findOrFail($productId);
+                        if ($product['quantity'] > $productModel->quantity) {
+                            session()->flash('error', 'Cantidad no disponible para el producto ' . $productModel->name);
+                            return;
+                        }
+                        $order->products()->attach($productId, [
+                            'quantity' => $product['quantity'],
+                            'unit_price' => $product['unit_price']
+                        ]);
+
+                        $productModel->quantity -= $product['quantity'];
+                        $productModel->save();
+                    }
+                }
+            });
+
+            $this->updateTotalAmount($order);
+            $order->total_amount = $this->totalAmount;
+            $order->save();
+
+            session()->flash('message', 'Order updated successfully.');
+        } else {
+            DB::transaction(function () {
+                $order = Order::create([
+                    'customer_id' => $this->customerId,
+                    'order_date' => $this->orderDate,
+                    'total_amount' => $this->totalAmount,
+                    'status' => $this->status
+                ]);
+
+                foreach ($this->selectedProducts as $productId => $product) {
+                    if ($product['quantity'] > 0) {
+                        $productModel = Product::findOrFail($productId);
+                        if ($product['quantity'] > $productModel->quantity) {
+                            session()->flash('error', 'Cantidad no disponible para el producto ' . $productModel->name);
+                            return;
+                        }
+                        $order->products()->attach($productId, [
+                            'quantity' => $product['quantity'],
+                            'unit_price' => $product['unit_price']
+                        ]);
+
+                        $productModel->quantity -= $product['quantity'];
+                        $productModel->save();
+                    }
+                }
+
+                $this->updateTotalAmount($order);
+                $order->total_amount = $this->totalAmount;
+                $order->save();
+
+                session()->flash('message', 'Order created successfully.');
+            });
+        }
+
         $this->closeModal();
     }
 
@@ -157,11 +202,6 @@ class OrdersList extends Component
         ]);
 
         $product = Product::findOrFail($this->newProductId);
-        // Verificar si hay suficiente inventario disponible
-        if ($this->newProductQuantity > $product->quantity) {
-            session()->flash('error', 'Cantidad no disponible para el producto ' . $product->name);
-            return;
-        }
 
         if (isset($this->selectedProducts[$this->newProductId])) {
             $this->selectedProducts[$this->newProductId]['quantity'] += $this->newProductQuantity;
@@ -180,15 +220,51 @@ class OrdersList extends Component
 
     public function removeProduct($productId)
     {
-        unset($this->selectedProducts[$productId]);
-        $this->updateTotalAmount();
+        if (isset($this->selectedProducts[$productId])) {
+            $productModel = Product::findOrFail($productId);
+            $productModel->quantity += $this->selectedProducts[$productId]['quantity'];
+            $productModel->save();
+            unset($this->selectedProducts[$productId]);
+            $this->updateTotalAmount();
+        }
+    }
+
+    public function increaseProductQuantity($productId)
+    {
+        if (isset($this->selectedProducts[$productId])) {
+            $productModel = Product::findOrFail($productId);
+            if ($this->selectedProducts[$productId]['quantity'] < $productModel->quantity) {
+                $this->selectedProducts[$productId]['quantity']++;
+                $productModel->quantity--;
+                $productModel->save();
+                $this->updateTotalAmount();
+            } else {
+                session()->flash('error', 'Cantidad no disponible para el producto ' . $productModel->name);
+            }
+        }
+    }
+
+    public function decreaseProductQuantity($productId)
+    {
+        if (isset($this->selectedProducts[$productId])) {
+            $this->selectedProducts[$productId]['quantity']--;
+            $productModel = Product::findOrFail($productId);
+            $productModel->quantity++;
+
+            if ($this->selectedProducts[$productId]['quantity'] <= 0) {
+                unset($this->selectedProducts[$productId]);
+            }
+
+            $productModel->save();
+            $this->updateTotalAmount();
+        }
     }
 
     private function updateTotalAmount($order = null)
     {
-        $this->totalAmount = collect($this->selectedProducts)->sum(function ($product) {
+        $this->totalAmount = number_format(collect($this->selectedProducts)->sum(function ($product) {
             return $product['quantity'] * $product['unit_price'];
-        });
+        }), 2, '.', '');
 
         if ($order) {
             $order->total_amount = $this->totalAmount;
@@ -199,12 +275,12 @@ class OrdersList extends Component
     private function resetInputFields()
     {
         $this->customerId = '';
-        $this->status = '';
+        $this->status = 'pending';
         $this->totalAmount = 0;
         $this->selectedProducts = [];
         $this->newProductId = null;
         $this->newProductQuantity = 1;
-        $this->orderDate = null;
+        $this->orderDate = now()->toDateString();
     }
 
     public function sortBy($field)
