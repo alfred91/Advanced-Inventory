@@ -14,7 +14,7 @@ class CustomersList extends Component
     public $search = '';
     public $isLoading = false;
 
-    // Editar o crear cliente
+    // Properties for creating or editing customers
     public $showModal = false;
     public $isEdit = false;
     public $customerId;
@@ -23,11 +23,11 @@ class CustomersList extends Component
     public $phone_number;
     public $address;
 
-    // Ordenamiento
+    // Sorting properties
     public $sortField = 'id';
     public $sortDirection = 'asc';
 
-    // Ver pedidos del cliente
+    // Properties for viewing customer orders
     public $showOrdersModal = false;
     public $orders = [];
 
@@ -40,6 +40,13 @@ class CustomersList extends Component
 
     protected $queryString = ['search', 'sortField', 'sortDirection'];
 
+    // Lifecycle hooks
+    public function mount()
+    {
+        // Initialize properties if needed
+    }
+
+    // Updating methods
     public function updatingSearch()
     {
         $this->isLoading = true;
@@ -51,12 +58,14 @@ class CustomersList extends Component
         $this->isLoading = false;
     }
 
+    // Reload the customer list
     public function reloadCustomers()
     {
         $this->isLoading = true;
         $this->resetPage();
     }
 
+    // Modal methods
     public function showCreateModal()
     {
         $this->resetInputFields();
@@ -69,34 +78,33 @@ class CustomersList extends Component
         $this->resetInputFields();
         $this->isEdit = true;
         $customer = Customer::findOrFail($id);
-        $this->customerId = $id;
-        $this->name = $customer->name;
-        $this->email = $customer->email;
-        $this->phone_number = $customer->phone_number;
-        $this->address = $customer->address;
+        $this->fillCustomerData($customer);
         $this->showModal = true;
     }
 
+    public function closeModal()
+    {
+        $this->showModal = false;
+        $this->resetInputFields();
+    }
+
+    public function closeOrdersModal()
+    {
+        $this->showOrdersModal = false;
+        $this->orders = [];
+    }
+
+    // Customer methods
     public function saveCustomer()
     {
         $this->validate();
 
         if ($this->isEdit) {
             $customer = Customer::findOrFail($this->customerId);
-            $customer->update([
-                'name' => $this->name,
-                'email' => $this->email,
-                'phone_number' => $this->phone_number,
-                'address' => $this->address,
-            ]);
+            $customer->update($this->getCustomerData());
             session()->flash('message', 'Cliente actualizado correctamente.');
         } else {
-            Customer::create([
-                'name' => $this->name,
-                'email' => $this->email,
-                'phone_number' => $this->phone_number,
-                'address' => $this->address,
-            ]);
+            Customer::create($this->getCustomerData());
             session()->flash('message', 'Cliente creado correctamente.');
         }
 
@@ -113,20 +121,15 @@ class CustomersList extends Component
         $this->resetPage();
     }
 
-    public function closeModal()
+    // Order methods
+    public function showCustomerOrders($customerId)
     {
-        $this->showModal = false;
-        $this->resetInputFields();
+        $this->customerId = $customerId;
+        $this->orders = Order::where('customer_id', $customerId)->with('products')->get();
+        $this->showOrdersModal = true;
     }
 
-    private function resetInputFields()
-    {
-        $this->name = '';
-        $this->email = '';
-        $this->phone_number = '';
-        $this->address = '';
-    }
-
+    // Sorting methods
     public function sortBy($field)
     {
         if ($this->sortField === $field) {
@@ -137,17 +140,32 @@ class CustomersList extends Component
         $this->sortField = $field;
     }
 
-    public function showCustomerOrders($customerId)
+    // Helper methods
+    private function resetInputFields()
     {
-        $this->customerId = $customerId;
-        $this->orders = Order::where('customer_id', $customerId)->with('products')->get();
-        $this->showOrdersModal = true;
+        $this->name = '';
+        $this->email = '';
+        $this->phone_number = '';
+        $this->address = '';
     }
 
-    public function closeOrdersModal()
+    private function fillCustomerData($customer)
     {
-        $this->showOrdersModal = false;
-        $this->orders = [];
+        $this->customerId = $customer->id;
+        $this->name = $customer->name;
+        $this->email = $customer->email;
+        $this->phone_number = $customer->phone_number;
+        $this->address = $customer->address;
+    }
+
+    private function getCustomerData()
+    {
+        return [
+            'name' => $this->name,
+            'email' => $this->email,
+            'phone_number' => $this->phone_number,
+            'address' => $this->address,
+        ];
     }
 
     public function render()

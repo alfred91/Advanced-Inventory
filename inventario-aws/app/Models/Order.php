@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
+use Illuminate\Support\Facades\Mail;
 
 class Order extends Model
 {
@@ -55,5 +56,31 @@ class Order extends Model
             'cancelled' => 'Cancelado',
             default => ucfirst($this->status),
         };
+    }
+
+    public function sendStatusChangeEmail()
+    {
+        $customer = $this->customer;
+        $products = $this->products;
+
+        $productDetails = '';
+        foreach ($products as $product) {
+
+            $productDetails .= "Fecha: {$product->order_date}\n";
+            $productDetails .= "Producto: {$product->name}\n";
+            $productDetails .= "Cantidad: {$product->pivot->quantity}\n";
+            $productDetails .= "Precio unitario: {$product->pivot->unit_price} €\n";
+            $productDetails .= "Subtotal: " . ($product->pivot->quantity * $product->pivot->unit_price) . " €\n\n";
+        }
+
+        $details = [
+            'title' => 'Actualización de Estado del Pedido',
+            'body' => "Hola {$customer->name},\n\nSu pedido con id #{$this->id} Esta {$this->getTranslatedStatusAttribute()}.\n\nDetalles del pedido:\n\n$productDetails\nTotal: {$this->total_amount} €\n\nGracias por su compra.\n\nSaludos,\nAdvanced Inventory"
+        ];
+
+        Mail::raw($details['body'], function ($message) use ($details, $customer) {
+            $message->to($customer->email)
+                ->subject($details['title']);
+        });
     }
 }

@@ -6,6 +6,22 @@ use App\Http\Livewire\CustomersList;
 use App\Http\Livewire\SuppliersList;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Mail;
+
+Route::get('/send-test-email', function () {
+    $details = [
+        'title' => 'Correo de prueba de Laravel',
+        'body' => 'Este es un correo de prueba enviado desde Laravel utilizando Mailtrap.'
+    ];
+
+    Mail::raw($details['body'], function ($message) use ($details) {
+        $message->to('destinatario@example.com')
+            ->subject($details['title']);
+    });
+
+    return 'Correo de prueba enviado';
+});
+
 
 Route::get('/', function () {
     return view('welcome');

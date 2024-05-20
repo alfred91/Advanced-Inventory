@@ -103,7 +103,7 @@
                             Editar
                         </button>
                         <button class="bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded" onclick="confirm('¿Estás seguro de que deseas eliminar este producto?') || event.stopImmediatePropagation()" wire:click="deleteProduct({{ $product->id }})">
-                            <i class="fas fa-trash-alt"></i> Eliminar
+                            <i class="fas fa-trash-alt"></i>
                         </button>
                     </td>
                 </tr>

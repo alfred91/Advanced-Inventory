@@ -1,7 +1,7 @@
 <div class="container mx-auto p-4">
-    <h1 class="text-xl font-semibold">Lista de Pedidos</h1>
+    <h1 class="text-xl font-semibold mb-4">Lista de Pedidos</h1>
     <div class="flex justify-between items-center mb-4">
-        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por cliente, ID pedido, estado..." wire:model="search" wire:input.debounce.500ms="reloadOrders">
+        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por cliente, ID pedido, estado..." wire:model.debounce.500ms="search">
         <button wire:click="openCreateModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
             <i class="fas fa-plus mr-2"></i> Crear Pedido
         </button>
@@ -12,7 +12,7 @@
                 <tr>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('id')" class="focus:outline-none">
-                            ID de Pedido
+                            ID Pedido
                             @if($sortField === 'id')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -24,7 +24,7 @@
                     </th>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('customer_id')" class="focus:outline-none">
-                            Nombre del Cliente
+                            Cliente
                             @if($sortField === 'customer_id')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -58,6 +58,18 @@
                             @endif
                         </button>
                     </th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('order_date')" class="focus:outline-none">
+                            Fecha de Pedido
+                            @if($sortField === 'order_date')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
                     <th class="px-6 py-3">Acciones</th>
                 </tr>
             </thead>
@@ -65,14 +77,15 @@
                 @foreach ($orders as $order)
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                     <td class="px-6 py-4">{{ $order->id }}</td>
-                    <td class="px-6 py-4">{{ $order->customer->name ?? 'No existe' }}</td>
-                    <td class="px-6 py-4">{{ number_format($order->total_amount, 2) }}</td>
-                    <td class="px-6 py-4">{{ $order->translated_status }}</td> <!-- Usando el método de traducción -->
+                    <td class="px-6 py-4">{{ $order->customer->name }}</td>
+                    <td class="px-6 py-4">{{ number_format($order->total_amount, 2) }} €</td>
+                    <td class="px-6 py-4">{{ ucfirst($order->status) }}</td>
+                    <td class="px-6 py-4">{{ $order->order_date }}</td>
                     <td class="px-6 py-4 flex items-center gap-2">
-                        <button wire:click="showOrderDetails({{ $order->id }})" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            <i class="fas fa-edit mr-2"></i>Detalles/Editar
+                        <button wire:click="showOrderDetails({{ $order->id }})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
+                            Editar
                         </button>
-                        <button class="bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded" onclick="confirm('Are you sure you want to delete this order?') || event.stopImmediatePropagation()" wire:click="deleteOrder({{ $order->id }})">
+                        <button class="bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded shadow-lg transition-transform transform hover:scale-110" onclick="confirm('¿Está seguro de que desea eliminar este pedido?') || event.stopImmediatePropagation()" wire:click="deleteOrder({{ $order->id }})">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </td>
@@ -80,8 +93,8 @@
                 @endforeach
             </tbody>
         </table>
-        <div class="mt-4 flex justify-center">
-            {{ $orders->links('pagination::tailwind') }}
+        <div class="mt-4">
+            {{ $orders->links() }}
         </div>
     </div>
 

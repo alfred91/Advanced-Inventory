@@ -103,12 +103,18 @@ class OrdersList extends Component
             }
 
             $order->delete();
+
+            // Opcional: enviar correo de cancelación
+            $order->status = 'cancelled';
+            $order->sendStatusChangeEmail();
+
             session()->flash('message', 'Order deleted successfully.');
             $this->resetPage();
         } else {
             session()->flash('error', 'Order not found.');
         }
     }
+
 
     public function saveChanges()
     {
@@ -154,6 +160,8 @@ class OrdersList extends Component
             $order->total_amount = $this->totalAmount;
             $order->save();
 
+            $order->sendStatusChangeEmail(); // Enviar correo
+
             session()->flash('message', 'Order updated successfully.');
         } else {
             DB::transaction(function () {
@@ -185,13 +193,14 @@ class OrdersList extends Component
                 $order->total_amount = $this->totalAmount;
                 $order->save();
 
+                $order->sendStatusChangeEmail(); // Enviar correo
+
                 session()->flash('message', 'Order created successfully.');
             });
         }
 
         $this->closeModal();
     }
-
     public function addProduct()
     {
         $this->validate([
