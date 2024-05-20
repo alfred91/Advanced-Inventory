@@ -46,4 +46,14 @@ class Order extends Model
             'products'      => $productsSummary,
         ];
     }
+
+    public function getTranslatedStatusAttribute()
+    {
+        return match ($this->status) {
+            'pending' => 'Pendiente',
+            'completed' => 'Completado',
+            'cancelled' => 'Cancelado',
+            default => ucfirst($this->status),
+        };
+    }
 }

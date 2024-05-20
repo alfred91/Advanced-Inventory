@@ -1,7 +1,7 @@
 <div class="container mx-auto p-4">
     <h1 class="text-xl font-semibold">Lista de Pedidos</h1>
     <div class="flex justify-between items-center mb-4">
-        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por nombre del cliente, ID de pedido, monto total o estado..." wire:model="search" wire:input.debounce.500ms="reloadOrders">
+        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por cliente, ID pedido, estado..." wire:model="search" wire:input.debounce.500ms="reloadOrders">
         <button wire:click="openCreateModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
             <i class="fas fa-plus mr-2"></i> Crear Pedido
         </button>
@@ -67,7 +67,7 @@
                     <td class="px-6 py-4">{{ $order->id }}</td>
                     <td class="px-6 py-4">{{ $order->customer->name ?? 'No existe' }}</td>
                     <td class="px-6 py-4">{{ number_format($order->total_amount, 2) }}</td>
-                    <td class="px-6 py-4">{{ $order->status }}</td>
+                    <td class="px-6 py-4">{{ $order->translated_status }}</td> <!-- Usando el método de traducción -->
                     <td class="px-6 py-4 flex items-center gap-2">
                         <button wire:click="showOrderDetails({{ $order->id }})" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                             <i class="fas fa-edit mr-2"></i>Detalles/Editar
@@ -84,6 +84,7 @@
             {{ $orders->links('pagination::tailwind') }}
         </div>
     </div>
+
     @if ($showModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
@@ -132,9 +133,9 @@
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ number_format($product['unit_price'], 2) }} €</td>
                                     <td class="px-4 py-2 flex items-center">
                                         <button type="button" wire:click="decreaseProductQuantity({{ $productId }})" class="ml-2 text-gray-500 hover:text-gray-700"><i class="fas fa-minus"></i></button>
-                                        <input type="number" min="1" wire:model.lazy="selectedProducts.{{ $productId }}.quantity" id="product_{{ $productId }}" class="block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad" max="{{ $product['available_quantity'] }}">
+                                        <input type="number" min="0" wire:model.lazy="selectedProducts.{{ $productId }}.quantity" id="product_{{ $productId }}" class="block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad" max="{{ $product['available_quantity'] }}">
                                         <button type="button" wire:click="increaseProductQuantity({{ $productId }})" class="ml-2 text-gray-500 hover:text-gray-700"><i class="fas fa-plus"></i></button>
-                                        @if($product['quantity'] <= 0) <button type="button" wire:click="removeProduct({{ $productId }})" class="ml-2 text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button>
+                                        @if(isset($this->selectedProducts[$productId]) && $this->selectedProducts[$productId]['quantity'] <= 0) <button type="button" wire:click="removeProduct({{ $productId }})" class="ml-2 text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button>
                                             @endif
                                     </td>
                                 </tr>
@@ -152,7 +153,7 @@
                             <option value="{{ $product->id }}">{{ $product->name }} (Disponible: {{ $product->quantity }})</option>
                             @endforeach
                         </select>
-                        <input type="number" min="1" wire:model="newProductQuantity" class="mt-1 block w-1/4 form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad">
+                        <input type="number" min="1" max="{{ $newProductId ? $allProducts->find($newProductId)->quantity : '' }}" wire:model="newProductQuantity" class="mt-1 block w-1/4 form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad">
                         <button type="button" wire:click="addProduct" class="inline-flex items-center px-4 py-2 bg-green-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 active:bg-green-900 focus:outline-none focus:border-green-900 focus:ring focus:ring-green-300 disabled:opacity-25 transition">
                             Añadir
                         </button>

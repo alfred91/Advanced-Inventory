@@ -167,7 +167,7 @@
                         <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                             <td class="px-6 py-4">{{ $order->id }}</td>
                             <td class="px-6 py-4">{{ $order->order_date }}</td>
-                            <td class="px-6 py-4">{{ $order->status }}</td>
+                            <td class="px-6 py-4">{{ $order->translated_status }}</td>
                             <td class="px-6 py-4">{{ number_format($order->total_amount, 2) }} €</td>
                             <td class="px-6 py-4">
                                 <ul>

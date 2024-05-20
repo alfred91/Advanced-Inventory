@@ -80,7 +80,7 @@ class OrdersList extends Component
             return [$product->id => [
                 'quantity' => $product->pivot->quantity,
                 'unit_price' => $product->pivot->unit_price,
-                'available_quantity' => $product->quantity
+                'available_quantity' => $product->quantity + $product->pivot->quantity  // Corrected logic
             ]];
         })->toArray();
 
@@ -117,6 +117,7 @@ class OrdersList extends Component
         if ($this->isEdit) {
             $order = Order::findOrFail($this->orderId);
 
+            // Restore the quantities to the products before making changes
             foreach ($order->products as $product) {
                 $product->quantity += $product->pivot->quantity;
                 $product->save();
@@ -128,12 +129,9 @@ class OrdersList extends Component
                 'order_date' => $this->orderDate,
             ]);
 
-            $this->selectedProducts = array_filter($this->selectedProducts, function ($product) {
-                return $product['quantity'] > 0;
-            });
-
             DB::transaction(function () use ($order) {
                 $order->products()->detach();
+
                 foreach ($this->selectedProducts as $productId => $product) {
                     if ($product['quantity'] > 0) {
                         $productModel = Product::findOrFail($productId);
@@ -221,9 +219,6 @@ class OrdersList extends Component
     public function removeProduct($productId)
     {
         if (isset($this->selectedProducts[$productId])) {
-            $productModel = Product::findOrFail($productId);
-            $productModel->quantity += $this->selectedProducts[$productId]['quantity'];
-            $productModel->save();
             unset($this->selectedProducts[$productId]);
             $this->updateTotalAmount();
         }
@@ -248,14 +243,15 @@ class OrdersList extends Component
     {
         if (isset($this->selectedProducts[$productId])) {
             $this->selectedProducts[$productId]['quantity']--;
-            $productModel = Product::findOrFail($productId);
-            $productModel->quantity++;
 
             if ($this->selectedProducts[$productId]['quantity'] <= 0) {
                 unset($this->selectedProducts[$productId]);
+            } else {
+                $productModel = Product::findOrFail($productId);
+                $productModel->quantity++;
+                $productModel->save();
             }
 
-            $productModel->save();
             $this->updateTotalAmount();
         }
     }
