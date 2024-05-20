@@ -3,7 +3,7 @@
     <div class="flex justify-between items-center mb-4">
         <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por nombre, email o teléfono..." wire:model="search" wire:input.debounce.500ms="reloadCustomers">
         <button wire:click="showCreateModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
-            Nuevo Cliente
+            <i class="fas fa-plus mr-2"></i> Añadir Cliente
         </button>
     </div>
 

@@ -3,9 +3,9 @@
 namespace App\Http\Livewire;
 
 use App\Models\Product;
-use Livewire\Component;
 use App\Models\Category;
 use App\Models\Supplier;
+use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
@@ -19,8 +19,11 @@ class ProductsList extends Component
     public $suppliers;
     public $isLoading = false;
 
-    // Editar producto
+    // Estado del modal
     public $showModal = false;
+    public $isEdit = false;
+
+    // Propiedades del producto
     public $productId;
     public $name;
     public $description;
@@ -73,7 +76,28 @@ class ProductsList extends Component
         $this->resetPage();
     }
 
-    public function editProduct($productId)
+    public function openModal($isEdit = false, $productId = null)
+    {
+        $this->resetErrorBag();
+        $this->resetValidation();
+        $this->isEdit = $isEdit;
+
+        if ($isEdit) {
+            $this->loadProduct($productId);
+        } else {
+            $this->resetInputFields();
+        }
+
+        $this->showModal = true;
+    }
+
+    public function closeModal()
+    {
+        $this->showModal = false;
+        $this->resetInputFields();
+    }
+
+    public function loadProduct($productId)
     {
         $this->productId = $productId;
         $product = Product::findOrFail($productId);
@@ -85,31 +109,21 @@ class ProductsList extends Component
         $this->image = $product->image;
         $this->category_id = $product->category_id;
         $this->supplier_id = $product->supplier_id;
-
-        $this->showModal = true;
     }
 
-    public function deleteProduct($productId)
-    {
-        $product = Product::find($productId);
-        if ($product) {
-            if ($product->image && $product->image !== 'products/Default.png') {
-                Storage::delete('public/' . $product->image);
-            }
-            $product->delete();
-            $this->resetPage();
-        }
-    }
-
-    public function saveChanges()
+    public function saveProduct()
     {
         $validatedData = $this->validate();
 
-        $product = Product::findOrFail($this->productId);
-        $product->update($validatedData);
+        if ($this->isEdit) {
+            $product = Product::findOrFail($this->productId);
+            $product->update($validatedData);
+        } else {
+            $product = Product::create($validatedData);
+        }
 
         if ($this->newImage) {
-            if ($product->image && $product->image !== 'products/default.png') {
+            if ($this->isEdit && $product->image && $product->image !== 'products/default.png') {
                 Storage::delete('public/' . $product->image);
             }
             $imageName = $this->newImage->store('products', 'public');
@@ -117,16 +131,21 @@ class ProductsList extends Component
             $product->save();
         }
 
-        session()->flash('message', 'Producto actualizado correctamente.');
-        $this->showModal = false;
-        $this->resetInputFields();
-        $this->render();
+        session()->flash('message', $this->isEdit ? 'Producto actualizado correctamente.' : 'Producto creado correctamente.');
+        $this->closeModal();
+        $this->resetPage();
     }
 
-    public function closeModal()
+    public function deleteProduct($productId)
     {
-        $this->showModal = false;
-        $this->resetInputFields();
+        $product = Product::find($productId);
+        if ($product) {
+            if ($product->image && $product->image !== 'products/default.png') {
+                Storage::delete('public/' . $product->image);
+            }
+            $product->delete();
+            $this->resetPage();
+        }
     }
 
     private function resetInputFields()

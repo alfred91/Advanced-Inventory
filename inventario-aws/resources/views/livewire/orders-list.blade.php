@@ -1,11 +1,12 @@
 <div class="container mx-auto p-4">
     <h1 class="text-xl font-semibold mb-4">Lista de Pedidos</h1>
     <div class="flex justify-between items-center mb-4">
-        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por cliente, ID pedido, estado..." wire:model.debounce.500ms="search">
+        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por producto, categoría o proveedor..." wire:model="search" wire:input.debounce.500ms="reloadOrders">
         <button wire:click="openCreateModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
-            <i class="fas fa-plus mr-2"></i> Crear Pedido
+            <i class="fas fa-plus mr-2"></i> Añadir Pedido
         </button>
     </div>
+
     <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -89,6 +90,7 @@
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </td>
+
                 </tr>
                 @endforeach
             </tbody>

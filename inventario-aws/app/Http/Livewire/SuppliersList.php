@@ -17,8 +17,11 @@ class SuppliersList extends Component
     public $search = '';
     public $isLoading = false;
 
-    // Editar proveedor
+    // Estado del modal
     public $showModal = false;
+    public $isEdit = false;
+
+    // Propiedades del proveedor
     public $supplierId;
     public $name;
     public $email;
@@ -48,8 +51,8 @@ class SuppliersList extends Component
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:suppliers,email,' . $this->supplierId,
-            'phone_number' => 'required|string',
-            'address' => 'required|string|max:500',
+            'phone_number' => 'nullable|string',
+            'address' => 'nullable|string|max:500',
             'newImage' => 'nullable|image|max:2048',
             'products.*.price' => 'required|numeric|min:0',
             'newProductName' => 'nullable|string|max:255',
@@ -85,7 +88,28 @@ class SuppliersList extends Component
         $this->resetPage();
     }
 
-    public function editSupplier($supplierId)
+    public function openModal($isEdit = false, $supplierId = null)
+    {
+        $this->resetErrorBag();
+        $this->resetValidation();
+        $this->isEdit = $isEdit;
+
+        if ($isEdit) {
+            $this->loadSupplier($supplierId);
+        } else {
+            $this->resetInputFields();
+        }
+
+        $this->showModal = true;
+    }
+
+    public function closeModal()
+    {
+        $this->showModal = false;
+        $this->resetInputFields();
+    }
+
+    public function loadSupplier($supplierId)
     {
         $this->supplierId = $supplierId;
         $supplier = Supplier::with('products')->findOrFail($supplierId);
@@ -96,15 +120,38 @@ class SuppliersList extends Component
         $this->address = $supplier->address;
         $this->image = $supplier->image;
         $this->products = $supplier->products->toArray();
+    }
 
-        $this->showModal = true;
+    public function saveSupplier()
+    {
+        $validatedData = $this->validate();
+
+        if ($this->isEdit) {
+            $supplier = Supplier::findOrFail($this->supplierId);
+            $supplier->update($validatedData);
+        } else {
+            $supplier = Supplier::create($validatedData);
+        }
+
+        if ($this->newImage) {
+            if ($this->isEdit && $supplier->image && $supplier->image !== 'suppliers/default.png') {
+                Storage::delete('public/' . $supplier->image);
+            }
+            $imageName = $this->newImage->store('suppliers', 'public');
+            $supplier->image = $imageName;
+            $supplier->save();
+        }
+
+        session()->flash('message', $this->isEdit ? 'Proveedor actualizado correctamente.' : 'Proveedor creado correctamente.');
+        $this->closeModal();
+        $this->resetPage();
     }
 
     public function deleteSupplier($supplierId)
     {
         $supplier = Supplier::find($supplierId);
         if ($supplier) {
-            if ($supplier->image && $supplier->image !== 'suppliers/company.svg') {
+            if ($supplier->image && $supplier->image !== 'suppliers/default.png') {
                 Storage::delete('public/' . $supplier->image);
             }
             $supplier->delete();
@@ -114,41 +161,7 @@ class SuppliersList extends Component
 
     public function saveChanges()
     {
-        $this->validate();
-
-        $supplier = Supplier::findOrFail($this->supplierId);
-        $supplier->update([
-            'name' => $this->name,
-            'email' => $this->email,
-            'phone_number' => $this->phone_number,
-            'address' => $this->address,
-        ]);
-
-        if ($this->newImage) {
-            if ($supplier->image && $supplier->image !== 'suppliers/company.svg') {
-                Storage::delete('public/' . $supplier->image);
-            }
-            $imageName = $this->newImage->store('suppliers', 'public');
-            $supplier->image = $imageName;
-            $supplier->save();
-        }
-
-        foreach ($this->products as $product) {
-            $productModel = Product::findOrFail($product['id']);
-            $productModel->update([
-                'price' => $product['price'],
-            ]);
-        }
-
-        session()->flash('message', 'Proveedor actualizado correctamente.');
-        $this->showModal = false;
-        $this->resetInputFields();
-    }
-
-    public function closeModal()
-    {
-        $this->showModal = false;
-        $this->resetInputFields();
+        $this->saveSupplier();
     }
 
     private function resetInputFields()

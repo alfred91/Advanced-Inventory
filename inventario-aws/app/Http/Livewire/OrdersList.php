@@ -80,7 +80,7 @@ class OrdersList extends Component
             return [$product->id => [
                 'quantity' => $product->pivot->quantity,
                 'unit_price' => $product->pivot->unit_price,
-                'available_quantity' => $product->quantity + $product->pivot->quantity  // Corrected logic
+                'available_quantity' => $product->quantity + $product->pivot->quantity
             ]];
         })->toArray();
 
@@ -114,7 +114,6 @@ class OrdersList extends Component
             session()->flash('error', 'Order not found.');
         }
     }
-
 
     public function saveChanges()
     {
@@ -201,6 +200,7 @@ class OrdersList extends Component
 
         $this->closeModal();
     }
+
     public function addProduct()
     {
         $this->validate([
@@ -297,18 +297,20 @@ class OrdersList extends Component
         }
         $this->sortField = $field;
     }
-
     public function render()
     {
-        $query = Order::with('customer');
+        $query = Order::query();
 
         if ($this->search) {
-            $query->whereHas('customer', function ($q) {
-                $q->where('name', 'like', '%' . $this->search . '%');
-            })->orWhere('id', 'like', '%' . $this->search . '%')
-                ->orWhere('total_amount', 'like', '%' . $this->search . '%')
-                ->orWhere('status', 'like', '%' . $this->search . '%')
-                ->orWhere('order_date', 'like', '%' . $this->search . '%');
+            $query->where(function ($q) {
+                $q->where('id', 'like', '%' . $this->search . '%')
+                    ->orWhere('total_amount', 'like', '%' . $this->search . '%')
+                    ->orWhere('status', 'like', '%' . $this->search . '%')
+                    ->orWhere('order_date', 'like', '%' . $this->search . '%')
+                    ->orWhereHas('customer', function ($q) {
+                        $q->where('name', 'like', '%' . $this->search . '%');
+                    });
+            });
         }
 
         $query->orderBy($this->sortField, $this->sortDirection);
