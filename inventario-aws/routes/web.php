@@ -1,12 +1,13 @@
 <?php
 
+use App\Http\Livewire\SalesTPV;
 use App\Http\Livewire\OrdersList;
 use App\Http\Livewire\ProductsList;
 use App\Http\Livewire\CustomersList;
 use App\Http\Livewire\SuppliersList;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\RoleMiddleware;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -31,6 +32,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:administrativo')->group(function () {
         Route::get('/orders', OrdersList::class)->name('orders.index');
         Route::get('/customers', CustomersList::class)->name('customers.index');
+    });
+
+    // Ruta específica para Ventas
+    Route::middleware('role:ventas')->group(function () {
+        Route::get('/sales-tpv', SalesTPV::class)->name('sales.tpv');
     });
 });
 

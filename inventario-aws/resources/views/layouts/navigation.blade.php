@@ -40,6 +40,9 @@
                     <x-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')" class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
                         {{ __('Proveedores') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('sales.tpv')" :active="request()->routeIs('sales-tpv.*')" class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
+                        {{ __('TPV') }}
+                    </x-nav-link>
                     @endif
                 </div>
             </div>
@@ -114,6 +117,9 @@
                 {{ __('Productos') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
+                {{ __('Proveedores') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('sales.tpv')" :active="request()->routeIs('sales-tpv.*')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
                 {{ __('Proveedores') }}
             </x-responsive-nav-link>
             @endif
