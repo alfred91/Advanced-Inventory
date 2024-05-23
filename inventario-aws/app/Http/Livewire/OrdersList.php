@@ -26,10 +26,8 @@ class OrdersList extends Component
     public $selectedProducts = [];
     public $newProductId;
     public $newProductQuantity = 1;
-
     public $sortField = 'id';
     public $sortDirection = 'asc';
-
     protected $queryString = ['search', 'sortField', 'sortDirection'];
 
     protected $rules = [

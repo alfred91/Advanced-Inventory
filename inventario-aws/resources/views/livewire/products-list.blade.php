@@ -84,6 +84,18 @@
                             @endif
                         </button>
                     </th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('minimum_stock')" class="focus:outline-none">
+                            Stock Mínimo
+                            @if($sortField === 'minimum_stock')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
                     <th class="px-6 py-3">Imagen</th>
                     <th class="px-6 py-3">Acciones</th>
                 </tr>
@@ -97,10 +109,15 @@
                     <td class="px-6 py-4">{{ $product->quantity }}</td>
                     <td class="px-6 py-4">{{ $product->category->name ?? 'N/A' }}</td>
                     <td class="px-6 py-4">{{ $product->supplier->name ?? 'N/A' }}</td>
+                    <td class="px-6 py-4">{{ $product->minimum_stock }}</td>
                     <td class="px-6 py-4">
                         <img src="{{ asset('storage/' . $product->image) }}" alt="Imagen de Producto" class="w-20 h-auto rounded-lg">
                     </td>
+
                     <td class="px-6 py-4 flex items-center gap-2">
+                        @if($product->isStockBelowMinimum())
+                        <div class="bg-red-500 text-white px-2 py-1 rounded">Stock bajo</div>
+                        @endif
                         <button wire:click="openModal(true, {{ $product->id }})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
                             Editar
                         </button>
@@ -108,6 +125,7 @@
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </td>
+
                 </tr>
                 @endforeach
             </tbody>
@@ -163,6 +181,11 @@
                     </select>
                     @error('supplier_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
+                <div>
+                    <label for="minimum_stock" class="block text-sm font-medium text-gray-700">Stock Mínimo</label>
+                    <input type="number" wire:model="minimum_stock" id="minimum_stock" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" min="0">
+                    @error('minimum_stock') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                </div>
                 @if ($image)
                 <div>
                     <img src="{{ asset('storage/' . $image) }}" alt="Imagen actual" class="w-20 h-20 object-cover rounded-md shadow-sm">
@@ -173,6 +196,7 @@
                     <input type="file" wire:model="newImage" id="newImage" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
                     @error('newImage') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
+
                 <div class="flex justify-end space-x-2 mt-4">
                     <button type="button" wire:click="closeModal" class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">
                         Cerrar

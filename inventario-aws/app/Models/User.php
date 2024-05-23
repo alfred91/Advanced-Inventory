@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes; // Importar SoftDeletes
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles; // Importar el trait
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes; // Usar SoftDeletes
+    use HasFactory, Notifiable, SoftDeletes, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -46,5 +47,5 @@ class User extends Authenticatable
      *
      * @var array<string>
      */
-    protected $dates = ['deleted_at']; // Agregar para soft deletes
+    protected $dates = ['deleted_at']; // Soft deletes
 }

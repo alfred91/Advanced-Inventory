@@ -6,26 +6,14 @@ use App\Http\Livewire\CustomersList;
 use App\Http\Livewire\SuppliersList;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Mail;
-
-Route::get('/send-test-email', function () {
-    $details = [
-        'title' => 'Correo de prueba de Laravel',
-        'body' => 'Este es un correo de prueba enviado desde Laravel utilizando Mailtrap.'
-    ];
-
-    Mail::raw($details['body'], function ($message) use ($details) {
-        $message->to('destinatario@example.com')
-            ->subject($details['title']);
-    });
-
-    return 'Correo de prueba enviado';
-});
-
+use App\Http\Middleware\RoleMiddleware;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Registrar Middleware
+Route::aliasMiddleware('role', RoleMiddleware::class);
 
 // Rutas con autenticación
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -33,12 +21,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Rutas componentes Livewire
-    Route::get('/products', ProductsList::class)->name('products.index');
-    Route::get('/suppliers', SuppliersList::class)->name('suppliers.index');
-    Route::get('/orders', OrdersList::class)->name('orders.index');
-    Route::get('/customers', CustomersList::class)->name('customers.index');
+    // Rutas para roles combinados
+    Route::middleware('role:administrativo,mozo_almacen,ventas')->group(function () {
+        Route::get('/products', ProductsList::class)->name('products.index');
+        Route::get('/suppliers', SuppliersList::class)->name('suppliers.index');
+    });
+
+    // Rutas específicas para Administrativo
+    Route::middleware('role:administrativo')->group(function () {
+        Route::get('/orders', OrdersList::class)->name('orders.index');
+        Route::get('/customers', CustomersList::class)->name('customers.index');
+    });
 });
 
-// Rutas de autenticación
 require __DIR__ . '/auth.php';

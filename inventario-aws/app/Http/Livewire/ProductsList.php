@@ -33,6 +33,7 @@ class ProductsList extends Component
     public $newImage;
     public $category_id;
     public $supplier_id;
+    public $minimum_stock;
 
     // Ordenamiento
     public $sortField = 'name';
@@ -47,6 +48,7 @@ class ProductsList extends Component
         'quantity' => 'required|integer|min:0',
         'category_id' => 'required|exists:categories,id',
         'supplier_id' => 'nullable|exists:suppliers,id',
+        'minimum_stock' => 'required|integer|min:0',
         'newImage' => 'nullable|image|max:2048',
     ];
 
@@ -109,8 +111,9 @@ class ProductsList extends Component
         $this->image = $product->image;
         $this->category_id = $product->category_id;
         $this->supplier_id = $product->supplier_id;
+        $this->minimum_stock = $product->minimum_stock;
     }
-
+    //FUNCION PARA GUARDAR PRODUCTO, SIN BORRAR LA IMAGEN POR DEFECTO,
     public function saveProduct()
     {
         $validatedData = $this->validate();
@@ -123,7 +126,7 @@ class ProductsList extends Component
         }
 
         if ($this->newImage) {
-            if ($this->isEdit && $product->image && $product->image !== 'products/default.png') {
+            if ($this->isEdit && $product->image && $product->image !== 'products/product.svg') {
                 Storage::delete('public/' . $product->image);
             }
             $imageName = $this->newImage->store('products', 'public');
@@ -136,11 +139,12 @@ class ProductsList extends Component
         $this->resetPage();
     }
 
+    //FUNCION PARA BORRAR UN PRODUCTO, SIN BORRAR LA IMAGEN POR DEFECTO
     public function deleteProduct($productId)
     {
         $product = Product::find($productId);
         if ($product) {
-            if ($product->image && $product->image !== 'products/default.png') {
+            if ($product->image && $product->image !== 'products/product.svg') {
                 Storage::delete('public/' . $product->image);
             }
             $product->delete();
@@ -158,6 +162,7 @@ class ProductsList extends Component
         $this->newImage = null;
         $this->category_id = '';
         $this->supplier_id = '';
+        $this->minimum_stock = 100;
     }
 
     public function sortBy($field)

@@ -107,7 +107,7 @@
         </div>
     </div>
 
-    <!-- Modal for Creating and Editing Customers -->
+    <!-- Modal Crear/Editar Clientes -->
     @if ($showModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
@@ -146,7 +146,7 @@
     </div>
     @endif
 
-    <!-- Modal for Viewing Customer Orders -->
+    <!-- Modal Pedidos del cliente-->
     @if ($showOrdersModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full mx-2">

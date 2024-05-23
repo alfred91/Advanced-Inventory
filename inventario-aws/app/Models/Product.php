@@ -12,7 +12,7 @@ class Product extends Model
     use HasFactory, SoftDeletes, Searchable;
 
     protected $fillable = [
-        'name', 'description', 'image', 'quantity', 'price', 'category_id', 'supplier_id'
+        'name', 'description', 'image', 'quantity', 'price', 'category_id', 'supplier_id', 'minimun_stock'
     ];
 
     /**
@@ -79,6 +79,13 @@ class Product extends Model
         ];
     }
 
+    /**
+     * Funcion para determinar si el Stock esta por debajo del minimo
+     */
+    public function isStockBelowMinimum(): bool
+    {
+        return $this->quantity < $this->minimum_stock;
+    }
     /**
      * Get category name with fallback.
      *

@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-200 shadow dark:bg-red-900 dark:border-red-800">
+<nav x-data="{ open: false }" class="bg-white border-b border-gray-200 shadow dark:bg-blue-900 dark:border-blue-800">
     <!-- Primary Navigation Menu -->
     <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
@@ -6,11 +6,12 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <x-application-logo class="block w-auto h-9 fill-current text-gray-800 dark:text-gray-200" />
-                    </a>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    @if(Auth::user()->role === 'administrativo')
+                    <!-- Enlaces para Administrativo -->
                     <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')" class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
                         {{ __('Productos') }}
                     </x-nav-link>
@@ -23,6 +24,23 @@
                     <x-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.*')" class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
                         {{ __('Clientes') }}
                     </x-nav-link>
+                    @elseif(Auth::user()->role === 'mozo_almacen')
+                    <!-- Enlaces para Mozo de Almacén -->
+                    <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')" class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
+                        {{ __('Productos') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')" class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
+                        {{ __('Proveedores') }}
+                    </x-nav-link>
+                    @elseif(Auth::user()->role === 'ventas')
+                    <!-- Enlaces para Ventas (TPV) -->
+                    <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')" class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
+                        {{ __('Productos') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')" class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
+                        {{ __('Proveedores') }}
+                    </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -30,7 +48,7 @@
             <div class="hidden sm:flex sm:items-center sm:ml-6">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md shadow-sm hover:text-gray-700 focus:outline-none dark:bg-red-900 dark:border-gray-700 dark:text-gray-300 dark:hover:text-white dark:hover:bg-red-800">
+                        <button class="flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md shadow-sm hover:text-gray-700 focus:outline-none dark:bg-blue-900 dark:border-gray-700 dark:text-gray-300 dark:hover:text-white dark:hover:bg-blue-800">
                             <div>{{ Auth::user()->name }}</div>
                             <div class="ml-1">
                                 <svg class="w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -68,7 +86,8 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': !open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-
+            @if(Auth::user()->role === 'administrativo')
+            <!-- Enlaces para Administrativo -->
             <x-responsive-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
                 {{ __('Productos') }}
             </x-responsive-nav-link>
@@ -81,6 +100,23 @@
             <x-responsive-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.*')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
                 {{ __('Clientes') }}
             </x-responsive-nav-link>
+            @elseif(Auth::user()->role === 'mozo_almacen')
+            <!-- Enlaces para Mozo de Almacén -->
+            <x-responsive-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
+                {{ __('Productos') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
+                {{ __('Proveedores') }}
+            </x-responsive-nav-link>
+            @elseif(Auth::user()->role === 'ventas')
+            <!-- Enlaces para Ventas (TPV) -->
+            <x-responsive-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
+                {{ __('Productos') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
+                {{ __('Proveedores') }}
+            </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

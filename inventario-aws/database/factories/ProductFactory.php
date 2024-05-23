@@ -26,7 +26,8 @@ class ProductFactory extends Factory
             'price' => fake()->randomFloat(2, 0, 1000),
             'category_id' => Category::inRandomOrder()->first()->id,
             'supplier_id' => Supplier::inRandomOrder()->first()->id,
-            'image' => 'products/Default.png',
+            'minimum_stock' => $this->faker->numberBetween(10, 50),
+            'image' => 'products/product.svg',
         ];
     }
 }

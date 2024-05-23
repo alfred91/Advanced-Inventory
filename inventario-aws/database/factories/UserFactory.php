@@ -25,26 +25,40 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => Hash::make('12345678'),
             'remember_token' => Str::random(10),
+            'role' => 'mozo_almacen',
         ];
     }
 
     /**
-     * Indicate that the user should be an admin.
+     * Indicate that the user should be administrativo.
      */
-    public function admin(): static
+    public function administrativo(): static
     {
         return $this->state(fn (array $attributes) => [
-            'role' => 'admin',
+            'role' => 'administrativo',
+            'email' => 'admin@gmail.com',
         ]);
     }
 
     /**
-     * Indicate that the user should be an employee.
+     * Indicate that the user should be mozo de almacén.
      */
-    public function employee(): static
+    public function mozoDeAlmacen(): static
     {
         return $this->state(fn (array $attributes) => [
-            'role' => 'employee',
+            'role' => 'mozo_almacen',
+            'email' => 'mozo_almacen@gmail.com',
+        ]);
+    }
+
+    /**
+     * Indicate that the user should be ventas.
+     */
+    public function ventas(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'ventas',
+            'email' => 'ventas@gmail.com',
         ]);
     }
 }

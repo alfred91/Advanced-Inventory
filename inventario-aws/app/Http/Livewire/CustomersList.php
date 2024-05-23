@@ -14,7 +14,7 @@ class CustomersList extends Component
     public $search = '';
     public $isLoading = false;
 
-    // Properties for creating or editing customers
+    // Propiedades Crear/Editar Clientes
     public $showModal = false;
     public $isEdit = false;
     public $customerId;
@@ -23,7 +23,7 @@ class CustomersList extends Component
     public $phone_number;
     public $address;
 
-    // Sorting properties
+    // Ordenación
     public $sortField = 'id';
     public $sortDirection = 'asc';
 

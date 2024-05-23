@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->unsignedBigInteger('category_id');
             $table->unsignedBigInteger('supplier_id')->nullable();
+            $table->unsignedInteger('minimum_stock')->default(100);
             $table->timestamps();
             $table->softDeletes();
 

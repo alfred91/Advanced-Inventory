@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['admin', 'employee'])->default('employee');
+            $table->enum('role', ['administrativo', 'mozo_almacen', 'ventas'])->default('mozo_almacen');
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
