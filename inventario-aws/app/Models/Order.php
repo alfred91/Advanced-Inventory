@@ -7,12 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 
 class Order extends Model
 {
     use HasFactory, SoftDeletes, Searchable;
 
     protected $fillable = ['customer_id', 'order_date', 'total_amount', 'status', 'notification_sent'];
+
+    protected $dates = ['order_date'];
 
     public function customer()
     {
@@ -65,17 +68,17 @@ class Order extends Model
 
         $productDetails = '';
         foreach ($products as $product) {
-
-            $productDetails .= "Fecha: {$product->order_date}\n";
             $productDetails .= "Producto: {$product->name}\n";
             $productDetails .= "Cantidad: {$product->pivot->quantity}\n";
             $productDetails .= "Precio unitario: {$product->pivot->unit_price} €\n";
             $productDetails .= "Subtotal: " . ($product->pivot->quantity * $product->pivot->unit_price) . " €\n\n";
         }
 
+        $orderDateFormatted = Carbon::parse($this->order_date)->format('d/m/Y');
+
         $details = [
             'title' => 'Actualización de Estado del Pedido',
-            'body' => "Hola {$customer->name},\n\nSu pedido con id #{$this->id} Esta {$this->getTranslatedStatusAttribute()}.\n\nDetalles del pedido:\n\n$productDetails\nTotal: {$this->total_amount} €\n\nGracias por su compra.\n\nSaludos,\nAdvanced Inventory"
+            'body' => "Hola {$customer->name},\n\nSu pedido con id #{$this->id} realizado el {$orderDateFormatted} está {$this->getTranslatedStatusAttribute()}.\n\nDetalles del pedido:\n\n$productDetails\nTotal: {$this->total_amount} €\n\nGracias por su compra.\n\nSaludos,\nAdvanced Inventory"
         ];
 
         Mail::raw($details['body'], function ($message) use ($details, $customer) {

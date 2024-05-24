@@ -165,7 +165,7 @@ class SalesTPV extends Component
             $productsQuery->where('category_id', $this->selectedCategory);
         }
 
-        $products = $productsQuery->paginate(8);
+        $products = $productsQuery->orderBy('name')->paginate(16); // Ordenar por nombre
 
         return view('livewire.sales-tpv', [
             'customers' => $customers,

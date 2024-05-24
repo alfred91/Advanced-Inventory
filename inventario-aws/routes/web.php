@@ -6,15 +6,11 @@ use App\Http\Livewire\ProductsList;
 use App\Http\Livewire\CustomersList;
 use App\Http\Livewire\SuppliersList;
 use Illuminate\Support\Facades\Route;
-use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
     return view('welcome');
 });
-
-// Registrar Middleware
-Route::aliasMiddleware('role', RoleMiddleware::class);
 
 // Rutas con autenticación
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -32,6 +28,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:administrativo')->group(function () {
         Route::get('/orders', OrdersList::class)->name('orders.index');
         Route::get('/customers', CustomersList::class)->name('customers.index');
+    });
+
+    // Rutas específicas para Mozo de Almacén
+    Route::middleware(['auth', 'role:mozo_almacen'])->group(function () {
+        Route::get('/stock-manager', \App\Http\Livewire\StockManager::class)->name('stock.manager');
     });
 
     // Ruta específica para Ventas

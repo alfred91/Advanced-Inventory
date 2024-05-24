@@ -5,7 +5,9 @@
             <div class="flex justify-center flex-1">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <x-application-logo class="block w-auto h-9 fill-current text-gray-800 dark:text-gray-200" />
+                    <a href="{{ route('products.index') }}">
+                        <img src="{{ asset('logo.png') }}" class="block w-12 h-12" alt="Logo"> <!-- Cambiar logo aquí -->
+                    </a>
                 </div>
 
                 <!-- Navigation Links -->
@@ -31,6 +33,9 @@
                     </x-nav-link>
                     <x-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')" class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
                         {{ __('Proveedores') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('stock.manager')" :active="request()->routeIs('stock.manager')" class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
+                        {{ __('Gestionar Stock') }}
                     </x-nav-link>
                     @elseif(Auth::user()->role === 'ventas')
                     <!-- Enlaces para Ventas (TPV) -->
@@ -111,6 +116,9 @@
             <x-responsive-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
                 {{ __('Proveedores') }}
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('stock.manager')" :active="request()->routeIs('stock.manager')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
+                {{ __('Gestionar Stock') }}
+            </x-responsive-nav-link>
             @elseif(Auth::user()->role === 'ventas')
             <!-- Enlaces para Ventas (TPV) -->
             <x-responsive-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -120,7 +128,7 @@
                 {{ __('Proveedores') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('sales.tpv')" :active="request()->routeIs('sales-tpv.*')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
-                {{ __('Proveedores') }}
+                {{ __('TPV') }}
             </x-responsive-nav-link>
             @endif
         </div>
