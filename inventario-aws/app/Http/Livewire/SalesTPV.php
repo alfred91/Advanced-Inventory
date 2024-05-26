@@ -89,6 +89,17 @@ class SalesTPV extends Component
         }
     }
 
+    public function updateProductQuantity($productId, $quantity)
+    {
+        if (isset($this->selectedProducts[$productId])) {
+            $this->selectedProducts[$productId]['quantity'] += $quantity;
+            if ($this->selectedProducts[$productId]['quantity'] <= 0) {
+                unset($this->selectedProducts[$productId]);
+            }
+            $this->updateTotalAmount();
+        }
+    }
+
     public function updateTotalAmount()
     {
         $this->totalAmount = collect($this->selectedProducts)->sum(function ($product) {
@@ -104,7 +115,7 @@ class SalesTPV extends Component
                 'total_amount' => $this->totalAmount,
                 'status' => 'completed',
                 'payment_method' => $this->paymentMethod,
-                'order_date' => Carbon::now(), // Asignar la fecha actual
+                'order_date' => Carbon::now(),
             ]);
 
             foreach ($this->selectedProducts as $productId => $product) {
@@ -118,9 +129,9 @@ class SalesTPV extends Component
                 $productModel->save();
             }
 
-            $this->orderId = $order->id; // Guardar el ID del pedido recién creado
+            $this->orderId = $order->id;
 
-            $this->showConfirmationModal = true; // Mostrar el modal de confirmación
+            $this->showConfirmationModal = true;
         });
     }
 
@@ -128,7 +139,7 @@ class SalesTPV extends Component
     {
         if ($sendEmail) {
             $order = Order::find($this->orderId);
-            $order->sendStatusChangeEmail(); // Enviar correo
+            $order->sendStatusChangeEmail();
         }
 
         $this->resetOrder();
@@ -141,7 +152,7 @@ class SalesTPV extends Component
         $this->totalAmount = 0;
         $this->paymentMethod = 'cash';
         $this->isRegistered = null;
-        $this->showConfirmationModal = false; // Asegurarse de que el modal esté oculto
+        $this->showConfirmationModal = false;
     }
 
     public function selectCategory($categoryId)
@@ -165,7 +176,7 @@ class SalesTPV extends Component
             $productsQuery->where('category_id', $this->selectedCategory);
         }
 
-        $products = $productsQuery->orderBy('name')->paginate(16); // Ordenar por nombre
+        $products = $productsQuery->orderBy('name')->paginate(16);
 
         return view('livewire.sales-tpv', [
             'customers' => $customers,

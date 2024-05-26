@@ -15,8 +15,18 @@ class RoleMiddleware
         }
 
         $user = Auth::user();
+
         if (!in_array($user->role, $roles)) {
-            abort(403, 'Unauthorized');
+
+            switch ($user->role) {
+                case 'mozo_almacen':
+                    return redirect('/stock-manager');
+                case 'ventas':
+                    return redirect('/sales-tpv');
+                case 'administrativo':
+                default:
+                    return redirect('/products');
+            }
         }
 
         return $next($request);

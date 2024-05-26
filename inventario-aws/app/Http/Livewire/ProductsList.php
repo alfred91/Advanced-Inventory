@@ -48,7 +48,7 @@ class ProductsList extends Component
         'quantity' => 'required|integer|min:0',
         'category_id' => 'required|exists:categories,id',
         'supplier_id' => 'nullable|exists:suppliers,id',
-        'minimum_stock' => 'required|integer|min:0',
+        'minimum_stock' => 'required|integer|min:1',
         'newImage' => 'nullable|image|max:2048',
     ];
 
@@ -113,7 +113,7 @@ class ProductsList extends Component
         $this->supplier_id = $product->supplier_id;
         $this->minimum_stock = $product->minimum_stock;
     }
-    //FUNCION PARA GUARDAR PRODUCTO, SIN BORRAR LA IMAGEN POR DEFECTO,
+
     public function saveProduct()
     {
         $validatedData = $this->validate();
@@ -139,7 +139,6 @@ class ProductsList extends Component
         $this->resetPage();
     }
 
-    //FUNCION PARA BORRAR UN PRODUCTO, SIN BORRAR LA IMAGEN POR DEFECTO
     public function deleteProduct($productId)
     {
         $product = Product::find($productId);
@@ -167,17 +166,23 @@ class ProductsList extends Component
 
     public function sortBy($field)
     {
+        if ($field === 'isStockBelowMinimum') {
+            $field = 'stock_alert';
+        }
+
         if ($this->sortField === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
         } else {
             $this->sortDirection = 'asc';
         }
+
         $this->sortField = $field;
     }
 
     public function render()
     {
-        $query = Product::with(['category', 'supplier']);
+        $query = Product::with(['category', 'supplier'])
+            ->selectRaw('products.*, (quantity <= minimum_stock) as stock_alert');
 
         if ($this->search) {
             $query->where(function ($q) {
@@ -191,7 +196,11 @@ class ProductsList extends Component
             });
         }
 
-        $query->orderBy($this->sortField, $this->sortDirection);
+        if ($this->sortField === 'stock_alert') {
+            $query->orderByRaw('stock_alert ' . ($this->sortDirection === 'asc' ? 'asc' : 'desc'));
+        } else {
+            $query->orderBy($this->sortField, $this->sortDirection);
+        }
 
         $products = $query->paginate(10);
 

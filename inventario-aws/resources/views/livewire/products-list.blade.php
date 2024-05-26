@@ -96,6 +96,19 @@
                             @endif
                         </button>
                     </th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('isStockBelowMinimum')" class="focus:outline-none">
+                            Alerta de Stock
+                            @if($sortField === 'stock_alert')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">Cantidad / Mínimo</th>
                     <th class="px-6 py-3">Imagen</th>
                     <th class="px-6 py-3">Acciones</th>
                 </tr>
@@ -111,13 +124,22 @@
                     <td class="px-6 py-4">{{ $product->supplier->name ?? 'N/A' }}</td>
                     <td class="px-6 py-4">{{ $product->minimum_stock }}</td>
                     <td class="px-6 py-4">
+                        @if($product->quantity <= $product->minimum_stock)
+                            <span class="text-red-500">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </span>
+                            @else
+                            <span class="text-green-500">
+                                <i class="fas fa-check"></i>
+                            </span>
+                            @endif
+                    </td>
+                    <td class="px-6 py-4">{{ $product->quantity }} / {{ $product->minimum_stock }}</td>
+                    <td class="px-6 py-4">
                         <img src="{{ asset('storage/' . $product->image) }}" alt="Imagen de Producto" class="w-20 h-auto rounded-lg">
                     </td>
 
                     <td class="px-6 py-4 flex items-center gap-2">
-                        @if($product->isStockBelowMinimum())
-                        <div class="bg-red-500 text-white px-2 py-1 rounded">Stock bajo</div>
-                        @endif
                         <button wire:click="openModal(true, {{ $product->id }})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
                             Editar
                         </button>
@@ -209,4 +231,5 @@
         </div>
     </div>
     @endif
+
 </div>

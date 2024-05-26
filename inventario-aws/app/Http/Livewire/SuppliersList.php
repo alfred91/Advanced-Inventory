@@ -37,6 +37,7 @@ class SuppliersList extends Component
     public $newProductPrice;
     public $newProductQuantity;
     public $newProductCategoryId;
+    public $newProductMinimumStock;
     public $categories;
 
     // Ordenamiento
@@ -60,6 +61,7 @@ class SuppliersList extends Component
             'newProductPrice' => 'nullable|numeric|min:0',
             'newProductQuantity' => 'nullable|integer|min:0',
             'newProductCategoryId' => 'nullable|exists:categories,id',
+            'newProductMinimumStock' => 'nullable|integer|min:0',
         ];
     }
 
@@ -178,6 +180,7 @@ class SuppliersList extends Component
         $this->newProductPrice = null;
         $this->newProductQuantity = null;
         $this->newProductCategoryId = null;
+        $this->newProductMinimumStock = null;
     }
 
     public function sortBy($field)
@@ -198,6 +201,7 @@ class SuppliersList extends Component
             'newProductPrice' => 'required|numeric|min:0',
             'newProductQuantity' => 'required|integer|min:0',
             'newProductCategoryId' => 'required|exists:categories,id',
+            'newProductMinimumStock' => 'required|integer|min:0',
         ]);
 
         $product = Product::create([
@@ -206,6 +210,7 @@ class SuppliersList extends Component
             'price' => $this->newProductPrice,
             'quantity' => $this->newProductQuantity,
             'category_id' => $this->newProductCategoryId,
+            'minimum_stock' => $this->newProductMinimumStock,
             'supplier_id' => $this->supplierId,
         ]);
 
@@ -220,6 +225,7 @@ class SuppliersList extends Component
         $this->newProductPrice = '';
         $this->newProductQuantity = '';
         $this->newProductCategoryId = '';
+        $this->newProductMinimumStock = '';
     }
 
     public function removeProduct($productId)

@@ -148,7 +148,7 @@
                                 <tr>
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ $product['name'] }}</td>
                                     <td class="px-4 py-2 text-sm text-gray-700">
-                                        <input type="number" step="0.01" min="0" wire:model.defer="products.{{ $loop->index }}.price" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                                        <input type="number" step="0.01" min="0.01" wire:model.defer="products.{{ $loop->index }}.price" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
                                     </td>
                                     <td class="px-4 py-2">
                                         <button type="button" wire:click="removeProduct({{ $product['id'] }})" class="text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button>
@@ -166,6 +166,7 @@
                         <textarea wire:model="newProductDescription" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Descripción del producto"></textarea>
                         <input type="number" step="0.01" min="0" wire:model="newProductPrice" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Precio">
                         <input type="number" min="0" wire:model="newProductQuantity" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad">
+                        <input type="number" min="0" wire:model="newProductMinimumStock" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Stock Mínimo">
                         <select wire:model="newProductCategoryId" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500">
                             <option value="">Seleccione una categoría</option>
                             @foreach($categories as $category)
@@ -189,5 +190,4 @@
         </div>
     </div>
     @endif
-
 </div>

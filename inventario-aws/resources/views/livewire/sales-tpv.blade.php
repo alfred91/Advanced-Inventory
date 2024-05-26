@@ -4,18 +4,22 @@
     @if (is_null($isRegistered))
     <div class="text-center">
         <h2 class="text-xl mb-4">¿El cliente está registrado?</h2>
-        <button wire:click="$set('isRegistered', true)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg">
-            Sí
-        </button>
-        <button wire:click="selectGenericCustomer" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded shadow-lg ml-4">
-            No
-        </button>
+        <div class="flex justify-center space-x-4">
+            <button wire:click="$set('isRegistered', true)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg flex items-center justify-center">
+                <i class="fas fa-user-check mr-2"></i> Sí
+            </button>
+            <button wire:click="selectGenericCustomer" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded shadow-lg flex items-center justify-center">
+                <i class="fas fa-user-times mr-2"></i> No
+            </button>
+        </div>
     </div>
     @else
     @if ($selectedCustomer)
     <div class="mb-6">
         <h2 class="text-xl mb-2">Cliente: {{ $selectedCustomer->name }}</h2>
-        <button wire:click="resetOrder" class="text-red-500 underline">Cambiar Cliente</button>
+        <button wire:click="resetOrder" class="text-red-500 underline flex items-center">
+            <i class="fas fa-times mr-2"></i> Cambiar Cliente
+        </button>
     </div>
     @else
     <div class="mb-6">
@@ -74,7 +78,17 @@
                         <div>
                             {{ $product['name'] }} ({{ $product['quantity'] }} x {{ number_format($product['price'], 2) }} €)
                         </div>
-                        <button class="text-red-500 underline hover:text-red-700" wire:click="removeProduct({{ $productId }})">Eliminar</button>
+                        <div class="flex items-center">
+                            <button class="text-gray-500 hover:text-gray-700 mr-2" wire:click="updateProductQuantity({{ $productId }}, -1)">
+                                <i class="fas fa-minus-circle"></i>
+                            </button>
+                            <button class="text-gray-500 hover:text-gray-700" wire:click="updateProductQuantity({{ $productId }}, 1)">
+                                <i class="fas fa-plus-circle"></i>
+                            </button>
+                        </div>
+                        <button class="text-red-500 underline hover:text-red-700 ml-4 flex items-center" wire:click="removeProduct({{ $productId }})">
+                            <i class="fas fa-trash-alt mr-1"></i> Eliminar
+                        </button>
                     </li>
                     @endforeach
                 </ul>
@@ -90,7 +104,7 @@
                     </select>
                 </div>
                 <button wire:click="placeOrder" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg mt-4 w-full">
-                    Realizar Pedido
+                    <i class="fas fa-shopping-cart mr-2"></i> Realizar Pedido
                 </button>
             </div>
         </div>
@@ -102,11 +116,11 @@
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
             <h2 class="text-xl font-semibold mb-4">¿Desea recibir una copia del pedido por correo?</h2>
             <div class="flex justify-around">
-                <button wire:click="confirmEmailSend(true)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg">
-                    Sí
+                <button wire:click="confirmEmailSend(true)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg flex items-center justify-center">
+                    <i class="fas fa-envelope mr-2"></i> Sí
                 </button>
-                <button wire:click="confirmEmailSend(false)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded shadow-lg">
-                    No
+                <button wire:click="confirmEmailSend(false)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded shadow-lg flex items-center justify-center">
+                    <i class="fas fa-times mr-2"></i> No
                 </button>
             </div>
         </div>

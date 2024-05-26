@@ -12,7 +12,7 @@ class Product extends Model
     use HasFactory, SoftDeletes, Searchable;
 
     protected $fillable = [
-        'name', 'description', 'image', 'quantity', 'price', 'category_id', 'supplier_id', 'minimun_stock'
+        'name', 'description', 'image', 'quantity', 'price', 'category_id', 'supplier_id', 'minimum_stock'
     ];
 
     /**
@@ -86,6 +86,7 @@ class Product extends Model
     {
         return $this->quantity < $this->minimum_stock;
     }
+
     /**
      * Get category name with fallback.
      *
