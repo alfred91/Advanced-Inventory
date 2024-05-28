@@ -17,11 +17,26 @@ class SupplierFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->company(),
-            'email' => fake()->unique()->companyEmail(),
-            'phone_number' => fake()->phoneNumber(),
-            'address' => fake()->address(),
-            'image' => 'suppliers/company.svg',
+            'name' => $this->faker->company(),
+            'email' => $this->faker->unique()->companyEmail(),
+            'phone_number' => $this->faker->phoneNumber(),
+            'address' => $this->faker->address(),
+            'image' => 'suppliers/default.png',
         ];
+    }
+
+    /**
+     * Create a supplier with specific data.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function withSpecificData(string $name, string $image)
+    {
+        return $this->state(function (array $attributes) use ($name, $image) {
+            return [
+                'name' => $name,
+                'image' => 'suppliers/' . $image,
+            ];
+        });
     }
 }

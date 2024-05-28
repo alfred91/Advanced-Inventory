@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Customer;
 use App\Models\Order;
+use Illuminate\Support\Facades\DB;
 
 class CustomersList extends Component
 {
@@ -18,6 +19,7 @@ class CustomersList extends Component
     public $showModal = false;
     public $isEdit = false;
     public $customerId;
+    public $dni;
     public $name;
     public $email;
     public $phone_number;
@@ -32,8 +34,9 @@ class CustomersList extends Component
     public $orders = [];
 
     protected $rules = [
+        'dni' => 'required|string|max:20|unique:customers,dni,' . '$this->customerId',
         'name' => 'required|string|max:255',
-        'email' => 'required|email|max:255',
+        'email' => 'required|email|max:255|unique:customers,email,' . '$this->customerId',
         'phone_number' => 'required|string|max:20',
         'address' => 'required|string|max:255',
     ];
@@ -143,15 +146,18 @@ class CustomersList extends Component
     // Helper methods
     private function resetInputFields()
     {
+        $this->dni = '';
         $this->name = '';
         $this->email = '';
         $this->phone_number = '';
         $this->address = '';
+        $this->customerId = null;
     }
 
     private function fillCustomerData($customer)
     {
         $this->customerId = $customer->id;
+        $this->dni = $customer->dni;
         $this->name = $customer->name;
         $this->email = $customer->email;
         $this->phone_number = $customer->phone_number;
@@ -161,6 +167,7 @@ class CustomersList extends Component
     private function getCustomerData()
     {
         return [
+            'dni' => $this->dni,
             'name' => $this->name,
             'email' => $this->email,
             'phone_number' => $this->phone_number,
@@ -177,11 +184,15 @@ class CustomersList extends Component
                 $q->where('name', 'like', '%' . $this->search . '%')
                     ->orWhere('email', 'like', '%' . $this->search . '%')
                     ->orWhere('phone_number', 'like', '%' . $this->search . '%')
-                    ->orWhere('address', 'like', '%' . $this->search . '%');
+                    ->orWhere('address', 'like', '%' . $this->search . '%')
+                    ->orWhere('dni', 'like', '%' . $this->search . '%');
             });
         }
 
-        $query->orderBy($this->sortField, $this->sortDirection);
+        $query->leftJoin('orders', 'customers.id', '=', 'orders.customer_id')
+            ->select('customers.id', 'customers.dni', 'customers.name', 'customers.email', 'customers.phone_number', 'customers.address', DB::raw('COUNT(orders.id) as orders_count'))
+            ->groupBy('customers.id', 'customers.dni', 'customers.name', 'customers.email', 'customers.phone_number', 'customers.address')
+            ->orderBy($this->sortField === 'orders_count' ? DB::raw('orders_count') : $this->sortField, $this->sortDirection);
 
         $customers = $query->paginate(10);
 

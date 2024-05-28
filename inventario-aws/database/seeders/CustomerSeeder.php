@@ -15,6 +15,7 @@ class CustomerSeeder extends Seeder
     {
         // Crear un cliente genérico
         Customer::create([
+            'dni' => '12345678A',
             'name' => 'Cliente Genérico',
             'email' => 'clienteGenerico@miempresa.com',
             'phone_number' => '0000000000',

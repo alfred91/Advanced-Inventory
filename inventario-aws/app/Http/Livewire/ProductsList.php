@@ -108,7 +108,7 @@ class ProductsList extends Component
         $this->description = $product->description;
         $this->price = $product->price;
         $this->quantity = $product->quantity;
-        $this->image = $product->image;
+        $this->image = $product->image ? Storage::url($product->image) : null;
         $this->category_id = $product->category_id;
         $this->supplier_id = $product->supplier_id;
         $this->minimum_stock = $product->minimum_stock;

@@ -146,7 +146,7 @@
             <tbody>
                 @foreach ($products as $product)
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                    <td class="px-6 py-4 flex items-center gap-2">
+                    <td class="px-6 py-4">
                         {{ $product->name }}
                         @if($product->quantity <= $product->minimum_stock)
                             <span class="text-red-500">
@@ -164,19 +164,24 @@
                             <span class="text-red-500">
                                 <i class="fas fa-exclamation-triangle"></i>
                             </span>
+                            <span>{{ $product->minimum_stock }}</span>
                             @else
                             <span class="text-green-500">
                                 <i class="fas fa-check"></i>
                             </span>
+                            <span>{{ $product->minimum_stock }}</span>
                             @endif
                     </td>
-                    <td class="px-6 py-4 flex items-center gap-2">
-                        <button wire:click="openIncidentModal({{ $product->id }})" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">-</button>
-                        <button wire:click="openCustomQuantityModal({{ $product->id }})" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">+</button>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <button wire:click="openIncidentModal({{ $product->id }})" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">-</button>
+                            <button wire:click="openCustomQuantityModal({{ $product->id }})" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">+</button>
+                        </div>
                     </td>
                 </tr>
                 @endforeach
             </tbody>
+
         </table>
         <div class="mt-4">
             {{ $products->links() }}

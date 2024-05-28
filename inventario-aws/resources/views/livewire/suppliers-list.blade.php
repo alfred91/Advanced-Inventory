@@ -73,11 +73,16 @@
                         <td class="px-6 py-4">{{ $supplier->address }}</td>
                         <td class="px-6 py-4">
                             @if ($supplier->image)
-                            <img src="{{ Storage::url($supplier->image) }}" alt="Proveedor" class="w-20 h-20 object-cover rounded-lg">
+                            <div class="w-20 h-20 overflow-hidden rounded-lg flex items-center justify-center">
+                                <img src="{{ Storage::url($supplier->image) }}" alt="Proveedor" class="max-h-full max-w-full object-contain">
+                            </div>
                             @else
-                            <img src="{{ asset('storage/suppliers/default.gif') }}" alt="Proveedor" class="w-20 h-20 object-cover rounded-lg">
+                            <div class="w-20 h-20 overflow-hidden rounded-lg flex items-center justify-center">
+                                <img src="{{ asset('storage/suppliers/default.gif') }}" alt="Proveedor" class="max-h-full max-w-full object-contain">
+                            </div>
                             @endif
                         </td>
+
                         <td class="px-6 py-4 flex items-center gap-2">
                             <button wire:click="openModal(true, {{ $supplier->id }})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
                                 Editar
@@ -124,7 +129,9 @@
                 </div>
                 @if ($image)
                 <div class="mb-4">
-                    <img src="{{ Storage::url($image) }}" alt="Imagen actual" class="w-20 h-20 object-cover rounded-md shadow-sm">
+                    <div class="w-20 h-20 overflow-hidden rounded-lg bg-gray-100 flex items-center justify-center">
+                        <img src="{{ Storage::url($image) }}" alt="Imagen actual" class="max-h-full max-w-full object-contain rounded-md shadow-sm">
+                    </div>
                 </div>
                 @endif
                 <div>
@@ -132,6 +139,7 @@
                     <input type="file" wire:model="newImage" id="newImage" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
                     @error('newImage') <span class="error text-red-500">{{ $message }}</span> @enderror
                 </div>
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Productos</label>
                     <div class="max-h-60 overflow-y-auto">

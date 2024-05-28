@@ -136,7 +136,7 @@
                     </td>
                     <td class="px-6 py-4">{{ $product->quantity }} / {{ $product->minimum_stock }}</td>
                     <td class="px-6 py-4">
-                        <img src="{{ asset('storage/' . $product->image) }}" alt="Imagen de Producto" class="w-20 h-auto rounded-lg">
+                        <img src="{{ Storage::url($product->image) }}" alt="Imagen de Producto" class="w-20 h-auto rounded-lg">
                     </td>
 
                     <td class="px-6 py-4 flex items-center gap-2">
@@ -208,9 +208,10 @@
                     <input type="number" wire:model="minimum_stock" id="minimum_stock" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" min="0">
                     @error('minimum_stock') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
-                @if ($image)
+                @if ($isEdit && $image)
                 <div>
-                    <img src="{{ asset('storage/' . $image) }}" alt="Imagen actual" class="w-20 h-20 object-cover rounded-md shadow-sm">
+                    <label class="block text-sm font-medium text-gray-700">Imagen Actual</label>
+                    <img src="{{ $image }}" alt="Imagen actual" class="w-20 h-20 object-cover rounded-md shadow-sm">
                 </div>
                 @endif
                 <div>

@@ -2,12 +2,13 @@
 
 use App\Http\Livewire\SalesTPV;
 use App\Http\Livewire\OrdersList;
+use App\Http\Livewire\CategoryList;
 use App\Http\Livewire\ProductsList;
+use App\Http\Livewire\StockManager;
 use App\Http\Livewire\CustomersList;
 use App\Http\Livewire\SuppliersList;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
-use App\Http\Livewire\StockManager;
 
 Route::get('/', function () {
     return view('welcome');
@@ -23,6 +24,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/products', ProductsList::class)->name('products.index');
         Route::get('/orders', OrdersList::class)->name('orders.index');
         Route::get('/customers', CustomersList::class)->name('customers.index');
+        Route::get('/categories', CategoryList::class)->name('categories.index');
     });
 
     // Rutas específicas para Mozo de Almacén

@@ -1,7 +1,7 @@
 <div class="container mx-auto p-4">
     <h1 class="text-xl font-semibold mb-4">Lista de Clientes</h1>
     <div class="flex justify-between items-center mb-4">
-        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por nombre, email o teléfono..." wire:model="search" wire:input.debounce.500ms="reloadCustomers">
+        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por nombre, email, teléfono o DNI..." wire:model="search" wire:input.debounce.500ms="reloadCustomers">
         <button wire:click="showCreateModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
             <i class="fas fa-plus mr-2"></i> Añadir Cliente
         </button>
@@ -15,6 +15,18 @@
                         <button wire:click="sortBy('id')" class="focus:outline-none">
                             ID
                             @if($sortField === 'id')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('dni')" class="focus:outline-none">
+                            DNI
+                            @if($sortField === 'dni')
                             @if($sortDirection === 'asc')
                             &#9650;
                             @else
@@ -71,7 +83,18 @@
                             @endif
                         </button>
                     </th>
-                    <th class="px-6 py-3">Pedidos</th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('orders_count')" class="focus:outline-none">
+                            Pedidos
+                            @if($sortField === 'orders_count')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
                     <th class="px-6 py-3">Acciones</th>
                 </tr>
             </thead>
@@ -79,15 +102,19 @@
                 @foreach ($customers as $customer)
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                     <td class="px-6 py-4">{{ $customer->id }}</td>
+                    <td class="px-6 py-4">{{ $customer->dni }}</td>
                     <td class="px-6 py-4">{{ $customer->name }}</td>
                     <td class="px-6 py-4">{{ $customer->email }}</td>
                     <td class="px-6 py-4">{{ $customer->phone_number }}</td>
                     <td class="px-6 py-4">{{ $customer->address }}</td>
                     <td class="px-6 py-4">
                         @if($customer->orders()->count() > 0)
-                        <button wire:click="showCustomerOrders({{ $customer->id }})" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
-                            <i class="fas fa-eye"></i>
-                        </button>
+                        <div class="flex items-center gap-2">
+                            {{ $customer->orders()->count() }}
+                            <button wire:click="showCustomerOrders({{ $customer->id }})" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
                         @endif
                     </td>
                     <td class="px-6 py-4 flex items-center gap-2">
@@ -113,6 +140,11 @@
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
             <h2 class="text-xl font-semibold mb-4">{{ $isEdit ? 'Editar Cliente: ' . $name : 'Nuevo Cliente' }}</h2>
             <form wire:submit.prevent="saveCustomer" class="space-y-4">
+                <div>
+                    <label for="dni" class="block text-sm font-medium text-gray-700">DNI</label>
+                    <input type="text" wire:model.defer="dni" id="dni" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                    @error('dni') <span class="error text-red-500">{{ $message }}</span> @enderror
+                </div>
                 <div>
                     <label for="name" class="block text-sm font-medium text-gray-700">Nombre</label>
                     <input type="text" wire:model.defer="name" id="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">

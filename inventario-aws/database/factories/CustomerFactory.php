@@ -17,10 +17,25 @@ class CustomerFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'phone_number' => fake()->phoneNumber(),
-            'address' => fake()->address()
+            'dni' => $this->generateDni(),
+            'name' => $this->faker->name(),
+            'email' => $this->faker->unique()->safeEmail(),
+            'phone_number' => $this->faker->phoneNumber(),
+            'address' => $this->faker->address()
         ];
+    }
+
+    /**
+     * Generar un DNI aleatorio.
+     *
+     * @return string
+     */
+    protected function generateDni(): string
+    {
+        $dni = '';
+        for ($i = 0; $i < 8; $i++) {
+            $dni .= rand(0, 9);
+        }
+        return $dni;
     }
 }

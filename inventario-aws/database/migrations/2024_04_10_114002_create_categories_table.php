@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }
@@ -25,12 +26,11 @@ return new class extends Migration
     {
         // Desactiva la verificación de claves foráneas
         Schema::disableForeignKeyConstraints();
-    
+
         // Elimina la tabla categories
         Schema::dropIfExists('categories');
-    
+
         // Reactiva la verificación de claves foráneas
         Schema::enableForeignKeyConstraints();
     }
-    
 };
