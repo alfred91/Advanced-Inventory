@@ -21,6 +21,8 @@ class StockManager extends Component
     public $selectedProduct = null;
     public $customQuantity = 1;
     public $incidentReason = '';
+    public $incidentDescription = '';
+
     public $showCustomQuantityModal = false;
     public $showIncidentModal = false;
     public $hasLowStock = false;
@@ -137,7 +139,8 @@ class StockManager extends Component
     {
         $this->validate([
             'customQuantity' => 'required|integer|min:1|max:' . $this->selectedProduct->quantity,
-            'incidentReason' => 'required|string|max:255'
+            'incidentReason' => 'required|string|max:255',
+            'incidentDescription' => 'nullable|string|max:1000',
         ]);
 
         $this->decrementStock($this->selectedProduct->id, $this->customQuantity);
@@ -145,6 +148,7 @@ class StockManager extends Component
         $product = $this->selectedProduct;
         $quantity = $this->customQuantity;
         $reason = $this->incidentReason;
+        $description = $this->incidentDescription;
 
         $admins = User::whereHas('roles', function ($query) {
             $query->where('name', 'administrativo');
@@ -153,7 +157,7 @@ class StockManager extends Component
         foreach ($admins as $admin) {
             $details = [
                 'title' => 'Incidencia de Stock',
-                'body' => "Se ha registrado una incidencia en el inventario.\n\nProducto: {$product->name}\nCantidad: {$quantity}\nMotivo: {$reason}\n\nPor favor, revisa la situación lo antes posible."
+                'body' => "Se ha registrado una incidencia en el inventario.\n\nProducto: {$product->name}\nCantidad: {$quantity}\nMotivo: {$reason}\nDescripción: {$description}\n\nPor favor, revisa la situación lo antes posible."
             ];
 
             Mail::raw($details['body'], function ($message) use ($details, $admin) {
@@ -163,7 +167,6 @@ class StockManager extends Component
         }
         $this->closeIncidentModal();
     }
-
     public function render()
     {
         $query = Product::query()->selectRaw('products.*, (quantity <= minimum_stock) as stock_alert');

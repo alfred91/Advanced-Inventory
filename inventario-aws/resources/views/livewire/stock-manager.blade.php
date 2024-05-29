@@ -79,6 +79,11 @@
                 </select>
                 @error('incidentReason') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
             </div>
+            <div class="mt-4">
+                <label for="incidentDescription" class="block text-sm font-medium text-gray-700">Descripción (Opcional)</label>
+                <textarea wire:model="incidentDescription" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"></textarea>
+                @error('incidentDescription') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+            </div>
             <div class="flex justify-end mt-4">
                 <button wire:click="closeIncidentModal" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">Cancelar</button>
                 <button wire:click="reportIncident" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105 ml-2">Registrar</button>
@@ -181,7 +186,6 @@
                 </tr>
                 @endforeach
             </tbody>
-
         </table>
         <div class="mt-4">
             {{ $products->links() }}

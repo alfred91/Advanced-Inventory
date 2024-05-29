@@ -163,11 +163,14 @@ class ProductsList extends Component
         $this->supplier_id = '';
         $this->minimum_stock = 100;
     }
-
     public function sortBy($field)
     {
         if ($field === 'isStockBelowMinimum') {
             $field = 'stock_alert';
+        }
+
+        if ($field === 'quantity_minimum') {
+            $field = 'quantity';
         }
 
         if ($this->sortField === $field) {

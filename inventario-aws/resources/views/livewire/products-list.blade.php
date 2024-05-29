@@ -108,11 +108,23 @@
                             @endif
                         </button>
                     </th>
-                    <th class="px-6 py-3">Cantidad / Mínimo</th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('quantity_minimum')" class="focus:outline-none">
+                            Cantidad / Mínimo
+                            @if($sortField === 'quantity')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
                     <th class="px-6 py-3">Imagen</th>
                     <th class="px-6 py-3">Acciones</th>
                 </tr>
             </thead>
+
             <tbody>
                 @foreach ($products as $product)
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">

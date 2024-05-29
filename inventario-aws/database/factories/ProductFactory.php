@@ -31,7 +31,7 @@ class ProductFactory extends Factory
             'cortacesped.png',
             'grabadora.png',
             'iphone.png',
-            'jbl1.png',
+            'cascos1.png',
             'satinadorpng',
             'lavadora.png',
             'macbook.png',
