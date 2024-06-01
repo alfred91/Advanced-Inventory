@@ -1,5 +1,4 @@
 <div class="container mx-auto p-4">
-    <h1 class="text-xl font-semibold mb-4">Gestión de Stock</h1>
 
     <!-- Botón de alerta de stock bajo -->
     @if ($hasLowStock)

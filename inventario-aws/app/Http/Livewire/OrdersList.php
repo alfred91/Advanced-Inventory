@@ -102,7 +102,6 @@ class OrdersList extends Component
 
             $order->delete();
 
-            // Opcional: enviar correo de cancelación
             $order->status = 'cancelled';
             $order->sendStatusChangeEmail();
 
@@ -111,6 +110,16 @@ class OrdersList extends Component
         } else {
             session()->flash('error', 'Order not found.');
         }
+    }
+    public function getTranslatedStatus($status)
+    {
+        $translations = [
+            'pending' => 'Pendiente',
+            'completed' => 'Completado',
+            'cancelled' => 'Cancelado',
+        ];
+
+        return $translations[$status] ?? $status;
     }
 
     public function saveChanges()

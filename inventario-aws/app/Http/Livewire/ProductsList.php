@@ -34,6 +34,10 @@ class ProductsList extends Component
     public $category_id;
     public $supplier_id;
     public $minimum_stock;
+    public $showImageModal = false;
+    public $currentImage = null;
+
+
 
     // Ordenamiento
     public $sortField = 'name';
@@ -99,6 +103,17 @@ class ProductsList extends Component
         $this->resetInputFields();
     }
 
+    public function openImageModal($imageUrl)
+    {
+        $this->currentImage = $imageUrl;
+        $this->showImageModal = true;
+    }
+
+    public function closeImageModal()
+    {
+        $this->showImageModal = false;
+        $this->currentImage = null;
+    }
     public function loadProduct($productId)
     {
         $this->productId = $productId;

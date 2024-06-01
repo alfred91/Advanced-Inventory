@@ -1,5 +1,4 @@
 <div class="container mx-auto p-4">
-    <h1 class="text-xl font-semibold mb-4">Lista de Pedidos</h1>
     <div class="flex justify-between items-center mb-4">
         <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por producto, categoría o proveedor..." wire:model="search" wire:input.debounce.500ms="reloadOrders">
         <button wire:click="openCreateModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
@@ -80,7 +79,7 @@
                     <td class="px-6 py-4">{{ $order->id }}</td>
                     <td class="px-6 py-4">{{ $order->customer->name }}</td>
                     <td class="px-6 py-4">{{ number_format($order->total_amount, 2) }} €</td>
-                    <td class="px-6 py-4">{{ ucfirst($order->status) }}</td>
+                    <td class="px-6 py-4">{{ $this->getTranslatedStatus($order->status) }}</td>
                     <td class="px-6 py-4">{{ $order->order_date }}</td>
                     <td class="px-6 py-4 flex items-center gap-2">
                         <button wire:click="showOrderDetails({{ $order->id }})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">

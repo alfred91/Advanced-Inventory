@@ -1,9 +1,8 @@
 <div class="container mx-auto p-4">
-    <h1 class="text-xl font-semibold mb-4">Lista de Proveedores</h1>
     <div class="flex justify-between items-center mb-4">
         <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar Proveedor..." wire:model="search" wire:input.debounce.500ms="reloadSuppliers">
         <button wire:click="openModal(false)" class="inline-flex items-center justify-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
-            <i class="fas fa-plus mr-2"></i> Añadir Proveedor
+            <i class="material-icons mr-2">add</i> Añadir Proveedor
         </button>
     </div>
 
@@ -73,22 +72,22 @@
                         <td class="px-6 py-4">{{ $supplier->address }}</td>
                         <td class="px-6 py-4">
                             @if ($supplier->image)
-                            <div class="w-20 h-20 overflow-hidden rounded-lg flex items-center justify-center">
-                                <img src="{{ Storage::url($supplier->image) }}" alt="Proveedor" class="max-h-full max-w-full object-contain">
+                            <div class="w-20 h-20 overflow-hidden rounded-lg flex items-center justify-center cursor-pointer">
+                                <img src="{{ Storage::url($supplier->image) }}" alt="Proveedor" class="max-h-full max-w-full object-contain transition-transform transform hover:scale-110 hover:brightness-110" wire:click="openImageModal('{{ Storage::url($supplier->image) }}')">
                             </div>
                             @else
-                            <div class="w-20 h-20 overflow-hidden rounded-lg flex items-center justify-center">
-                                <img src="{{ asset('storage/suppliers/default.gif') }}" alt="Proveedor" class="max-h-full max-w-full object-contain">
+                            <div class="w-20 h-20 overflow-hidden rounded-lg flex items-center justify-center cursor-pointer">
+                                <img src="{{ asset('storage/suppliers/default.gif') }}" alt="Proveedor" class="max-h-full max-w-full object-contain transition-transform transform hover:scale-110 hover:brightness-110" wire:click="openImageModal('{{ asset('storage/suppliers/default.gif') }}')">
                             </div>
                             @endif
                         </td>
 
                         <td class="px-6 py-4 flex items-center gap-2">
                             <button wire:click="openModal(true, {{ $supplier->id }})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
-                                Editar
+                                <i class="material-icons">edit</i>
                             </button>
                             <button class="bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded shadow-lg transition-transform transform hover:scale-110" onclick="confirm('¿Está seguro de que desea eliminar este proveedor?') || event.stopImmediatePropagation()" wire:click="deleteSupplier({{ $supplier->id }})">
-                                <i class="fas fa-trash-alt"></i>
+                                <i class="material-icons">delete</i>
                             </button>
                         </td>
                     </tr>
@@ -159,7 +158,7 @@
                                         <input type="number" step="0.01" min="0.01" wire:model.defer="products.{{ $loop->index }}.price" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
                                     </td>
                                     <td class="px-4 py-2">
-                                        <button type="button" wire:click="removeProduct({{ $product['id'] }})" class="text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button>
+                                        <button type="button" wire:click="removeProduct({{ $product['id'] }})" class="text-red-500 hover:text-red-700"><i class="material-icons">delete</i></button>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -195,6 +194,22 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+    @endif
+
+    <!-- Modal Ver Imagen -->
+    @if ($showImageModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white p-4 rounded-lg shadow-lg max-w-lg w-full mx-2">
+            <div class="flex justify-end">
+                <button wire:click="closeImageModal" class="text-gray-600 hover:text-gray-800">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div class="flex justify-center">
+                <img src="{{ $currentImage }}" alt="Imagen del Proveedor" class="rounded-md max-h-screen">
+            </div>
         </div>
     </div>
     @endif

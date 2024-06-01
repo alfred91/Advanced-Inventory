@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Category;
@@ -13,7 +14,7 @@ use Carbon\Carbon;
 
 class SalesTPV extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     public $isRegistered = null;
     public $search = '';
@@ -22,17 +23,26 @@ class SalesTPV extends Component
     public $totalAmount = 0;
     public $paymentMethod = 'cash';
     public $selectedCategory = null;
-    public $showCustomerModal = false;
+    public $selectedCategoryName = 'Todas';
+    public $selectedCategoryImage = 'storage/categories/todas.png';
+    public $showCategories = false;
     public $showConfirmationModal = false;
     public $genericCustomer;
     public $orderId;
     public $isLoading = false;
+    public $showCustomerModal = false;
 
     protected $queryString = ['search'];
 
     public function mount()
     {
         $this->genericCustomer = Customer::where('name', 'Cliente Genérico')->first();
+        $allCategory = Category::where('name', 'Todas')->first();
+        if ($allCategory) {
+            $this->selectedCategory = $allCategory->id;
+            $this->selectedCategoryName = $allCategory->name;
+            $this->selectedCategoryImage = $allCategory->image;
+        }
     }
 
     public function updatingSearch()
@@ -155,9 +165,24 @@ class SalesTPV extends Component
         $this->showConfirmationModal = false;
     }
 
-    public function selectCategory($categoryId)
+    public function toggleCategories()
     {
-        $this->selectedCategory = $categoryId;
+        $this->showCategories = !$this->showCategories;
+    }
+
+    public function selectCategory($categoryId, $categoryName)
+    {
+        $category = Category::find($categoryId);
+        if ($category) {
+            $this->selectedCategory = $categoryId;
+            $this->selectedCategoryName = $categoryName;
+            $this->selectedCategoryImage = $category->image;
+        } else {
+            $this->selectedCategory = null;
+            $this->selectedCategoryName = 'Todas';
+            $this->selectedCategoryImage = 'storage/categories/todas.png';
+        }
+        $this->showCategories = false;
         $this->resetPage();
     }
 

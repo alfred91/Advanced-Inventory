@@ -21,6 +21,10 @@ class SuppliersList extends Component
     public $showModal = false;
     public $isEdit = false;
 
+    // Estado del modal de imagen
+    public $showImageModal = false;
+    public $currentImage = null;
+
     // Propiedades del proveedor
     public $supplierId;
     public $name;
@@ -52,10 +56,9 @@ class SuppliersList extends Component
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:suppliers,email,' . $this->supplierId,
-            'phone_number' => 'nullable|string',
+            'phone_number' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
             'newImage' => 'nullable|image|max:2048',
-            'products.*.price' => 'required|numeric|min:0',
             'newProductName' => 'nullable|string|max:255',
             'newProductDescription' => 'nullable|string',
             'newProductPrice' => 'nullable|numeric|min:0',
@@ -78,9 +81,6 @@ class SuppliersList extends Component
 
     public function updatedSearch()
     {
-        if (empty($this->search)) {
-            $this->resetPage();
-        }
         $this->isLoading = false;
     }
 
@@ -111,6 +111,18 @@ class SuppliersList extends Component
         $this->resetInputFields();
     }
 
+    public function openImageModal($imageUrl)
+    {
+        $this->currentImage = $imageUrl;
+        $this->showImageModal = true;
+    }
+
+    public function closeImageModal()
+    {
+        $this->showImageModal = false;
+        $this->currentImage = null;
+    }
+
     public function loadSupplier($supplierId)
     {
         $this->supplierId = $supplierId;
@@ -126,13 +138,23 @@ class SuppliersList extends Component
 
     public function saveSupplier()
     {
-        $validatedData = $this->validate();
+        $this->validate();
 
         if ($this->isEdit) {
             $supplier = Supplier::findOrFail($this->supplierId);
-            $supplier->update($validatedData);
+            $supplier->update([
+                'name' => $this->name,
+                'email' => $this->email,
+                'phone_number' => $this->phone_number,
+                'address' => $this->address,
+            ]);
         } else {
-            $supplier = Supplier::create($validatedData);
+            $supplier = Supplier::create([
+                'name' => $this->name,
+                'email' => $this->email,
+                'phone_number' => $this->phone_number,
+                'address' => $this->address,
+            ]);
         }
 
         if ($this->newImage) {
@@ -146,41 +168,19 @@ class SuppliersList extends Component
 
         session()->flash('message', $this->isEdit ? 'Proveedor actualizado correctamente.' : 'Proveedor creado correctamente.');
         $this->closeModal();
-        $this->resetPage();
     }
 
     public function deleteSupplier($supplierId)
     {
-        $supplier = Supplier::find($supplierId);
+        $supplier = Supplier::findOrFail($supplierId);
         if ($supplier) {
             if ($supplier->image && $supplier->image !== 'suppliers/default.png') {
                 Storage::delete('public/' . $supplier->image);
             }
             $supplier->delete();
+            session()->flash('message', 'Proveedor eliminado correctamente.');
             $this->resetPage();
         }
-    }
-
-    public function saveChanges()
-    {
-        $this->saveSupplier();
-    }
-
-    private function resetInputFields()
-    {
-        $this->name = '';
-        $this->email = '';
-        $this->phone_number = '';
-        $this->address = '';
-        $this->image = '';
-        $this->newImage = null;
-        $this->products = [];
-        $this->newProductName = null;
-        $this->newProductDescription = null;
-        $this->newProductPrice = null;
-        $this->newProductQuantity = null;
-        $this->newProductCategoryId = null;
-        $this->newProductMinimumStock = null;
     }
 
     public function sortBy($field)
@@ -191,6 +191,25 @@ class SuppliersList extends Component
             $this->sortDirection = 'asc';
         }
         $this->sortField = $field;
+        $this->resetPage();
+    }
+
+    private function resetInputFields()
+    {
+        $this->supplierId = null;
+        $this->name = '';
+        $this->email = '';
+        $this->phone_number = '';
+        $this->address = '';
+        $this->image = '';
+        $this->newImage = null;
+        $this->products = [];
+        $this->newProductName = '';
+        $this->newProductDescription = '';
+        $this->newProductPrice = '';
+        $this->newProductQuantity = '';
+        $this->newProductCategoryId = '';
+        $this->newProductMinimumStock = '';
     }
 
     public function addProduct()

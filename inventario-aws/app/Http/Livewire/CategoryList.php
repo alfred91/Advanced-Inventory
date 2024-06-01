@@ -89,7 +89,6 @@ class CategoryList extends Component
 
         $this->showModal = false;
         $this->resetInputFields();
-        $this->reloadCategories();
     }
 
     public function deleteCategory($id)
@@ -134,7 +133,7 @@ class CategoryList extends Component
 
         $query->orderBy($this->sortField, $this->sortDirection);
 
-        $categories = $query->paginate(10);
+        $categories = $query->paginate(12);
 
         return view('livewire.category-list', [
             'categories' => $categories,

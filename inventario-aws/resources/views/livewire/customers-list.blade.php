@@ -1,5 +1,4 @@
 <div class="container mx-auto p-4">
-    <h1 class="text-xl font-semibold mb-4">Lista de Clientes</h1>
     <div class="flex justify-between items-center mb-4">
         <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por nombre, email, teléfono o DNI..." wire:model="search" wire:input.debounce.500ms="reloadCustomers">
         <button wire:click="showCreateModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">

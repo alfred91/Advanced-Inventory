@@ -1,10 +1,9 @@
 <div class="container mx-auto p-4">
-    <h1 class="text-xl font-semibold mb-4">Lista de Productos</h1>
     <div class="flex justify-between items-center mb-4">
         <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por producto, categoría o proveedor..." wire:model="search" wire:input.debounce.500ms="reloadProducts">
         <div wire:loading class="spinner">Buscando...</div>
         <button wire:click="openModal(false)" class="inline-flex items-center justify-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
-            <i class="fas fa-plus mr-2"></i> Añadir Producto
+            <i class="material-icons mr-2">add</i> Añadir Producto
         </button>
     </div>
 
@@ -138,28 +137,29 @@
                     <td class="px-6 py-4">
                         @if($product->quantity <= $product->minimum_stock)
                             <span class="text-red-500">
-                                <i class="fas fa-exclamation-triangle"></i>
+                                <i class="material-icons">error</i>
                             </span>
                             @else
                             <span class="text-green-500">
-                                <i class="fas fa-check"></i>
+                                <i class="material-icons">check_circle</i>
                             </span>
                             @endif
                     </td>
                     <td class="px-6 py-4">{{ $product->quantity }} / {{ $product->minimum_stock }}</td>
                     <td class="px-6 py-4">
-                        <img src="{{ Storage::url($product->image) }}" alt="Imagen de Producto" class="w-20 h-auto rounded-lg">
+                        <div class="w-20 h-20 overflow-hidden rounded-lg flex items-center justify-center">
+                            <img src="{{ Storage::url($product->image) }}" alt="Imagen de Producto" class="h-full w-auto object-contain transition-transform transform hover:scale-110 hover:brightness-110 cursor-pointer" wire:click="openImageModal('{{ Storage::url($product->image) }}')">
+                        </div>
                     </td>
 
                     <td class="px-6 py-4 flex items-center gap-2">
                         <button wire:click="openModal(true, {{ $product->id }})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
-                            Editar
+                            <i class="material-icons">edit</i>
                         </button>
                         <button class="bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded shadow-lg transition-transform transform hover:scale-110" onclick="confirm('¿Está seguro de que desea eliminar este producto?') || event.stopImmediatePropagation()" wire:click="deleteProduct({{ $product->id }})">
-                            <i class="fas fa-trash-alt"></i>
+                            <i class="material-icons">delete</i>
                         </button>
                     </td>
-
                 </tr>
                 @endforeach
             </tbody>
@@ -168,6 +168,22 @@
             {{ $products->links() }}
         </div>
     </div>
+
+    <!-- Modal Ver imagen -->
+    @if ($showImageModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white p-4 rounded-lg shadow-lg max-w-lg w-full mx-2">
+            <div class="flex justify-end">
+                <button wire:click="closeImageModal" class="text-gray-600 hover:text-gray-800">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div class="flex justify-center">
+                <img src="{{ $currentImage }}" alt="Imagen del Producto" class="rounded-md max-h-screen">
+            </div>
+        </div>
+    </div>
+    @endif
 
     <!-- Modal Crear/Editar Producto -->
     @if ($showModal)

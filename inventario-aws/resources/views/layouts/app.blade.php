@@ -11,6 +11,8 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <!-- Styles -->
     @livewireStyles
@@ -33,6 +35,14 @@
         <main>
             {{ $slot }}
         </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 shadow-inner">
+        <div class="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 text-center">
+            &copy; {{ date('Y') }} {{ config('app.name', 'Laravel') }}. All rights reserved.
+        </div>
+    </footer>
     </div>
 
     <!-- Scripts -->

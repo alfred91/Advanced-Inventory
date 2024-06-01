@@ -29,7 +29,7 @@
                     <x-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.*')" class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
                         {{ __('Clientes') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('sales.tpv')" :active="request()->routeIs('sales-tpv.*')" class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
+                    <x-nav-link :href="route('sales.tpv')" :active="request()->routeIs('sales.tpv')" class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
                         {{ __('TPV') }}
                     </x-nav-link>
                     <x-nav-link :href="route('stock.manager')" :active="request()->routeIs('stock.manager')" class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
@@ -45,7 +45,7 @@
                     </x-nav-link>
                     @elseif(Auth::user()->role === 'ventas')
                     <!-- Enlaces para Ventas (TPV) -->
-                    <x-nav-link :href="route('sales.tpv')" :active="request()->routeIs('sales-tpv.*')" class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
+                    <x-nav-link :href="route('sales.tpv')" :active="request()->routeIs('sales.tpv')" class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
                         {{ __('TPV') }}
                     </x-nav-link>
                     @endif
@@ -111,7 +111,7 @@
             <x-responsive-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.*')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
                 {{ __('Clientes') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('sales.tpv')" :active="request()->routeIs('sales-tpv.*')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
+            <x-responsive-nav-link :href="route('sales.tpv')" :active="request()->routeIs('sales.tpv')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
                 {{ __('TPV') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('stock.manager')" :active="request()->routeIs('stock.manager')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -127,7 +127,7 @@
             </x-responsive-nav-link>
             @elseif(Auth::user()->role === 'ventas')
             <!-- Enlaces para Ventas (TPV) -->
-            <x-responsive-nav-link :href="route('sales.tpv')" :active="request()->routeIs('sales-tpv.*')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
+            <x-responsive-nav-link :href="route('sales.tpv')" :active="request()->routeIs('sales.tpv')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
                 {{ __('TPV') }}
             </x-responsive-nav-link>
             @endif

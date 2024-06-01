@@ -1,5 +1,4 @@
 <div class="container mx-auto p-4">
-    <h1 class="text-2xl font-semibold mb-6 text-center">Categorías</h1>
     <div class="flex justify-between items-center mb-4">
         <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar categoría..." wire:model="search" wire:input.debounce.500ms="reloadCategories">
         <button wire:click="showCreateModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
@@ -9,9 +8,9 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         @foreach($categories as $category)
-        <div class="border p-4 rounded shadow-lg text-center transition-transform transform hover:scale-105">
+        <div class="border p-4 rounded text-center transition-transform transform hover:scale-105 hover:bg-gray-100">
             <div class="w-full h-36 overflow-hidden rounded-lg flex items-center justify-center">
-                <img src="{{ asset($category->image) }}" alt="{{ $category->name }}" class="w-full h-full object-contain mb-4 transition-transform transform hover:scale-110 hover:blur-sm">
+                <img src="{{ asset($category->image) }}" alt="{{ $category->name }}" class="w-full h-full object-contain mb-4 transition-transform transform hover:scale-110">
             </div>
             <h3 class="text-lg font-semibold">{{ $category->name }}</h3>
             <button wire:click="showEditModal({{ $category->id }})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
@@ -41,7 +40,7 @@
                 @if ($isEdit && $currentImage)
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Imagen Actual</label>
-                    <img src="{{ asset( $currentImage) }}" alt="{{ $name }}" class="w-32 h-32 object-contain rounded-md shadow-sm transition-transform transform hover:scale-110 hover:blur-sm">
+                    <img src="{{ asset($currentImage) }}" alt="{{ $name }}" class="w-32 h-32 object-contain rounded-md shadow-sm transition-transform transform hover:scale-110">
                 </div>
                 @endif
                 <div>
