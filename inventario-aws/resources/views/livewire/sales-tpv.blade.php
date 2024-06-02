@@ -14,7 +14,7 @@
     @else
     @if ($selectedCustomer)
     <div class="mb-6">
-        <h2 class="text-xl mb-2">Cliente: {{ $selectedCustomer->name }}</h2>
+        <h2 class="text-xl mb-2">{{ $selectedCustomer->name }}</h2>
         <button wire:click="resetOrder" class="text-red-500 underline flex items-center text-lg">
             <i class="material-icons mr-2">change_circle</i> Cambiar Cliente
         </button>
@@ -41,18 +41,17 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div class="md:col-span-3">
             <div class="mb-6">
-                <h2 class="text-xl mb-2">Categorías</h2>
                 @if ($showCategories)
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-                    <div class="border p-4 rounded cursor-pointer transition-transform transform hover:scale-105 hover:bg-gray-100 {{ is_null($selectedCategory) ? 'bg-blue-100' : '' }}" wire:click="selectCategory(null, 'Todas')">
-                        <div class="w-full h-32 mb-2 flex items-center justify-center overflow-hidden">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mt-4">
+                    <div class="border p-2 rounded cursor-pointer transition-transform transform hover:scale-105 hover:bg-gray-100 {{ is_null($selectedCategory) ? 'bg-blue-100' : '' }}" wire:click="selectCategory(null, 'Todas')">
+                        <div class="w-full h-24 mb-2 flex items-center justify-center overflow-hidden">
                             <img src="{{ asset('storage/categories/todas.png') }}" alt="Todas" class="object-contain h-full transition-transform transform hover:scale-110">
                         </div>
                         <h3 class="text-lg font-semibold text-center">Todas</h3>
                     </div>
                     @foreach ($categories as $category)
-                    <div class="border p-4 rounded cursor-pointer transition-transform transform hover:scale-105 hover:bg-gray-100 {{ $selectedCategory == $category->id ? 'bg-blue-100' : '' }}" wire:click="selectCategory({{ $category->id }}, '{{ $category->name }}')">
-                        <div class="w-full h-32 mb-2 flex items-center justify-center overflow-hidden">
+                    <div class="border p-2 rounded cursor-pointer transition-transform transform hover:scale-105 hover:bg-gray-100 {{ $selectedCategory == $category->id ? 'bg-blue-100' : '' }}" wire:click="selectCategory({{ $category->id }}, '{{ $category->name }}')">
+                        <div class="w-full h-24 mb-2 flex items-center justify-center overflow-hidden">
                             <img src="{{ asset($category->image) }}" alt="{{ $category->name }}" class="object-contain h-full transition-transform transform hover:scale-110">
                         </div>
                         <h3 class="text-lg font-semibold text-center">{{ $category->name }}</h3>
@@ -60,8 +59,8 @@
                     @endforeach
                 </div>
                 @else
-                <div class="border p-4 rounded cursor-pointer transition-transform transform hover:scale-105 hover:bg-gray-100 flex items-center justify-center" wire:click="toggleCategories">
-                    <div class="w-full h-32 flex items-center justify-center overflow-hidden">
+                <div class="border p-2 rounded cursor-pointer transition-transform transform hover:scale-105 hover:bg-gray-100 flex items-center justify-center" wire:click="toggleCategories">
+                    <div class="w-full h-24 flex items-center justify-center overflow-hidden">
                         <img src="{{ asset($selectedCategoryImage) }}" alt="{{ $selectedCategoryName }}" class="object-contain h-full transition-transform transform hover:scale-110">
                     </div>
                     <h3 class="text-lg font-semibold text-center">{{ $selectedCategoryName }}</h3>
@@ -69,7 +68,14 @@
                 @endif
             </div>
 
-            <h2 class="text-xl mb-4">Productos</h2>
+            <div class="flex justify-between items-center mb-4">
+                <button class="text-gray-500 hover:text-gray-700 text-4xl" wire:click="previousPage">
+                    <i class="material-icons">chevron_left</i>
+                </button>
+                <button class="text-gray-500 hover:text-gray-700 text-4xl" wire:click="nextPage">
+                    <i class="material-icons">chevron_right</i>
+                </button>
+            </div>
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 @foreach ($products as $product)
                 <div class="border p-4 rounded cursor-pointer transition-transform transform hover:scale-105 hover:bg-gray-100" wire:click="addProduct({{ $product->id }})">

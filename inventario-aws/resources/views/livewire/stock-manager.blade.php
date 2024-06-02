@@ -15,8 +15,8 @@
 
     <!-- Modal de productos con stock bajo -->
     @if ($showLowStockModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white p-4 rounded-lg shadow-lg max-w-2xl w-full mx-2">
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeLowStockModal">
+        <div class="bg-white p-4 rounded-lg shadow-lg max-w-2xl w-full mx-2" wire:click.stop>
             <h2 class="text-xl font-semibold mb-4">Productos con Stock Bajo</h2>
             <ul class="space-y-2 max-h-80 overflow-y-auto">
                 @foreach ($lowStockProducts as $product)
@@ -40,8 +40,8 @@
 
     <!-- Modal de cantidad personalizada -->
     @if ($showCustomQuantityModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white p-4 rounded-lg shadow-lg max-w-lg w-full mx-2">
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeCustomQuantityModal">
+        <div class="bg-white p-4 rounded-lg shadow-lg max-w-lg w-full mx-2" wire:click.stop>
             <h2 class="text-xl font-semibold mb-4">Añadir Cantidad</h2>
             <div>
                 <p class="mb-2">Producto: {{ $selectedProduct->name }}</p>
@@ -59,8 +59,8 @@
 
     <!-- Modal de incidencia -->
     @if ($showIncidentModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white p-4 rounded-lg shadow-lg max-w-lg w-full mx-2">
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeIncidentModal">
+        <div class="bg-white p-4 rounded-lg shadow-lg max-w-lg w-full mx-2" wire:click.stop>
             <h2 class="text-xl font-semibold mb-4">Registrar Incidencia</h2>
             <div>
                 <p class="mb-2">Producto: {{ $selectedProduct->name }}</p>
@@ -86,6 +86,21 @@
             <div class="flex justify-end mt-4">
                 <button wire:click="closeIncidentModal" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">Cancelar</button>
                 <button wire:click="reportIncident" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105 ml-2">Registrar</button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Modal de imagen -->
+    @if ($showImageModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeImageModal">
+        <div class="bg-white p-4 rounded-lg shadow-lg max-w-lg w-full mx-2" wire:click.stop>
+            <div class="flex justify-end">
+                <button wire:click="closeImageModal" class="text-gray-600 hover:text-gray-800">
+                </button>
+            </div>
+            <div class="flex justify-center">
+                <img src="{{ $currentImage }}" alt="Imagen del Producto" class="rounded-md max-h-screen">
             </div>
         </div>
     </div>
@@ -160,7 +175,7 @@
                     </td>
                     <td class="px-6 py-4">{{ $product->description }}</td>
                     <td class="px-6 py-4">
-                        <img src="{{ asset('storage/' . $product->image) }}" alt="Imagen de Producto" class="w-20 h-auto rounded-lg">
+                        <img src="{{ asset('storage/' . $product->image) }}" alt="Imagen de Producto" class="w-20 h-auto rounded-lg cursor-pointer transition-transform transform hover:scale-110 hover:brightness-110" wire:click="openImageModal('{{ asset('storage/' . $product->image) }}')">
                     </td>
                     <td class="px-6 py-4">{{ $product->quantity }}</td>
                     <td class="px-6 py-4">

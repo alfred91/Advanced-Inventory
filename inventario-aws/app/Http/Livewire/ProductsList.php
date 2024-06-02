@@ -9,6 +9,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProductsList extends Component
 {
@@ -36,8 +37,6 @@ class ProductsList extends Component
     public $minimum_stock;
     public $showImageModal = false;
     public $currentImage = null;
-
-
 
     // Ordenamiento
     public $sortField = 'name';
@@ -114,6 +113,7 @@ class ProductsList extends Component
         $this->showImageModal = false;
         $this->currentImage = null;
     }
+
     public function loadProduct($productId)
     {
         $this->productId = $productId;
@@ -178,6 +178,7 @@ class ProductsList extends Component
         $this->supplier_id = '';
         $this->minimum_stock = 100;
     }
+
     public function sortBy($field)
     {
         if ($field === 'isStockBelowMinimum') {

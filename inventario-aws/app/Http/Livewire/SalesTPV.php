@@ -79,13 +79,21 @@ class SalesTPV extends Component
         $product = Product::find($productId);
 
         if (isset($this->selectedProducts[$productId])) {
-            $this->selectedProducts[$productId]['quantity']++;
+            if ($this->selectedProducts[$productId]['quantity'] < $product->quantity) {
+                $this->selectedProducts[$productId]['quantity']++;
+            } else {
+                session()->flash('error', 'No hay suficiente stock disponible.');
+            }
         } else {
-            $this->selectedProducts[$productId] = [
-                'quantity' => 1,
-                'name' => $product->name,
-                'price' => $product->price,
-            ];
+            if ($product->quantity > 0) {
+                $this->selectedProducts[$productId] = [
+                    'quantity' => 1,
+                    'name' => $product->name,
+                    'price' => $product->price,
+                ];
+            } else {
+                session()->flash('error', 'No hay suficiente stock disponible.');
+            }
         }
 
         $this->updateTotalAmount();
@@ -101,11 +109,19 @@ class SalesTPV extends Component
 
     public function updateProductQuantity($productId, $quantity)
     {
+        $product = Product::find($productId);
+
         if (isset($this->selectedProducts[$productId])) {
-            $this->selectedProducts[$productId]['quantity'] += $quantity;
-            if ($this->selectedProducts[$productId]['quantity'] <= 0) {
+            $newQuantity = $this->selectedProducts[$productId]['quantity'] + $quantity;
+
+            if ($newQuantity > 0 && $newQuantity <= $product->quantity) {
+                $this->selectedProducts[$productId]['quantity'] = $newQuantity;
+            } elseif ($newQuantity > $product->quantity) {
+                session()->flash('error', 'No hay suficiente stock disponible.');
+            } else {
                 unset($this->selectedProducts[$productId]);
             }
+
             $this->updateTotalAmount();
         }
     }
@@ -196,7 +212,7 @@ class SalesTPV extends Component
 
         $categories = Category::all();
 
-        $productsQuery = Product::query();
+        $productsQuery = Product::query()->where('quantity', '>', 0);
         if ($this->selectedCategory) {
             $productsQuery->where('category_id', $this->selectedCategory);
         }

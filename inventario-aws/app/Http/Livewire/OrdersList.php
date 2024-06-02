@@ -33,7 +33,7 @@ class OrdersList extends Component
     protected $rules = [
         'customerId' => 'required|exists:customers,id',
         'status' => 'required|in:pending,completed,cancelled',
-        'orderDate' => 'required|date',
+        'orderDate' => 'required|date|before_or_equal:today',  // Validacion fecha max. hoy
         'selectedProducts.*.quantity' => 'required|integer|min:1',
         'newProductId' => 'nullable|exists:products,id',
         'newProductQuantity' => 'nullable|integer|min:1'
@@ -111,6 +111,7 @@ class OrdersList extends Component
             session()->flash('error', 'Order not found.');
         }
     }
+
     public function getTranslatedStatus($status)
     {
         $translations = [
@@ -304,6 +305,7 @@ class OrdersList extends Component
         }
         $this->sortField = $field;
     }
+
     public function render()
     {
         $query = Order::query();

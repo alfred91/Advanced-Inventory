@@ -2,7 +2,7 @@
     <div class="flex justify-between items-center mb-4">
         <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar Proveedor..." wire:model="search" wire:input.debounce.500ms="reloadSuppliers">
         <button wire:click="openModal(false)" class="inline-flex items-center justify-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
-            <i class="material-icons mr-2">add</i> Añadir Proveedor
+            <span class="material-icons mr-2">add</span> Añadir Proveedor
         </button>
     </div>
 
@@ -84,10 +84,10 @@
 
                         <td class="px-6 py-4 flex items-center gap-2">
                             <button wire:click="openModal(true, {{ $supplier->id }})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
-                                <i class="material-icons">edit</i>
+                                <span class="material-icons">edit</span>
                             </button>
                             <button class="bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded shadow-lg transition-transform transform hover:scale-110" onclick="confirm('¿Está seguro de que desea eliminar este proveedor?') || event.stopImmediatePropagation()" wire:click="deleteSupplier({{ $supplier->id }})">
-                                <i class="material-icons">delete</i>
+                                <span class="material-icons">delete</span>
                             </button>
                         </td>
                     </tr>
@@ -102,8 +102,8 @@
 
     <!-- Modal Crear/Editar Proveedor -->
     @if ($showModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeModal">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2" wire:click.stop>
             <h2 class="text-xl font-semibold mb-4">{{ $isEdit ? 'Editando Proveedor: ' . $name : 'Crear Nuevo Proveedor' }}</h2>
             <form wire:submit.prevent="saveSupplier" enctype="multipart/form-data" class="space-y-4">
                 <div>
@@ -200,12 +200,9 @@
 
     <!-- Modal Ver Imagen -->
     @if ($showImageModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white p-4 rounded-lg shadow-lg max-w-lg w-full mx-2">
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeImageModal">
+        <div class="bg-white p-4 rounded-lg shadow-lg max-w-lg w-full mx-2" wire:click.stop>
             <div class="flex justify-end">
-                <button wire:click="closeImageModal" class="text-gray-600 hover:text-gray-800">
-                    <i class="material-icons">close</i>
-                </button>
             </div>
             <div class="flex justify-center">
                 <img src="{{ $currentImage }}" alt="Imagen del Proveedor" class="rounded-md max-h-screen">

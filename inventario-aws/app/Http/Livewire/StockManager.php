@@ -26,7 +26,8 @@ class StockManager extends Component
     public $showCustomQuantityModal = false;
     public $showIncidentModal = false;
     public $hasLowStock = false;
-
+    public $showImageModal = false;
+    public $currentImage = '';
 
     protected $queryString = ['search', 'sortField', 'sortDirection'];
 
@@ -129,7 +130,6 @@ class StockManager extends Component
         $this->showIncidentModal = true;
     }
 
-
     public function closeIncidentModal()
     {
         $this->showIncidentModal = false;
@@ -167,6 +167,19 @@ class StockManager extends Component
         }
         $this->closeIncidentModal();
     }
+
+    public function openImageModal($imageUrl)
+    {
+        $this->currentImage = $imageUrl;
+        $this->showImageModal = true;
+    }
+
+    public function closeImageModal()
+    {
+        $this->showImageModal = false;
+        $this->currentImage = '';
+    }
+
     public function render()
     {
         $query = Product::query()->selectRaw('products.*, (quantity <= minimum_stock) as stock_alert');

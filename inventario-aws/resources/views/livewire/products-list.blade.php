@@ -128,7 +128,7 @@
                 @foreach ($products as $product)
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                     <td class="px-6 py-4">{{ $product->name }}</td>
-                    <td class="px-6 py-4">{{ $product->description }}</td>
+                    <td class="px-6 py-4">{{ Str::limit($product->description, 50) }}</td>
                     <td class="px-6 py-4">{{ number_format($product->price, 2) }} €</td>
                     <td class="px-6 py-4">{{ $product->quantity }}</td>
                     <td class="px-6 py-4">{{ $product->category->name ?? 'N/A' }}</td>
@@ -171,13 +171,8 @@
 
     <!-- Modal Ver imagen -->
     @if ($showImageModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeImageModal">
         <div class="bg-white p-4 rounded-lg shadow-lg max-w-lg w-full mx-2">
-            <div class="flex justify-end">
-                <button wire:click="closeImageModal" class="text-gray-600 hover:text-gray-800">
-                    <i class="material-icons">close</i>
-                </button>
-            </div>
             <div class="flex justify-center">
                 <img src="{{ $currentImage }}" alt="Imagen del Producto" class="rounded-md max-h-screen">
             </div>
@@ -187,8 +182,8 @@
 
     <!-- Modal Crear/Editar Producto -->
     @if ($showModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeModal">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2" wire:click.stop>
             <h2 class="text-xl font-semibold mb-4">{{ $isEdit ? 'Editando Producto: ' . $name : 'Crear Nuevo Producto' }}</h2>
             <form wire:submit.prevent="saveProduct" enctype="multipart/form-data" class="space-y-4">
                 <div>
@@ -260,5 +255,4 @@
         </div>
     </div>
     @endif
-
 </div>

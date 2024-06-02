@@ -2,7 +2,7 @@
     <div class="flex justify-between items-center mb-4">
         <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por producto, categoría o proveedor..." wire:model="search" wire:input.debounce.500ms="reloadOrders">
         <button wire:click="openCreateModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
-            <i class="fas fa-plus mr-2"></i> Añadir Pedido
+            <i class="material-icons mr-2">add</i> Añadir Pedido
         </button>
     </div>
 
@@ -80,7 +80,7 @@
                     <td class="px-6 py-4">{{ $order->customer->name }}</td>
                     <td class="px-6 py-4">{{ number_format($order->total_amount, 2) }} €</td>
                     <td class="px-6 py-4">{{ $this->getTranslatedStatus($order->status) }}</td>
-                    <td class="px-6 py-4">{{ $order->order_date }}</td>
+                    <td class="px-6 py-4">{{ \Carbon\Carbon::parse($order->order_date)->format('d-m-Y') }}</td>
                     <td class="px-6 py-4 flex items-center gap-2">
                         <button wire:click="showOrderDetails({{ $order->id }})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
                             Editar
@@ -89,7 +89,6 @@
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </td>
-
                 </tr>
                 @endforeach
             </tbody>
@@ -101,8 +100,8 @@
 
     <!-- Modal Crear/Editar Pedidos-->
     @if ($showModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeModal">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2" wire:click.stop>
             <h2 class="text-xl font-semibold mb-4">{{ $isEdit ? 'Detalles del Pedido: #' . $orderId : 'Crear Nuevo Pedido' }}</h2>
             <form wire:submit.prevent="saveChanges" class="space-y-4">
                 <div>
@@ -124,8 +123,9 @@
                 </div>
                 <div>
                     <label for="order_date" class="block text-sm font-medium text-gray-700">Fecha del Pedido</label>
-                    <input type="date" wire:model="orderDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                    <input type="date" wire:model="orderDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" max="{{ now()->toDateString() }}">
                 </div>
+
                 <div>
                     <label for="total_amount" class="block text-sm font-medium text-gray-700">Monto Total</label>
                     <input type="text" wire:model="totalAmount" disabled class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">

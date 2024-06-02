@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use App\Models\Customer;
 use App\Models\Order;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class CustomersList extends Component
 {
@@ -33,13 +34,16 @@ class CustomersList extends Component
     public $showOrdersModal = false;
     public $orders = [];
 
-    protected $rules = [
-        'dni' => 'required|string|max:20|unique:customers,dni,' . '$this->customerId',
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|max:255|unique:customers,email,' . '$this->customerId',
-        'phone_number' => 'required|string|max:20',
-        'address' => 'required|string|max:255',
-    ];
+    protected function rules()
+    {
+        return [
+            'dni' => 'required|string|max:20|unique:customers,dni,' . $this->customerId,
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:customers,email,' . $this->customerId,
+            'phone_number' => 'required|string|max:20',
+            'address' => 'required|string|max:255',
+        ];
+    }
 
     protected $queryString = ['search', 'sortField', 'sortDirection'];
 

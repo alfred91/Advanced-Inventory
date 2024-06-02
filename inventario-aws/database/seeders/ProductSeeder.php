@@ -82,6 +82,10 @@ class ProductSeeder extends Seeder
             ['name' => 'vitroceramica', 'image' => 'vitroceramica.png']
         ];
 
+        // Delete existing products to prevent duplicates
+        Product::query()->delete();
+
+        // Create specified products
         foreach ($products as $product) {
             Product::factory()->withSpecificData($product['name'], $product['image'])->create();
         }

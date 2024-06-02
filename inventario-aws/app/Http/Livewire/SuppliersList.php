@@ -166,6 +166,16 @@ class SuppliersList extends Component
             $supplier->save();
         }
 
+        // Actualizar los productos del proveedor
+        foreach ($this->products as $productData) {
+            $product = Product::find($productData['id']);
+            if ($product) {
+                $product->update([
+                    'price' => $productData['price'],
+                ]);
+            }
+        }
+
         session()->flash('message', $this->isEdit ? 'Proveedor actualizado correctamente.' : 'Proveedor creado correctamente.');
         $this->closeModal();
     }
