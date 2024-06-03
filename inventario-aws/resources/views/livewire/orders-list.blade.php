@@ -23,9 +23,9 @@
                         </button>
                     </th>
                     <th class="px-6 py-3">
-                        <button wire:click="sortBy('customer_id')" class="focus:outline-none">
+                        <button wire:click="sortBy('customer_name')" class="focus:outline-none">
                             Cliente
-                            @if($sortField === 'customer_id')
+                            @if($sortField === 'customer_name')
                             @if($sortDirection === 'asc')
                             &#9650;
                             @else

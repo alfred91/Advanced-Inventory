@@ -334,7 +334,13 @@ class OrdersList extends Component
             });
         }
 
-        $query->orderBy($this->sortField, $this->sortDirection);
+        if ($this->sortField == 'customer_name') {
+            $query->join('customers', 'orders.customer_id', '=', 'customers.id')
+                ->select('orders.*', 'customers.name as customer_name')
+                ->orderBy('customers.name', $this->sortDirection);
+        } else {
+            $query->orderBy($this->sortField, $this->sortDirection);
+        }
 
         $orders = $query->paginate(10);
         $customers = Customer::all();
