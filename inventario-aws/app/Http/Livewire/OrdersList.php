@@ -29,6 +29,9 @@ class OrdersList extends Component
     public $sortField = 'id';
     public $sortDirection = 'asc';
     protected $queryString = ['search', 'sortField', 'sortDirection'];
+    public $showConfirmModal = false;
+    public $sendSms = false;
+
 
     protected $rules = [
         'customerId' => 'required|exists:customers,id',
@@ -127,6 +130,13 @@ class OrdersList extends Component
     {
         $this->validate();
 
+        $this->showConfirmModal = true;
+    }
+
+    public function confirmSave($sendSms)
+    {
+        $this->sendSms = $sendSms;
+
         if ($this->isEdit) {
             $order = Order::findOrFail($this->orderId);
 
@@ -167,7 +177,7 @@ class OrdersList extends Component
             $order->total_amount = $this->totalAmount;
             $order->save();
 
-            $order->sendStatusChangeEmail(); // Enviar correo
+            $order->sendStatusChangeEmail($this->sendSms); // Enviar correo y/o SMS
 
             session()->flash('message', 'Order updated successfully.');
         } else {
@@ -200,14 +210,16 @@ class OrdersList extends Component
                 $order->total_amount = $this->totalAmount;
                 $order->save();
 
-                $order->sendStatusChangeEmail(); // Enviar correo
+                $order->sendStatusChangeEmail($this->sendSms); // Enviar correo y/o SMS
 
                 session()->flash('message', 'Order created successfully.');
             });
         }
 
+        $this->showConfirmModal = false;
         $this->closeModal();
     }
+
 
     public function addProduct()
     {

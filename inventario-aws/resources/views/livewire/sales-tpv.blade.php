@@ -134,6 +134,22 @@
     </div>
     @endif
 
+    @if ($showSmsModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
+            <h2 class="text-xl font-semibold mb-4">¿Desea recibir una copia del pedido por SMS?</h2>
+            <div class="flex justify-around">
+                <button wire:click="confirmSmsSend(true)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded shadow-lg flex items-center justify-center transition-transform transform hover:scale-105 text-lg">
+                    <i class="material-icons mr-2">sms</i> Sí
+                </button>
+                <button wire:click="confirmSmsSend(false)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded shadow-lg flex items-center justify-center transition-transform transform hover:scale-105 text-lg">
+                    <i class="material-icons mr-2">cancel</i> No
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
+
     @if ($showConfirmationModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">

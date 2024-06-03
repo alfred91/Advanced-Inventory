@@ -27,6 +27,7 @@ class SalesTPV extends Component
     public $selectedCategoryImage = 'storage/categories/todas.png';
     public $showCategories = false;
     public $showConfirmationModal = false;
+    public $showSmsModal = false;
     public $genericCustomer;
     public $orderId;
     public $isLoading = false;
@@ -157,7 +158,11 @@ class SalesTPV extends Component
 
             $this->orderId = $order->id;
 
-            $this->showConfirmationModal = true;
+            if ($this->selectedCustomer && $this->selectedCustomer->id !== $this->genericCustomer->id) {
+                $this->showSmsModal = true;
+            } else {
+                $this->showConfirmationModal = true;
+            }
         });
     }
 
@@ -171,6 +176,17 @@ class SalesTPV extends Component
         $this->resetOrder();
     }
 
+    public function confirmSmsSend($sendSms)
+    {
+        if ($sendSms) {
+            $order = Order::find($this->orderId);
+            $order->sendStatusChangeEmail(true);
+        }
+
+        $this->showConfirmationModal = true;
+        $this->showSmsModal = false;
+    }
+
     public function resetOrder()
     {
         $this->selectedCustomer = null;
@@ -179,6 +195,7 @@ class SalesTPV extends Component
         $this->paymentMethod = 'cash';
         $this->isRegistered = null;
         $this->showConfirmationModal = false;
+        $this->showSmsModal = false;
     }
 
     public function toggleCategories()

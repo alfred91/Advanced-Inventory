@@ -186,4 +186,22 @@
         </div>
     </div>
     @endif
+
+    <!-- Modal Confirmación de Guardar Cambios-->
+    @if ($showConfirmModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeModal">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2" wire:click.stop>
+            <h2 class="text-xl font-semibold mb-4">Confirmar Guardar Cambios</h2>
+            <p class="mb-4">¿Desea enviar un SMS al cliente con la actualización del estado del pedido?</p>
+            <div class="flex justify-end space-x-2">
+                <button type="button" wire:click="confirmSave(false)" class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">
+                    No Enviar
+                </button>
+                <button type="button" wire:click="confirmSave(true)" class="inline-flex items-center px-4 py-2 bg-blue-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring focus:ring-blue-300 disabled:opacity-25 transition">
+                    Enviar SMS
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>

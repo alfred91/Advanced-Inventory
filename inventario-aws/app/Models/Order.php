@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
+use App\Services\SmsService;
 
 class Order extends Model
 {
@@ -61,7 +62,7 @@ class Order extends Model
         };
     }
 
-    public function sendStatusChangeEmail()
+    public function sendStatusChangeEmail($sendSms = false)
     {
         $customer = $this->customer;
         $products = $this->products;
@@ -81,9 +82,19 @@ class Order extends Model
             'body' => "Hola {$customer->name},\n\nSu pedido con id #{$this->id} realizado el {$orderDateFormatted} está {$this->getTranslatedStatusAttribute()}.\n\nDetalles del pedido:\n\n$productDetails\nTotal: {$this->total_amount} €\n\nGracias por su compra.\n\nSaludos,\nAdvanced Inventory"
         ];
 
+        // Enviar correo electrónico
         Mail::raw($details['body'], function ($message) use ($details, $customer) {
             $message->to($customer->email)
                 ->subject($details['title']);
         });
+
+        // Enviar SMS si se solicita
+        if ($sendSms) {
+            $smsService = new SmsService();
+            $phoneNumber = $customer->phone_number; // Asegúrate de que el modelo Customer tiene un campo phone_number
+            $smsMessage = "Hola {$customer->name}, su pedido con id #{$this->id} está {$this->getTranslatedStatusAttribute()}. Total: {$this->total_amount} €.";
+
+            $smsService->sendSms($phoneNumber, $smsMessage);
+        }
     }
 }
