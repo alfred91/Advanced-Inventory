@@ -73,6 +73,14 @@ class CategoryList extends Component
         $this->resetInputFields();
     }
 
+    public function confirmDeleteCategory($id)
+    {
+        if ($this->isEdit) {
+            $category = Category::findOrFail($id);
+            $this->deleteCategory($category->id);
+        }
+    }
+
     // Category methods
     public function saveCategory()
     {
@@ -96,6 +104,7 @@ class CategoryList extends Component
         $category = Category::findOrFail($id);
         $category->delete();
         session()->flash('message', 'Categoría eliminada correctamente.');
+        $this->closeModal();
         $this->resetPage();
     }
 

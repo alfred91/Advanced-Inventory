@@ -17,6 +17,7 @@ class OrdersList extends Component
     public $isLoading = false;
 
     public $showModal = false;
+    public $showCreateModal = false; // Nueva variable para el modal de creación
     public $isEdit = false;
     public $orderId;
     public $customerId;
@@ -31,7 +32,6 @@ class OrdersList extends Component
     protected $queryString = ['search', 'sortField', 'sortDirection'];
     public $showConfirmModal = false;
     public $sendSms = false;
-
 
     protected $rules = [
         'customerId' => 'required|exists:customers,id',
@@ -63,13 +63,13 @@ class OrdersList extends Component
     {
         $this->resetInputFields();
         $this->isEdit = false;
-        $this->showModal = true;
+        $this->showCreateModal = true;
     }
 
-    public function showOrderDetails($orderId)
+    public function showOrderDetails($orderId, $isEdit = false)
     {
         $this->resetInputFields();
-        $this->isEdit = true;
+        $this->isEdit = $isEdit;
         $this->orderId = $orderId;
         $order = Order::with(['customer', 'products'])->findOrFail($orderId);
 
@@ -91,6 +91,7 @@ class OrdersList extends Component
     public function closeModal()
     {
         $this->showModal = false;
+        $this->showCreateModal = false; // Cerrar el modal de creación si está abierto
         $this->resetInputFields();
     }
 
@@ -219,7 +220,6 @@ class OrdersList extends Component
         $this->showConfirmModal = false;
         $this->closeModal();
     }
-
 
     public function addProduct()
     {

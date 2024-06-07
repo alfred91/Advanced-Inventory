@@ -83,10 +83,10 @@
                         </td>
 
                         <td class="px-6 py-4 flex items-center gap-2">
-                            <button wire:click="openModal(true, {{ $supplier->id }})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
+                            <button wire:click="openModal(true, {{ $supplier->id }})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105 flex items-center justify-center">
                                 <span class="material-icons">edit</span>
                             </button>
-                            <button class="bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded shadow-lg transition-transform transform hover:scale-110" onclick="confirm('¿Está seguro de que desea eliminar este proveedor?') || event.stopImmediatePropagation()" wire:click="deleteSupplier({{ $supplier->id }})">
+                            <button class="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-110 flex items-center justify-center" onclick="confirm('¿Está seguro de que desea eliminar este proveedor?') || event.stopImmediatePropagation()" wire:click="deleteSupplier({{ $supplier->id }})">
                                 <span class="material-icons">delete</span>
                             </button>
                         </td>
@@ -104,7 +104,7 @@
     @if ($showModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeModal">
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2" wire:click.stop>
-            <h2 class="text-xl font-semibold mb-4">{{ $isEdit ? 'Editando Proveedor: ' . $name : 'Crear Nuevo Proveedor' }}</h2>
+            <h2 class="text-2xl font-semibold mb-4 text-center">{{ $isEdit ? 'Editando Proveedor: ' . $name : 'Crear Nuevo Proveedor' }}</h2>
             <form wire:submit.prevent="saveSupplier" enctype="multipart/form-data" class="space-y-4">
                 <div>
                     <label for="name" class="block text-sm font-medium text-gray-700">Nombre</label>
@@ -126,17 +126,20 @@
                     <input type="text" wire:model.defer="address" id="address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
                     @error('address') <span class="error text-red-500">{{ $message }}</span> @enderror
                 </div>
-                @if ($image)
-                <div class="mb-4">
-                    <div class="w-20 h-20 overflow-hidden rounded-lg bg-gray-100 flex items-center justify-center">
-                        <img src="{{ Storage::url($image) }}" alt="Imagen actual" class="max-h-full max-w-full object-contain rounded-md shadow-sm">
+                <div class="grid grid-cols-2 gap-4">
+                    @if ($isEdit && $image)
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Imagen Actual</label>
+                        <img src="{{ Storage::url($image) }}" alt="Imagen actual" class="w-32 h-32 object-contain rounded-md shadow-sm transition-transform transform hover:scale-110">
                     </div>
-                </div>
-                @endif
-                <div>
-                    <label for="newImage" class="block text-sm font-medium text-gray-700">Nueva Imagen</label>
-                    <input type="file" wire:model="newImage" id="newImage" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
-                    @error('newImage') <span class="error text-red-500">{{ $message }}</span> @enderror
+                    @endif
+                    <div class="flex items-end">
+                        <div>
+                            <label for="newImage" class="block text-sm font-medium text-gray-700">Nueva Imagen</label>
+                            <input type="file" wire:model="newImage" id="newImage" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                            @error('newImage') <span class="error text-red-500">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
                 </div>
 
                 <div>
@@ -166,25 +169,13 @@
                         </table>
                     </div>
                 </div>
-                <div class="mt-4">
-                    <label class="block text-sm font-medium text-gray-700">Añadir Producto</label>
-                    <div class="space-y-2">
-                        <input type="text" wire:model="newProductName" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Nombre del producto">
-                        <textarea wire:model="newProductDescription" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Descripción del producto"></textarea>
-                        <input type="number" step="0.01" min="0" wire:model="newProductPrice" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Precio">
-                        <input type="number" min="0" wire:model="newProductQuantity" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad">
-                        <input type="number" min="0" wire:model="newProductMinimumStock" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Stock Mínimo">
-                        <select wire:model="newProductCategoryId" class="mt-1 block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">Seleccione una categoría</option>
-                            @foreach($categories as $category)
-                            <option value="{{ $category->id }}">{{ $category->name }}</option>
-                            @endforeach
-                        </select>
-                        <button type="button" wire:click="addProduct" class="inline-flex items-center px-4 py-2 bg-green-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 active:bg-green-900 focus:outline-none focus:border-green-900 focus:ring focus:ring-green-300 disabled:opacity-25 transition">
-                            Añadir
-                        </button>
-                    </div>
+
+                <div class="flex justify-end mt-4">
+                    <button type="button" wire:click="openAddProductModal" class="inline-flex items-center px-4 py-2 bg-green-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 active:bg-green-900 focus:outline-none focus:border-green-900 focus:ring focus:ring-green-300 disabled:opacity-25 transition">
+                        Añadir Producto
+                    </button>
                 </div>
+
                 <div class="flex justify-end space-x-2 mt-4">
                     <button type="button" wire:click="closeModal" class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">
                         Cerrar
@@ -198,16 +189,70 @@
     </div>
     @endif
 
+    <!-- Modal Añadir Producto -->
+    @if ($showAddProductModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeAddProductModal">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2" wire:click.stop>
+            <h2 class="text-2xl font-semibold mb-4 text-center">Añadir Producto</h2>
+            <form wire:submit.prevent="addProduct" class="space-y-4">
+                <div>
+                    <label for="newProductName" class="block text-sm font-medium text-gray-700">Nombre del Producto</label>
+                    <input type="text" wire:model.defer="newProductName" id="newProductName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                    @error('newProductName') <span class="error text-red-500">{{ $message }}</span> @enderror
+                </div>
+                <div>
+                    <label for="newProductDescription" class="block text-sm font-medium text-gray-700">Descripción del Producto</label>
+                    <textarea wire:model.defer="newProductDescription" id="newProductDescription" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"></textarea>
+                    @error('newProductDescription') <span class="error text-red-500">{{ $message }}</span> @enderror
+                </div>
+                <div>
+                    <label for="newProductPrice" class="block text-sm font-medium text-gray-700">Precio</label>
+                    <input type="number" step="0.01" min="0" wire:model.defer="newProductPrice" id="newProductPrice" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                    @error('newProductPrice') <span class="error text-red-500">{{ $message }}</span> @enderror
+                </div>
+                <div>
+                    <label for="newProductQuantity" class="block text-sm font-medium text-gray-700">Cantidad</label>
+                    <input type="number" min="0" wire:model.defer="newProductQuantity" id="newProductQuantity" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                    @error('newProductQuantity') <span class="error text-red-500">{{ $message }}</span> @enderror
+                </div>
+                <div>
+                    <label for="newProductMinimumStock" class="block text-sm font-medium text-gray-700">Stock Mínimo</label>
+                    <input type="number" min="0" wire:model.defer="newProductMinimumStock" id="newProductMinimumStock" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                    @error('newProductMinimumStock') <span class="error text-red-500">{{ $message }}</span> @enderror
+                </div>
+                <div>
+                    <label for="newProductCategoryId" class="block text-sm font-medium text-gray-700">Categoría</label>
+                    <select wire:model.defer="newProductCategoryId" id="newProductCategoryId" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                        <option value="">Seleccione una categoría</option>
+                        @foreach($categories as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('newProductCategoryId') <span class="error text-red-500">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="flex justify-end space-x-2 mt-4">
+                    <button type="button" wire:click="closeAddProductModal" class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">
+                        Cerrar
+                    </button>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring focus:ring-blue-300 disabled:opacity-25 transition">
+                        Guardar Producto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
+
     <!-- Modal Ver Imagen -->
     @if ($showImageModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeImageModal">
-        <div class="bg-white p-4 rounded-lg shadow-lg max-w-lg w-full mx-2" wire:click.stop>
-            <div class="flex justify-end">
-            </div>
+        <div class="relative p-4 max-w-lg w-full mx-2">
             <div class="flex justify-center">
-                <img src="{{ $currentImage }}" alt="Imagen del Proveedor" class="rounded-md max-h-screen">
+                <img src="{{ $currentImage }}" alt="Imagen del Proveedor" class="rounded-md max-h-screen" style="background-color: transparent;">
             </div>
         </div>
     </div>
     @endif
+
 </div>

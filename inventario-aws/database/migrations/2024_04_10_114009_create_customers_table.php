@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone_number')->unique();
             $table->string('address')->nullable();
+            $table->string('role')->default('normal');
             $table->timestamps();
             $table->softDeletes();
         });

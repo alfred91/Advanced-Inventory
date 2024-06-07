@@ -35,6 +35,7 @@ class ProductsList extends Component
     public $category_id;
     public $supplier_id;
     public $minimum_stock;
+    public $discount; // Nuevo campo de descuento
     public $showImageModal = false;
     public $currentImage = null;
 
@@ -52,6 +53,7 @@ class ProductsList extends Component
         'category_id' => 'required|exists:categories,id',
         'supplier_id' => 'nullable|exists:suppliers,id',
         'minimum_stock' => 'required|integer|min:1',
+        'discount' => 'nullable|integer|min:0|max:100',
         'newImage' => 'nullable|image|max:2048',
     ];
 
@@ -127,6 +129,7 @@ class ProductsList extends Component
         $this->category_id = $product->category_id;
         $this->supplier_id = $product->supplier_id;
         $this->minimum_stock = $product->minimum_stock;
+        $this->discount = $product->discount;
     }
 
     public function saveProduct()
@@ -141,7 +144,7 @@ class ProductsList extends Component
         }
 
         if ($this->newImage) {
-            if ($this->isEdit && $product->image && $product->image !== 'products/product.svg') {
+            if ($this->isEdit && $product->image && $product->image !== 'products/product.png') {
                 Storage::delete('public/' . $product->image);
             }
             $imageName = $this->newImage->store('products', 'public');
@@ -158,7 +161,7 @@ class ProductsList extends Component
     {
         $product = Product::find($productId);
         if ($product) {
-            if ($product->image && $product->image !== 'products/product.svg') {
+            if ($product->image && $product->image !== 'products/product.png') {
                 Storage::delete('public/' . $product->image);
             }
             $product->delete();
@@ -177,6 +180,7 @@ class ProductsList extends Component
         $this->category_id = '';
         $this->supplier_id = '';
         $this->minimum_stock = 100;
+        $this->discount = '';
     }
 
     public function sortBy($field)

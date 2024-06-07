@@ -25,6 +25,7 @@ class CustomersList extends Component
     public $email;
     public $phone_number;
     public $address;
+    public $role; // Añadir el rol
 
     // Ordenación
     public $sortField = 'id';
@@ -42,6 +43,7 @@ class CustomersList extends Component
             'email' => 'required|email|max:255|unique:customers,email,' . $this->customerId,
             'phone_number' => 'required|string|max:20',
             'address' => 'required|string|max:255',
+            'role' => 'required|in:normal,professional', // Validación para el rol
         ];
     }
 
@@ -155,6 +157,7 @@ class CustomersList extends Component
         $this->email = '';
         $this->phone_number = '';
         $this->address = '';
+        $this->role = 'normal'; // Inicializar el rol
         $this->customerId = null;
     }
 
@@ -166,6 +169,7 @@ class CustomersList extends Component
         $this->email = $customer->email;
         $this->phone_number = $customer->phone_number;
         $this->address = $customer->address;
+        $this->role = $customer->role; // Asignar el rol
     }
 
     private function getCustomerData()
@@ -176,6 +180,7 @@ class CustomersList extends Component
             'email' => $this->email,
             'phone_number' => $this->phone_number,
             'address' => $this->address,
+            'role' => $this->role, // Incluir el rol
         ];
     }
 
@@ -194,8 +199,8 @@ class CustomersList extends Component
         }
 
         $query->leftJoin('orders', 'customers.id', '=', 'orders.customer_id')
-            ->select('customers.id', 'customers.dni', 'customers.name', 'customers.email', 'customers.phone_number', 'customers.address', DB::raw('COUNT(orders.id) as orders_count'))
-            ->groupBy('customers.id', 'customers.dni', 'customers.name', 'customers.email', 'customers.phone_number', 'customers.address')
+            ->select('customers.id', 'customers.dni', 'customers.name', 'customers.email', 'customers.phone_number', 'customers.address', 'customers.role', DB::raw('COUNT(orders.id) as orders_count'))
+            ->groupBy('customers.id', 'customers.dni', 'customers.name', 'customers.email', 'customers.phone_number', 'customers.address', 'customers.role')
             ->orderBy($this->sortField === 'orders_count' ? DB::raw('orders_count') : $this->sortField, $this->sortDirection);
 
         $customers = $query->paginate(10);

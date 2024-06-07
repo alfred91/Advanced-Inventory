@@ -24,7 +24,7 @@
                     </th>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('dni')" class="focus:outline-none">
-                            DNI
+                            DNI / CIF
                             @if($sortField === 'dni')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -83,6 +83,18 @@
                         </button>
                     </th>
                     <th class="px-6 py-3">
+                        <button wire:click="sortBy('role')" class="focus:outline-none">
+                            Rol
+                            @if($sortField === 'role')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">
                         <button wire:click="sortBy('orders_count')" class="focus:outline-none">
                             Pedidos
                             @if($sortField === 'orders_count')
@@ -106,6 +118,7 @@
                     <td class="px-6 py-4">{{ $customer->email }}</td>
                     <td class="px-6 py-4">{{ $customer->phone_number }}</td>
                     <td class="px-6 py-4">{{ $customer->address }}</td>
+                    <td class="px-6 py-4">{{ $customer->role }}</td>
                     <td class="px-6 py-4">
                         @if($customer->orders()->count() > 0)
                         <div class="flex items-center gap-2">
@@ -140,7 +153,7 @@
             <h2 class="text-xl font-semibold mb-4">{{ $isEdit ? 'Editar Cliente: ' . $name : 'Nuevo Cliente' }}</h2>
             <form wire:submit.prevent="saveCustomer" class="space-y-4">
                 <div>
-                    <label for="dni" class="block text-sm font-medium text-gray-700">DNI</label>
+                    <label for="dni" class="block text-sm font-medium text-gray-700">DNI/CIF</label>
                     <input type="text" wire:model.defer="dni" id="dni" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
                     @error('dni') <span class="error text-red-500">{{ $message }}</span> @enderror
                 </div>
@@ -163,6 +176,14 @@
                     <label for="address" class="block text-sm font-medium text-gray-700">Dirección</label>
                     <input type="text" wire:model.defer="address" id="address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
                     @error('address') <span class="error text-red-500">{{ $message }}</span> @enderror
+                </div>
+                <div>
+                    <label for="role" class="block text-sm font-medium text-gray-700">Rol</label>
+                    <select wire:model.defer="role" id="role" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                        <option value="normal">Normal</option>
+                        <option value="professional">Professional</option>
+                    </select>
+                    @error('role') <span class="error text-red-500">{{ $message }}</span> @enderror
                 </div>
                 <div class="flex justify-end space-x-2 mt-4">
                     <button type="button" wire:click="closeModal" class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">

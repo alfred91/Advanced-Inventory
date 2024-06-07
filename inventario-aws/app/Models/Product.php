@@ -12,7 +12,7 @@ class Product extends Model
     use HasFactory, SoftDeletes, Searchable;
 
     protected $fillable = [
-        'name', 'description', 'image', 'quantity', 'price', 'category_id', 'supplier_id', 'minimum_stock'
+        'name', 'description', 'image', 'quantity', 'price', 'category_id', 'supplier_id', 'minimum_stock', 'discount'
     ];
 
     /**

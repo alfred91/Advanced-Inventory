@@ -20,6 +20,7 @@ class SuppliersList extends Component
     // Estado del modal
     public $showModal = false;
     public $isEdit = false;
+    public $showAddProductModal = false;
 
     // Estado del modal de imagen
     public $showImageModal = false;
@@ -244,6 +245,18 @@ class SuppliersList extends Component
         ]);
 
         $this->products[] = $product->toArray();
+        $this->resetNewProductFields();
+        $this->closeAddProductModal();
+    }
+
+    public function openAddProductModal()
+    {
+        $this->showAddProductModal = true;
+    }
+
+    public function closeAddProductModal()
+    {
+        $this->showAddProductModal = false;
         $this->resetNewProductFields();
     }
 

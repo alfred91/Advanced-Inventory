@@ -108,9 +108,9 @@
                         </button>
                     </th>
                     <th class="px-6 py-3">
-                        <button wire:click="sortBy('quantity_minimum')" class="focus:outline-none">
-                            Cantidad / Mínimo
-                            @if($sortField === 'quantity')
+                        <button wire:click="sortBy('discount')" class="focus:outline-none">
+                            Descuento
+                            @if($sortField === 'discount')
                             @if($sortDirection === 'asc')
                             &#9650;
                             @else
@@ -118,7 +118,7 @@
                             @endif
                             @endif
                         </button>
-                    </th>
+                    </th> <!-- Nuevo encabezado de descuento -->
                     <th class="px-6 py-3">Imagen</th>
                     <th class="px-6 py-3">Acciones</th>
                 </tr>
@@ -137,26 +137,29 @@
                     <td class="px-6 py-4">
                         @if($product->quantity <= $product->minimum_stock)
                             <span class="text-red-500">
-                                <i class="material-icons">error</i>
+                                <i class="material-icons">error</i> {{ $product->quantity }} / {{ $product->minimum_stock }}
                             </span>
                             @else
                             <span class="text-green-500">
-                                <i class="material-icons">check_circle</i>
+                                <i class="material-icons">check_circle</i> {{ $product->quantity }} / {{ $product->minimum_stock }}
                             </span>
                             @endif
                     </td>
-                    <td class="px-6 py-4">{{ $product->quantity }} / {{ $product->minimum_stock }}</td>
+                    <td class="px-6 py-4">
+                        @if($product->discount > 0)
+                        {{ $product->discount }}%
+                        @endif
+                    </td> <!-- Mostrar el descuento solo si es mayor que 0 -->
                     <td class="px-6 py-4">
                         <div class="w-20 h-20 overflow-hidden rounded-lg flex items-center justify-center">
                             <img src="{{ Storage::url($product->image) }}" alt="Imagen de Producto" class="h-full w-auto object-contain transition-transform transform hover:scale-110 hover:brightness-110 cursor-pointer" wire:click="openImageModal('{{ Storage::url($product->image) }}')">
                         </div>
                     </td>
-
                     <td class="px-6 py-4 flex items-center gap-2">
-                        <button wire:click="openModal(true, {{ $product->id }})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
+                        <button wire:click="openModal(true, {{ $product->id }})" class="bg-yellow-500 hover:bg-yellow-700 text-white py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-110 flex items-center justify-center">
                             <i class="material-icons">edit</i>
                         </button>
-                        <button class="bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded shadow-lg transition-transform transform hover:scale-110" onclick="confirm('¿Está seguro de que desea eliminar este producto?') || event.stopImmediatePropagation()" wire:click="deleteProduct({{ $product->id }})">
+                        <button class="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-110 flex items-center justify-center" onclick="confirm('¿Está seguro de que desea eliminar este producto?') || event.stopImmediatePropagation()" wire:click="deleteProduct({{ $product->id }})">
                             <i class="material-icons">delete</i>
                         </button>
                     </td>
@@ -172,9 +175,9 @@
     <!-- Modal Ver imagen -->
     @if ($showImageModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeImageModal">
-        <div class="bg-white p-4 rounded-lg shadow-lg max-w-lg w-full mx-2">
+        <div class="relative p-4 max-w-lg w-full mx-2">
             <div class="flex justify-center">
-                <img src="{{ $currentImage }}" alt="Imagen del Producto" class="rounded-md max-h-screen">
+                <img src="{{ $currentImage }}" alt="Imagen del Producto" class="rounded-md max-h-screen" style="background-color: transparent;">
             </div>
         </div>
     </div>
@@ -192,21 +195,6 @@
                     @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
                 <div>
-                    <label for="description" class="block text-sm font-medium text-gray-700">Descripción</label>
-                    <textarea wire:model="description" id="description" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"></textarea>
-                    @error('description') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                </div>
-                <div>
-                    <label for="price" class="block text-sm font-medium text-gray-700">Precio (€)</label>
-                    <input type="number" wire:model.lazy="price" id="price" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" step="0.01" min="0">
-                    @error('price') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                </div>
-                <div>
-                    <label for="quantity" class="block text-sm font-medium text-gray-700">Cantidad</label>
-                    <input type="number" min="0" wire:model="quantity" id="quantity" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
-                    @error('quantity') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                </div>
-                <div>
                     <label for="category_id" class="block text-sm font-medium text-gray-700">Categoría</label>
                     <select wire:model="category_id" id="category_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
                         <option value="">Seleccione una categoría</option>
@@ -217,30 +205,57 @@
                     @error('category_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
                 <div>
-                    <label for="supplier_id" class="block text-sm font-medium text-gray-700">Proveedor</label>
-                    <select wire:model="supplier_id" id="supplier_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
-                        <option value="">Seleccione un proveedor</option>
-                        @foreach($suppliers as $supplier)
-                        <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('supplier_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    <label for="description" class="block text-sm font-medium text-gray-700">Descripción</label>
+                    <textarea wire:model="description" id="description" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"></textarea>
+                    @error('description') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
-                <div>
-                    <label for="minimum_stock" class="block text-sm font-medium text-gray-700">Stock Mínimo</label>
-                    <input type="number" wire:model="minimum_stock" id="minimum_stock" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" min="0">
-                    @error('minimum_stock') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="supplier_id" class="block text-sm font-medium text-gray-700">Proveedor</label>
+                        <select wire:model="supplier_id" id="supplier_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                            <option value="">Seleccione un proveedor</option>
+                            @foreach($suppliers as $supplier)
+                            <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('supplier_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                    <div>
+                        <label for="price" class="block text-sm font-medium text-gray-700">Precio (€)</label>
+                        <input type="number" wire:model.lazy="price" id="price" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" step="0.01" min="0">
+                        @error('price') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
                 </div>
-                @if ($isEdit && $image)
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Imagen Actual</label>
-                    <img src="{{ $image }}" alt="Imagen actual" class="w-20 h-20 object-cover rounded-md shadow-sm">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="quantity" class="block text-sm font-medium text-gray-700">Cantidad</label>
+                        <input type="number" min="0" wire:model="quantity" id="quantity" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                        @error('quantity') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                    <div>
+                        <label for="minimum_stock" class="block text-sm font-medium text-gray-700">Stock Mínimo</label>
+                        <input type="number" wire:model="minimum_stock" id="minimum_stock" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" min="0">
+                        @error('minimum_stock') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
                 </div>
-                @endif
-                <div>
-                    <label for="newImage" class="block text-sm font-medium text-gray-700">Nueva Imagen</label>
-                    <input type="file" wire:model="newImage" id="newImage" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
-                    @error('newImage') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="discount" class="block text-sm font-medium text-gray-700">Descuento (%)</label>
+                        <input type="number" wire:model="discount" id="discount" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" min="0" max="100">
+                        @error('discount') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                    @if ($isEdit && $image)
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Imagen Actual</label>
+                        <img src="{{ $image }}" alt="Imagen actual" class="w-20 h-20 object-cover rounded-md shadow-sm">
+                    </div>
+                    @endif
+                    <div>
+                        <label for="newImage" class="block text-sm font-medium text-gray-700">Nueva Imagen</label>
+                        <input type="file" wire:model="newImage" id="newImage" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                        @error('newImage') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
                 </div>
 
                 <div class="flex justify-end space-x-2 mt-4">
@@ -255,4 +270,6 @@
         </div>
     </div>
     @endif
+
+
 </div>

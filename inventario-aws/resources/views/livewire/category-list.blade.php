@@ -8,31 +8,22 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         @foreach($categories as $category)
-        <div class="border p-4 rounded text-center transition-transform transform hover:scale-105 hover:bg-gray-100">
+        <div class="border p-4 rounded text-center transition-transform transform hover:scale-105 hover:bg-gray-100 cursor-pointer" wire:click="showEditModal({{ $category->id }})">
             <div class="w-full h-36 overflow-hidden rounded-lg flex items-center justify-center">
                 <img src="{{ asset($category->image) }}" alt="{{ $category->name }}" class="w-full h-full object-contain mb-4 mt-4 transition-transform transform hover:scale-110">
             </div>
             <h3 class="text-lg font-semibold">{{ $category->name }}</h3>
-            <div class="flex justify-center space-x-2 mt-4">
-                <button wire:click="showEditModal({{ $category->id }})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
-                    <span class="material-icons">edit</span>
-                </button>
-                <button class="bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded shadow-lg transition-transform transform hover:scale-110" onclick="confirm('¿Está seguro de que desea eliminar esta categoría?') || event.stopImmediatePropagation()" wire:click="deleteCategory({{ $category->id }})">
-                    <span class="material-icons">delete</span>
-                </button>
-            </div>
         </div>
         @endforeach
     </div>
     <div class="mt-4">
         {{ $categories->links() }}
     </div>
-
     <!-- Modal Crear/Editar Categorías -->
     @if ($showModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeModal">
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2" wire:click.stop>
-            <h2 class="text-xl font-semibold mb-4">{{ $isEdit ? 'Editar Categoría' : 'Nueva Categoría' }}</h2>
+            <h2 class="text-2xl font-semibold mb-4 text-center">{{ $isEdit ? 'Editar Categoría' : 'Nueva Categoría' }}</h2>
             <form wire:submit.prevent="saveCategory" class="space-y-4">
                 <div>
                     <label for="name" class="block text-sm font-medium text-gray-700">Nombre</label>
@@ -42,7 +33,9 @@
                 @if ($isEdit && $currentImage)
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Imagen Actual</label>
-                    <img src="{{ asset($currentImage) }}" alt="{{ $name }}" class="w-32 h-32 object-contain rounded-md shadow-sm transition-transform transform hover:scale-110">
+                    <div class="flex justify-center">
+                        <img src="{{ asset($currentImage) }}" alt="{{ $name }}" class="w-32 h-32 object-contain rounded-md shadow-sm transition-transform transform hover:scale-110">
+                    </div>
                 </div>
                 @endif
                 <div>
@@ -51,22 +44,23 @@
                     @error('image') <span class="error text-red-500">{{ $message }}</span> @enderror
                 </div>
                 <div class="flex justify-between space-x-2 mt-4">
-                    @if ($isEdit)
-                    <button type="button" wire:click="deleteCategory({{ $categoryId }})" class="inline-flex items-center px-4 py-2 bg-red-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 active:bg-red-900 focus:outline-none focus:border-red-900 focus:ring focus:ring-red-300 disabled:opacity-25 transition">
-                        Eliminar
-                    </button>
-                    @endif
-                    <div class="flex justify-end space-x-2">
+                    <div class="flex space-x-2">
+                        @if ($isEdit)
+                        <button type="button" onclick="confirm('¿Está seguro de que desea eliminar esta categoría?') || event.stopImmediatePropagation()" wire:click="confirmDeleteCategory({{ $categoryId }})" class="inline-flex items-center px-4 py-2 bg-red-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 active:bg-red-900 focus:outline-none focus:border-red-900 focus:ring focus:ring-red-300 disabled:opacity-25 transition">
+                            Eliminar
+                        </button>
+                        @endif
                         <button type="button" wire:click="closeModal" class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">
                             Cerrar
                         </button>
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring focus:ring-blue-300 disabled:opacity-25 transition">
-                            Guardar Cambios
-                        </button>
                     </div>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring focus:ring-blue-300 disabled:opacity-25 transition">
+                        Guardar Cambios
+                    </button>
                 </div>
             </form>
         </div>
     </div>
     @endif
+
 </div>

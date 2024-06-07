@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Customer;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class CustomerSeeder extends Seeder
@@ -19,7 +18,8 @@ class CustomerSeeder extends Seeder
             'name' => 'Cliente Genérico',
             'email' => 'clienteGenerico@miempresa.com',
             'phone_number' => '0000000000',
-            'address' => 'No especificada'
+            'address' => 'No especificada',
+            'role' => 'normal',
         ]);
 
         // Crear otros clientes aleatorios

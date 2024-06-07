@@ -91,16 +91,12 @@
     </div>
     @endif
 
-    <!-- Modal de imagen -->
+    <!-- Modal Ver imagen -->
     @if ($showImageModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeImageModal">
-        <div class="bg-white p-4 rounded-lg shadow-lg max-w-lg w-full mx-2" wire:click.stop>
-            <div class="flex justify-end">
-                <button wire:click="closeImageModal" class="text-gray-600 hover:text-gray-800">
-                </button>
-            </div>
+        <div class="relative p-4 max-w-lg w-full mx-2">
             <div class="flex justify-center">
-                <img src="{{ $currentImage }}" alt="Imagen del Producto" class="rounded-md max-h-screen">
+                <img src="{{ $currentImage }}" alt="Imagen del Producto" class="rounded-md max-h-screen" style="background-color: transparent;">
             </div>
         </div>
     </div>

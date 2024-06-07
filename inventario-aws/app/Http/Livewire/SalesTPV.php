@@ -26,7 +26,6 @@ class SalesTPV extends Component
     public $selectedCategoryName = 'Todas';
     public $selectedCategoryImage = 'storage/categories/todas.png';
     public $showCategories = false;
-    public $showConfirmationModal = false;
     public $showSmsModal = false;
     public $genericCustomer;
     public $orderId;
@@ -158,22 +157,14 @@ class SalesTPV extends Component
 
             $this->orderId = $order->id;
 
+            $order->sendStatusChangeEmail();
+
             if ($this->selectedCustomer && $this->selectedCustomer->id !== $this->genericCustomer->id) {
                 $this->showSmsModal = true;
             } else {
-                $this->showConfirmationModal = true;
+                $this->resetOrder();
             }
         });
-    }
-
-    public function confirmEmailSend($sendEmail)
-    {
-        if ($sendEmail) {
-            $order = Order::find($this->orderId);
-            $order->sendStatusChangeEmail();
-        }
-
-        $this->resetOrder();
     }
 
     public function confirmSmsSend($sendSms)
@@ -183,7 +174,7 @@ class SalesTPV extends Component
             $order->sendStatusChangeEmail(true);
         }
 
-        $this->showConfirmationModal = true;
+        $this->resetOrder();
         $this->showSmsModal = false;
     }
 
@@ -194,7 +185,6 @@ class SalesTPV extends Component
         $this->totalAmount = 0;
         $this->paymentMethod = 'cash';
         $this->isRegistered = null;
-        $this->showConfirmationModal = false;
         $this->showSmsModal = false;
     }
 
@@ -225,6 +215,7 @@ class SalesTPV extends Component
             ->orWhere('email', 'like', '%' . $this->search . '%')
             ->orWhere('phone_number', 'like', '%' . $this->search . '%')
             ->orWhere('address', 'like', '%' . $this->search . '%')
+            ->orderBy('name')
             ->paginate(10);
 
         $categories = Category::all();
@@ -234,7 +225,7 @@ class SalesTPV extends Component
             $productsQuery->where('category_id', $this->selectedCategory);
         }
 
-        $products = $productsQuery->orderBy('name')->paginate(16);
+        $products = $productsQuery->orderBy('name')->paginate(12);
 
         return view('livewire.sales-tpv', [
             'customers' => $customers,

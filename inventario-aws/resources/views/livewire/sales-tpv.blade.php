@@ -12,37 +12,12 @@
         </div>
     </div>
     @else
-    @if ($selectedCustomer)
-    <div class="mb-6">
-        <h2 class="text-xl mb-2">{{ $selectedCustomer->name }}</h2>
-        <button wire:click="resetOrder" class="text-red-500 underline flex items-center text-lg">
-            <i class="material-icons mr-2">change_circle</i> Cambiar Cliente
-        </button>
-    </div>
-    @else
-    <div class="mb-6">
-        <input type="text" wire:model="search" wire:input.debounce.500ms="reloadCustomers" class="form-input rounded-md shadow-sm mt-1 block w-full text-lg" placeholder="Buscar cliente...">
-        <div wire:loading>
-            <p class="text-gray-500">Cargando...</p>
-        </div>
-        <ul class="mt-4 border rounded-md shadow-md">
-            @foreach ($customers as $customer)
-            <li class="cursor-pointer hover:bg-gray-200 p-2 border-b last:border-none transition-transform transform hover:scale-105 text-lg" wire:click="selectCustomer({{ $customer->id }})">
-                {{ $customer->name }} ({{ $customer->email }})
-            </li>
-            @endforeach
-        </ul>
-        <div class="mt-4">
-            {{ $customers->links() }}
-        </div>
-    </div>
-    @endif
-
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="md:col-span-3">
-            <div class="mb-6">
-                @if ($showCategories)
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mt-4">
+        <div class="md:col-span-2">
+            @if ($showCategories)
+            <div class="border p-4 rounded shadow-lg mb-6">
+                <h2 class="text-xl mb-4">Categorías</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                     <div class="border p-2 rounded cursor-pointer transition-transform transform hover:scale-105 hover:bg-gray-100 {{ is_null($selectedCategory) ? 'bg-blue-100' : '' }}" wire:click="selectCategory(null, 'Todas')">
                         <div class="w-full h-24 mb-2 flex items-center justify-center overflow-hidden">
                             <img src="{{ asset('storage/categories/todas.png') }}" alt="Todas" class="object-contain h-full transition-transform transform hover:scale-110">
@@ -58,16 +33,53 @@
                     </div>
                     @endforeach
                 </div>
-                @else
-                <div class="border p-2 rounded cursor-pointer transition-transform transform hover:scale-105 hover:bg-gray-100 flex items-center justify-center" wire:click="toggleCategories">
-                    <div class="w-full h-24 flex items-center justify-center overflow-hidden">
-                        <img src="{{ asset($selectedCategoryImage) }}" alt="{{ $selectedCategoryName }}" class="object-contain h-full transition-transform transform hover:scale-110">
-                    </div>
-                    <h3 class="text-lg font-semibold text-center">{{ $selectedCategoryName }}</h3>
-                </div>
-                @endif
             </div>
+            @else
+            <div class="border p-4 rounded shadow-lg mb-6 cursor-pointer transition-transform transform hover:scale-105 hover:bg-gray-100 flex items-center justify-center" wire:click="toggleCategories">
+                <div class="w-full h-16 flex items-center justify-center overflow-hidden">
+                    <img src="{{ asset($selectedCategoryImage) }}" alt="{{ $selectedCategoryName }}" class="object-contain h-full transition-transform transform hover:scale-110">
+                </div>
+                <h3 class="text-lg font-semibold text-center">{{ $selectedCategoryName }}</h3>
+            </div>
+            @endif
+        </div>
 
+        <div class="md:col-span-2">
+            @if ($selectedCustomer)
+            <div class="border p-4 rounded shadow-lg mb-6 cursor-pointer transition-transform transform hover:scale-105 hover:bg-gray-100 flex items-center" wire:click="resetOrder">
+                <div class="w-24 h-16 flex-shrink-0 overflow-hidden">
+                    <img src="{{ asset('storage/products/customer.png') }}" alt="Cambiar Cliente" class="object-contain h-full w-full transition-transform transform hover:scale-110">
+                </div>
+                <div class="ml-4">
+                    <h2 class="text-xl mb-2">{{ $selectedCustomer->name }}</h2>
+                    <div class="flex items-center text-lg">
+                        <i class="material-icons mr-2">change_circle</i> Cambiar Cliente
+                    </div>
+                </div>
+            </div>
+            @else
+            <div class="border p-4 rounded shadow-lg mb-6">
+                <input type="text" wire:model="search" wire:input.debounce.500ms="reloadCustomers" class="form-input rounded-md shadow-sm mt-1 block w-full text-lg" placeholder="Buscar cliente...">
+                <div wire:loading>
+                    <p class="text-gray-500">Cargando...</p>
+                </div>
+                <ul class="mt-4 border rounded-md shadow-md">
+                    @foreach ($customers as $customer)
+                    <li class="cursor-pointer hover:bg-gray-200 p-2 border-b last:border-none transition-transform transform hover:scale-105 text-lg" wire:click="selectCustomer({{ $customer->id }})">
+                        {{ $customer->name }} ({{ $customer->email }})
+                    </li>
+                    @endforeach
+                </ul>
+                <div class="mt-4">
+                    {{ $customers->links() }}
+                </div>
+            </div>
+            @endif
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="md:col-span-3">
             <div class="flex justify-between items-center mb-4">
                 <button class="text-gray-500 hover:text-gray-700 text-4xl" wire:click="previousPage">
                     <i class="material-icons">chevron_left</i>
@@ -76,13 +88,13 @@
                     <i class="material-icons">chevron_right</i>
                 </button>
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2">
                 @foreach ($products as $product)
                 <div class="border p-4 rounded cursor-pointer transition-transform transform hover:scale-105 hover:bg-gray-100" wire:click="addProduct({{ $product->id }})">
-                    <div class="w-full h-32 mb-2 flex items-center justify-center overflow-hidden">
+                    <div class="w-full h-24 mb-2 flex items-center justify-center overflow-hidden">
                         <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="object-contain h-full transition-transform transform hover:scale-110">
                     </div>
-                    <h3 class="text-lg font-semibold">{{ $product->name }}</h3>
+                    <h3 class="text-sm font-semibold">{{ $product->name }}</h3>
                     <p class="text-gray-600">{{ number_format($product->price, 2) }} €</p>
                 </div>
                 @endforeach
@@ -143,22 +155,6 @@
                     <i class="material-icons mr-2">sms</i> Sí
                 </button>
                 <button wire:click="confirmSmsSend(false)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded shadow-lg flex items-center justify-center transition-transform transform hover:scale-105 text-lg">
-                    <i class="material-icons mr-2">cancel</i> No
-                </button>
-            </div>
-        </div>
-    </div>
-    @endif
-
-    @if ($showConfirmationModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
-            <h2 class="text-xl font-semibold mb-4">¿Desea recibir una copia del pedido por correo?</h2>
-            <div class="flex justify-around">
-                <button wire:click="confirmEmailSend(true)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded shadow-lg flex items-center justify-center transition-transform transform hover:scale-105 text-lg">
-                    <i class="material-icons mr-2">email</i> Sí
-                </button>
-                <button wire:click="confirmEmailSend(false)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded shadow-lg flex items-center justify-center transition-transform transform hover:scale-105 text-lg">
                     <i class="material-icons mr-2">cancel</i> No
                 </button>
             </div>
