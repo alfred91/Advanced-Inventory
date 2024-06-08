@@ -31,6 +31,7 @@ class SalesTPV extends Component
     public $orderId;
     public $isLoading = false;
     public $showCustomerModal = false;
+    public $customerRole = null;
 
     protected $queryString = ['search'];
 
@@ -65,6 +66,7 @@ class SalesTPV extends Component
     public function selectCustomer($customerId)
     {
         $this->selectedCustomer = Customer::find($customerId);
+        $this->customerRole = $this->selectedCustomer->role;
         $this->showCustomerModal = false;
     }
 
@@ -72,6 +74,12 @@ class SalesTPV extends Component
     {
         $this->selectedCustomer = $this->genericCustomer;
         $this->isRegistered = false;
+    }
+
+    public function selectRole($role)
+    {
+        $this->customerRole = $role;
+        $this->isRegistered = true;
     }
 
     public function addProduct($productId)
@@ -90,6 +98,7 @@ class SalesTPV extends Component
                     'quantity' => 1,
                     'name' => $product->name,
                     'price' => $product->price,
+                    'discount' => $product->discount,
                 ];
             } else {
                 session()->flash('error', 'No hay suficiente stock disponible.');
@@ -129,7 +138,11 @@ class SalesTPV extends Component
     public function updateTotalAmount()
     {
         $this->totalAmount = collect($this->selectedProducts)->sum(function ($product) {
-            return $product['quantity'] * $product['price'];
+            if ($this->customerRole === 'professional') {
+                return $product['quantity'] * ($product['price'] * (1 - ($product['discount'] / 100)));
+            } else {
+                return $product['quantity'] * $product['price'];
+            }
         });
     }
 
@@ -185,6 +198,7 @@ class SalesTPV extends Component
         $this->totalAmount = 0;
         $this->paymentMethod = 'cash';
         $this->isRegistered = null;
+        $this->customerRole = null;
         $this->showSmsModal = false;
     }
 

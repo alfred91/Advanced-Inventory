@@ -35,6 +35,10 @@ class CustomersList extends Component
     public $showOrdersModal = false;
     public $orders = [];
 
+    // Properties for viewing order details
+    public $showOrderDetailsModal = false;
+    public $orderDetails = null;
+
     protected function rules()
     {
         return [
@@ -136,6 +140,18 @@ class CustomersList extends Component
         $this->customerId = $customerId;
         $this->orders = Order::where('customer_id', $customerId)->with('products')->get();
         $this->showOrdersModal = true;
+    }
+
+    public function showOrderDetails($orderId)
+    {
+        $this->orderDetails = Order::with('products')->findOrFail($orderId);
+        $this->showOrderDetailsModal = true;
+    }
+
+    public function closeOrderDetailsModal()
+    {
+        $this->showOrderDetailsModal = false;
+        $this->orderDetails = null;
     }
 
     // Sorting methods

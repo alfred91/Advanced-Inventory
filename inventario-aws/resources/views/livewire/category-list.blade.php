@@ -22,7 +22,7 @@
     <!-- Modal Crear/Editar Categorías -->
     @if ($showModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeModal">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2" wire:click.stop>
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
             <h2 class="text-2xl font-semibold mb-4 text-center">{{ $isEdit ? 'Editar Categoría' : 'Nueva Categoría' }}</h2>
             <form wire:submit.prevent="saveCategory" class="space-y-4">
                 <div>

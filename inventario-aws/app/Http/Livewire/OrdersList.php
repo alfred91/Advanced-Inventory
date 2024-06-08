@@ -15,9 +15,10 @@ class OrdersList extends Component
 
     public $search = '';
     public $isLoading = false;
+    public $applyDiscount = false;
 
     public $showModal = false;
-    public $showCreateModal = false; // Nueva variable para el modal de creación
+    public $showCreateModal = false;
     public $isEdit = false;
     public $orderId;
     public $customerId;
@@ -32,11 +33,12 @@ class OrdersList extends Component
     protected $queryString = ['search', 'sortField', 'sortDirection'];
     public $showConfirmModal = false;
     public $sendSms = false;
+    protected $listeners = ['showOrderDetailsFromCustomersList' => 'showOrderDetails'];
 
     protected $rules = [
         'customerId' => 'required|exists:customers,id',
         'status' => 'required|in:pending,completed,cancelled',
-        'orderDate' => 'required|date|before_or_equal:today',  // Validacion fecha max. hoy
+        'orderDate' => 'required|date|before_or_equal:today',
         'selectedProducts.*.quantity' => 'required|integer|min:1',
         'newProductId' => 'nullable|exists:products,id',
         'newProductQuantity' => 'nullable|integer|min:1'
@@ -58,12 +60,14 @@ class OrdersList extends Component
         $this->isLoading = true;
         $this->resetPage();
     }
-
     public function openCreateModal()
     {
         $this->resetInputFields();
         $this->isEdit = false;
         $this->showCreateModal = true;
+
+        $customer = Customer::find($this->customerId);
+        $this->applyDiscount = $customer && $customer->role === 'professional';
     }
 
     public function showOrderDetails($orderId, $isEdit = false)
@@ -77,11 +81,13 @@ class OrdersList extends Component
         $this->status = $order->status;
         $this->totalAmount = $order->total_amount;
         $this->orderDate = $order->order_date;
+        $this->applyDiscount = $order->customer->role === 'professional';
         $this->selectedProducts = $order->products->mapWithKeys(function ($product) {
             return [$product->id => [
                 'quantity' => $product->pivot->quantity,
                 'unit_price' => $product->pivot->unit_price,
-                'available_quantity' => $product->quantity + $product->pivot->quantity
+                'available_quantity' => $product->quantity + $product->pivot->quantity,
+                'price_with_discount' => $this->calculatePriceWithDiscount($product->pivot->unit_price, $product->discount)
             ]];
         })->toArray();
 
@@ -141,7 +147,6 @@ class OrdersList extends Component
         if ($this->isEdit) {
             $order = Order::findOrFail($this->orderId);
 
-            // Restore the quantities to the products before making changes
             foreach ($order->products as $product) {
                 $product->quantity += $product->pivot->quantity;
                 $product->save();
@@ -163,9 +168,11 @@ class OrdersList extends Component
                             session()->flash('error', 'Cantidad no disponible para el producto ' . $productModel->name);
                             return;
                         }
+                        $price = $this->applyDiscount($productModel);
+
                         $order->products()->attach($productId, [
                             'quantity' => $product['quantity'],
-                            'unit_price' => $product['unit_price']
+                            'unit_price' => $price
                         ]);
 
                         $productModel->quantity -= $product['quantity'];
@@ -178,7 +185,7 @@ class OrdersList extends Component
             $order->total_amount = $this->totalAmount;
             $order->save();
 
-            $order->sendStatusChangeEmail($this->sendSms); // Enviar correo y/o SMS
+            $order->sendStatusChangeEmail($this->sendSms);
 
             session()->flash('message', 'Order updated successfully.');
         } else {
@@ -197,9 +204,11 @@ class OrdersList extends Component
                             session()->flash('error', 'Cantidad no disponible para el producto ' . $productModel->name);
                             return;
                         }
+                        $price = $this->applyDiscount($productModel);
+
                         $order->products()->attach($productId, [
                             'quantity' => $product['quantity'],
-                            'unit_price' => $product['unit_price']
+                            'unit_price' => $price
                         ]);
 
                         $productModel->quantity -= $product['quantity'];
@@ -211,7 +220,7 @@ class OrdersList extends Component
                 $order->total_amount = $this->totalAmount;
                 $order->save();
 
-                $order->sendStatusChangeEmail($this->sendSms); // Enviar correo y/o SMS
+                $order->sendStatusChangeEmail($this->sendSms);
 
                 session()->flash('message', 'Order created successfully.');
             });
@@ -229,20 +238,55 @@ class OrdersList extends Component
         ]);
 
         $product = Product::findOrFail($this->newProductId);
+        $price = $this->applyDiscount($product);
 
         if (isset($this->selectedProducts[$this->newProductId])) {
             $this->selectedProducts[$this->newProductId]['quantity'] += $this->newProductQuantity;
         } else {
             $this->selectedProducts[$this->newProductId] = [
                 'quantity' => $this->newProductQuantity,
-                'unit_price' => $product->price,
-                'available_quantity' => $product->quantity
+                'unit_price' => $price,
+                'available_quantity' => $product->quantity,
+                'price_with_discount' => $this->calculatePriceWithDiscount($price, $product->discount)
             ];
         }
 
         $this->newProductId = null;
         $this->newProductQuantity = 1;
         $this->updateTotalAmount();
+    }
+
+    public function updateDiscountStatus()
+    {
+        $customer = Customer::find($this->customerId);
+        $this->applyDiscount = $customer && $customer->role === 'professional';
+
+        // Recalcular los precios
+        foreach ($this->selectedProducts as $productId => &$product) {
+            $productModel = Product::find($productId);
+            $product['unit_price'] = $this->applyDiscount($productModel);
+            $product['price_with_discount'] = $this->calculatePriceWithDiscount($product['unit_price'], $productModel->discount);
+        }
+
+        $this->updateTotalAmount();
+    }
+
+    private function applyDiscount($product)
+    {
+        $customer = Customer::find($this->customerId);
+
+        if ($customer && $customer->role === 'professional') {
+            $this->applyDiscount = true;
+            return $product->price * (1 - ($product->discount / 100));
+        }
+
+        $this->applyDiscount = false;
+        return $product->price;
+    }
+
+    private function calculatePriceWithDiscount($price, $discount)
+    {
+        return number_format($price * (1 - ($discount / 100)), 2, '.', '');
     }
 
     public function removeProduct($productId)
@@ -306,6 +350,7 @@ class OrdersList extends Component
         $this->newProductId = null;
         $this->newProductQuantity = 1;
         $this->orderDate = now()->toDateString();
+        $this->applyDiscount = false;
     }
 
     public function sortBy($field)
@@ -329,21 +374,26 @@ class OrdersList extends Component
                     ->orWhere('status', 'like', '%' . $this->search . '%')
                     ->orWhere('order_date', 'like', '%' . $this->search . '%')
                     ->orWhereHas('customer', function ($q) {
-                        $q->where('name', 'like', '%' . $this->search . '%');
+                        $q->where('name', 'like', '%' . $this->search . '%')
+                            ->orWhere('role', 'like', '%' . $this->search . '%');
                     });
             });
         }
 
         if ($this->sortField == 'customer_name') {
             $query->join('customers', 'orders.customer_id', '=', 'customers.id')
-                ->select('orders.*', 'customers.name as customer_name')
+                ->select('orders.*', 'customers.name as customer_name', 'customers.role as customer_role')
                 ->orderBy('customers.name', $this->sortDirection);
+        } elseif ($this->sortField == 'customer_role') {
+            $query->join('customers', 'orders.customer_id', '=', 'customers.id')
+                ->select('orders.*', 'customers.role as customer_role')
+                ->orderBy('customers.role', $this->sortDirection);
         } else {
             $query->orderBy($this->sortField, $this->sortDirection);
         }
 
         $orders = $query->paginate(10);
-        $customers = Customer::all();
+        $customers = Customer::all()->sortBy('name');
         $allProducts = Product::all();
 
         return view('livewire.orders-list', [

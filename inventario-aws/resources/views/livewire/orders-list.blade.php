@@ -35,6 +35,18 @@
                         </button>
                     </th>
                     <th class="px-6 py-3">
+                        <button wire:click="sortBy('customer_role')" class="focus:outline-none">
+                            Rol
+                            @if($sortField === 'customer_role')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">
                         <button wire:click="sortBy('total_amount')" class="focus:outline-none">
                             Monto Total
                             @if($sortField === 'total_amount')
@@ -78,6 +90,7 @@
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer" wire:click="showOrderDetails({{ $order->id }}, false)">
                     <td class="px-6 py-4">{{ $order->id }}</td>
                     <td class="px-6 py-4">{{ $order->customer->name }}</td>
+                    <td class="px-6 py-4">{{ $order->customer->role }}</td>
                     <td class="px-6 py-4">{{ number_format($order->total_amount, 2) }} €</td>
                     <td class="px-6 py-4">{{ $this->getTranslatedStatus($order->status) }}</td>
                     <td class="px-6 py-4">{{ \Carbon\Carbon::parse($order->order_date)->format('d-m-Y') }}</td>
@@ -106,13 +119,26 @@
             <form wire:submit.prevent="confirmSave(false)" class="space-y-4">
                 <div>
                     <label for="customer_id" class="block text-sm font-medium text-gray-700">Cliente</label>
-                    <select wire:model.defer="customerId" id="customer_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                    <select wire:model="customerId" id="customer_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" wire:change="updateDiscountStatus">
                         <option value="">Seleccione un cliente</option>
-                        @foreach($customers as $customer)
-                        <option value="{{ $customer->id }}">{{ $customer->name }}</option>
-                        @endforeach
+                        <optgroup label="Particulares">
+                            @foreach($customers->where('role', 'normal') as $customer)
+                            <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                            @endforeach
+                        </optgroup>
+                        <optgroup label="Profesionales">
+                            @foreach($customers->where('role', 'professional') as $customer)
+                            <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                            @endforeach
+                        </optgroup>
                     </select>
                 </div>
+                @if($applyDiscount)
+                <div class="flex items-center">
+                    <input type="checkbox" wire:model="applyDiscount" class="form-checkbox">
+                    <label for="apply_discount" class="ml-2 block text-sm font-medium text-gray-700">Aplicar Descuento Profesional</label>
+                </div>
+                @endif
                 <div>
                     <label for="status" class="block text-sm font-medium text-gray-700">Estado</label>
                     <select wire:model.defer="status" id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
@@ -134,6 +160,7 @@
                                 <tr>
                                     <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
                                     <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Unitario</th>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio con Descuento</th>
                                     <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
                                 </tr>
                             </thead>
@@ -142,6 +169,7 @@
                                 <tr>
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ $allProducts->find($productId)->name }}</td>
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ number_format($product['unit_price'], 2) }} €</td>
+                                    <td class="px-4 py-2 text-sm text-gray-700">{{ number_format($product['price_with_discount'], 2) }} €</td>
                                     <td class="px-4 py-2 flex items-center">
                                         <button type="button" wire:click="decreaseProductQuantity({{ $productId }})" class="ml-2 text-gray-500 hover:text-gray-700"><i class="fas fa-minus"></i></button>
                                         <input type="number" min="0" wire:model.lazy="selectedProducts.{{ $productId }}.quantity" id="product_{{ $productId }}" class="block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad" max="{{ $product['available_quantity'] }}">
@@ -193,11 +221,24 @@
                     <label for="customer_id" class="block text-sm font-medium text-gray-700">Cliente</label>
                     <select wire:model.defer="customerId" id="customer_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" {{ $isEdit ? '' : 'disabled' }}>
                         <option value="">Seleccione un cliente</option>
-                        @foreach($customers as $customer)
-                        <option value="{{ $customer->id }}">{{ $customer->name }}</option>
-                        @endforeach
+                        <optgroup label="Particulares">
+                            @foreach($customers->where('role', 'normal') as $customer)
+                            <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                            @endforeach
+                        </optgroup>
+                        <optgroup label="Profesionales">
+                            @foreach($customers->where('role', 'professional') as $customer)
+                            <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                            @endforeach
+                        </optgroup>
                     </select>
                 </div>
+                @if($applyDiscount)
+                <div class="flex items-center">
+                    <input type="checkbox" wire:model="applyDiscount" class="form-checkbox">
+                    <label for="apply_discount" class="ml-2 block text-sm font-medium text-gray-700">Aplicar Descuento Profesional</label>
+                </div>
+                @endif
                 <div>
                     <label for="status" class="block text-sm font-medium text-gray-700">Estado</label>
                     <select wire:model.defer="status" id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" {{ $isEdit ? '' : 'disabled' }}>
@@ -223,6 +264,7 @@
                                 <tr>
                                     <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
                                     <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Unitario</th>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio con Descuento</th>
                                     <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
                                 </tr>
                             </thead>
@@ -231,6 +273,7 @@
                                 <tr>
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ $allProducts->find($productId)->name }}</td>
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ number_format($product['unit_price'], 2) }} €</td>
+                                    <td class="px-4 py-2 text-sm text-gray-700">{{ number_format($product['price_with_discount'], 2) }} €</td>
                                     <td class="px-4 py-2 flex items-center">
                                         @if($isEdit)
                                         <button type="button" wire:click="decreaseProductQuantity({{ $productId }})" class="ml-2 text-gray-500 hover:text-gray-700"><i class="fas fa-minus"></i></button>

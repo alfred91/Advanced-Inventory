@@ -118,7 +118,15 @@
                     <td class="px-6 py-4">{{ $customer->email }}</td>
                     <td class="px-6 py-4">{{ $customer->phone_number }}</td>
                     <td class="px-6 py-4">{{ $customer->address }}</td>
-                    <td class="px-6 py-4">{{ $customer->role }}</td>
+                    <td class="px-6 py-4">
+                        @if ($customer->role == 'normal')
+                        Particular
+                        @elseif ($customer->role == 'professional')
+                        Profesional
+                        @else
+                        {{ $customer->role }}
+                        @endif
+                    </td>
                     <td class="px-6 py-4">
                         @if($customer->orders()->count() > 0)
                         <div class="flex items-center gap-2">
@@ -149,7 +157,7 @@
     <!-- Modal Crear/Editar Clientes -->
     @if ($showModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeModal">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2" wire:click.stop>
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
             <h2 class="text-xl font-semibold mb-4">{{ $isEdit ? 'Editar Cliente: ' . $name : 'Nuevo Cliente' }}</h2>
             <form wire:submit.prevent="saveCustomer" class="space-y-4">
                 <div>
@@ -180,8 +188,8 @@
                 <div>
                     <label for="role" class="block text-sm font-medium text-gray-700">Rol</label>
                     <select wire:model.defer="role" id="role" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
-                        <option value="normal">Normal</option>
-                        <option value="professional">Professional</option>
+                        <option value="normal">Particular</option>
+                        <option value="professional">Profesional</option>
                     </select>
                     @error('role') <span class="error text-red-500">{{ $message }}</span> @enderror
                 </div>
@@ -198,10 +206,11 @@
     </div>
     @endif
 
+
     <!-- Modal Pedidos del cliente-->
     @if ($showOrdersModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeOrdersModal">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full mx-2" wire:click.stop>
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full mx-2">
             <h2 class="text-xl font-semibold mb-4">Pedidos del Cliente</h2>
             <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
                 <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -216,7 +225,7 @@
                     </thead>
                     <tbody>
                         @foreach ($orders as $order)
-                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer" wire:click="showOrderDetails({{ $order->id }})">
                             <td class="px-6 py-4">{{ $order->id }}</td>
                             <td class="px-6 py-4">{{ \Carbon\Carbon::parse($order->order_date)->format('d-m-Y') }}</td>
                             <td class="px-6 py-4">{{ $order->translated_status }}</td>
@@ -241,4 +250,68 @@
         </div>
     </div>
     @endif
+
+    <!-- Modal Detalles del Pedido -->
+    @if ($showOrderDetailsModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeOrderDetailsModal">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
+            <h2 class="text-xl font-semibold mb-4">Detalles del Pedido: #{{ $orderDetails->id }}</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="customer_name" class="block text-sm font-medium text-gray-700">Cliente</label>
+                    <input type="text" id="customer_name" value="{{ $orderDetails->customer->name }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" disabled>
+                </div>
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700">Estado</label>
+                    <input type="text" id="status" value="{{ $orderDetails->translated_status }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" disabled>
+                </div>
+                <div>
+                    <label for="order_date" class="block text-sm font-medium text-gray-700">Fecha del Pedido</label>
+                    <input type="text" id="order_date" value="{{ \Carbon\Carbon::parse($orderDetails->order_date)->format('d-m-Y') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" disabled>
+                </div>
+                <div>
+                    <label for="total_amount" class="block text-sm font-medium text-gray-700">Monto Total</label>
+                    <input type="text" id="total_amount" value="{{ number_format($orderDetails->total_amount, 2) }} €" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" disabled>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Productos</label>
+                    <div class="max-h-60 overflow-y-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Unitario</th>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio con Descuento</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach($orderDetails->products as $product)
+                                <tr>
+                                    <td class="px-4 py-2 text-sm text-gray-700">{{ $product->name }}</td>
+                                    <td class="px-4 py-2 text-sm text-gray-700">{{ number_format($product->pivot->unit_price, 2) }} €</td>
+                                    <td class="px-4 py-2 text-sm text-gray-700">{{ $product->pivot->quantity }}</td>
+                                    <td class="px-4 py-2 text-sm text-gray-700">
+                                        @if($orderDetails->customer->role === 'professional')
+                                        {{ number_format($product->pivot->unit_price * (1 - ($product->discount / 100)), 2) }} €
+                                        @else
+                                        N/A
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="mt-4 flex justify-end space-x-2">
+                    <button type="button" wire:click="closeOrderDetailsModal" class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
 </div>
