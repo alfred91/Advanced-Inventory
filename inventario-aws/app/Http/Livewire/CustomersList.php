@@ -200,6 +200,21 @@ class CustomersList extends Component
         ];
     }
 
+    private function calculateTotalAmountWithDiscount($order)
+    {
+        $total = 0;
+
+        foreach ($order->products as $product) {
+            if ($order->customer->role === 'professional') {
+                $total += $product->pivot->quantity * ($product->pivot->unit_price * (1 - ($product->discount / 100)));
+            } else {
+                $total += $product->pivot->quantity * $product->pivot->unit_price;
+            }
+        }
+
+        return number_format($total, 2);
+    }
+
     public function render()
     {
         $query = Customer::query();

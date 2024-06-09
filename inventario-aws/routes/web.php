@@ -10,6 +10,11 @@ use App\Http\Livewire\SuppliersList;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SmsController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PayPalController;
+
+Route::get('/paypal/success', [PayPalController::class, 'success'])->name('paypal.success');
+Route::get('/paypal/cancel', [PayPalController::class, 'cancel'])->name('paypal.cancel');
+
 
 Route::get('/', function () {
     return view('welcome');

@@ -135,7 +135,7 @@
                 </div>
                 @if($applyDiscount)
                 <div class="flex items-center">
-                    <input type="checkbox" wire:model="applyDiscount" class="form-checkbox">
+                    <input type="checkbox" wire:model="applyDiscount" class="form-checkbox" disabled>
                     <label for="apply_discount" class="ml-2 block text-sm font-medium text-gray-700">Aplicar Descuento Profesional</label>
                 </div>
                 @endif
@@ -147,9 +147,15 @@
                         <option value="cancelled">Cancelado</option>
                     </select>
                 </div>
-                <div>
-                    <label for="order_date" class="block text-sm font-medium text-gray-700">Fecha del Pedido</label>
-                    <input type="date" wire:model="orderDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" max="{{ now()->toDateString() }}">
+                <div class="flex space-x-4">
+                    <div class="w-1/2">
+                        <label for="order_date" class="block text-sm font-medium text-gray-700">Fecha del Pedido</label>
+                        <input type="date" wire:model="orderDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" max="{{ now()->toDateString() }}">
+                    </div>
+                    <div class="w-1/2">
+                        <label for="total_amount" class="block text-sm font-medium text-gray-700">Monto Total</label>
+                        <input type="text" wire:model="totalAmount" disabled class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                    </div>
                 </div>
 
                 <div>
@@ -159,9 +165,12 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
-                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Unitario</th>
-                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio con Descuento</th>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
+                                    @if($applyDiscount)
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dto. (%)</th>
+                                    @endif
                                     <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Final</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -169,13 +178,22 @@
                                 <tr>
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ $allProducts->find($productId)->name }}</td>
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ number_format($product['unit_price'], 2) }} €</td>
-                                    <td class="px-4 py-2 text-sm text-gray-700">{{ number_format($product['price_with_discount'], 2) }} €</td>
+                                    @if($applyDiscount)
+                                    <td class="px-4 py-2 text-sm text-gray-700">{{ intval($product['discount']) }}%</td>
+                                    @endif
                                     <td class="px-4 py-2 flex items-center">
                                         <button type="button" wire:click="decreaseProductQuantity({{ $productId }})" class="ml-2 text-gray-500 hover:text-gray-700"><i class="fas fa-minus"></i></button>
                                         <input type="number" min="0" wire:model.lazy="selectedProducts.{{ $productId }}.quantity" id="product_{{ $productId }}" class="block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad" max="{{ $product['available_quantity'] }}">
                                         <button type="button" wire:click="increaseProductQuantity({{ $productId }})" class="ml-2 text-gray-500 hover:text-gray-700"><i class="fas fa-plus"></i></button>
                                         @if(isset($this->selectedProducts[$productId]) && $this->selectedProducts[$productId]['quantity'] <= 0) <button type="button" wire:click="removeProduct({{ $productId }})" class="ml-2 text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button>
                                             @endif
+                                    </td>
+                                    <td class="px-4 py-2 text-sm text-gray-700">
+                                        @if($applyDiscount)
+                                        {{ number_format($product['quantity'] * $product['unit_price'] * (1 - $product['discount'] / 100), 2) }} €
+                                        @else
+                                        {{ number_format($product['quantity'] * $product['unit_price'], 2) }} €
+                                        @endif
                                     </td>
                                 </tr>
                                 @endforeach
@@ -211,6 +229,7 @@
     </div>
     @endif
 
+
     <!-- Modal Detalles/Editar Pedido-->
     @if ($showModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeModal">
@@ -235,7 +254,7 @@
                 </div>
                 @if($applyDiscount)
                 <div class="flex items-center">
-                    <input type="checkbox" wire:model="applyDiscount" class="form-checkbox">
+                    <input type="checkbox" wire:model="applyDiscount" class="form-checkbox" disabled>
                     <label for="apply_discount" class="ml-2 block text-sm font-medium text-gray-700">Aplicar Descuento Profesional</label>
                 </div>
                 @endif
@@ -247,15 +266,17 @@
                         <option value="cancelled">Cancelado</option>
                     </select>
                 </div>
-                <div>
-                    <label for="order_date" class="block text-sm font-medium text-gray-700">Fecha del Pedido</label>
-                    <input type="date" wire:model="orderDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" max="{{ now()->toDateString() }}" {{ $isEdit ? '' : 'disabled' }}>
+                <div class="flex space-x-4">
+                    <div class="w-1/2">
+                        <label for="order_date" class="block text-sm font-medium text-gray-700">Fecha del Pedido</label>
+                        <input type="date" wire:model="orderDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" max="{{ now()->toDateString() }}" {{ $isEdit ? '' : 'disabled' }}>
+                    </div>
+                    <div class="w-1/2">
+                        <label for="total_amount" class="block text-sm font-medium text-gray-700">Monto Total</label>
+                        <input type="text" wire:model="totalAmount" disabled class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                    </div>
                 </div>
 
-                <div>
-                    <label for="total_amount" class="block text-sm font-medium text-gray-700">Monto Total</label>
-                    <input type="text" wire:model="totalAmount" disabled class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
-                </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Productos</label>
                     <div class="max-h-60 overflow-y-auto">
@@ -263,9 +284,12 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
-                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Unitario</th>
-                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio con Descuento</th>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
+                                    @if($applyDiscount)
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dto. (%)</th>
+                                    @endif
                                     <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Final</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -273,7 +297,9 @@
                                 <tr>
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ $allProducts->find($productId)->name }}</td>
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ number_format($product['unit_price'], 2) }} €</td>
-                                    <td class="px-4 py-2 text-sm text-gray-700">{{ number_format($product['price_with_discount'], 2) }} €</td>
+                                    @if($applyDiscount)
+                                    <td class="px-4 py-2 text-sm text-gray-700">{{ intval($product['discount']) }}%</td>
+                                    @endif
                                     <td class="px-4 py-2 flex items-center">
                                         @if($isEdit)
                                         <button type="button" wire:click="decreaseProductQuantity({{ $productId }})" class="ml-2 text-gray-500 hover:text-gray-700"><i class="fas fa-minus"></i></button>
@@ -284,6 +310,13 @@
                                             @else
                                             <input type="number" min="0" wire:model.lazy="selectedProducts.{{ $productId }}.quantity" id="product_{{ $productId }}" class="block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad" max="{{ $product['available_quantity'] }}" disabled>
                                             @endif
+                                    </td>
+                                    <td class="px-4 py-2 text-sm text-gray-700">
+                                        @if($applyDiscount)
+                                        {{ number_format($product['quantity'] * $product['unit_price'] * (1 - $product['discount'] / 100), 2) }} €
+                                        @else
+                                        {{ number_format($product['quantity'] * $product['unit_price'], 2) }} €
+                                        @endif
                                     </td>
                                 </tr>
                                 @endforeach
@@ -322,6 +355,7 @@
         </div>
     </div>
     @endif
+
 
     <!-- Modal Confirmación de Guardar Cambios-->
     @if ($showConfirmModal)

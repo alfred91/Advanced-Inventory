@@ -60,6 +60,7 @@ class OrdersList extends Component
         $this->isLoading = true;
         $this->resetPage();
     }
+
     public function openCreateModal()
     {
         $this->resetInputFields();
@@ -87,10 +88,12 @@ class OrdersList extends Component
                 'quantity' => $product->pivot->quantity,
                 'unit_price' => $product->pivot->unit_price,
                 'available_quantity' => $product->quantity + $product->pivot->quantity,
+                'discount' => $product->discount, // Asegúrate de incluir el descuento
                 'price_with_discount' => $this->calculatePriceWithDiscount($product->pivot->unit_price, $product->discount)
             ]];
         })->toArray();
 
+        $this->updateTotalAmount();
         $this->showModal = true;
     }
 
@@ -247,6 +250,7 @@ class OrdersList extends Component
                 'quantity' => $this->newProductQuantity,
                 'unit_price' => $price,
                 'available_quantity' => $product->quantity,
+                'discount' => $product->discount, // Asegúrate de incluir el descuento
                 'price_with_discount' => $this->calculatePriceWithDiscount($price, $product->discount)
             ];
         }
@@ -265,6 +269,7 @@ class OrdersList extends Component
         foreach ($this->selectedProducts as $productId => &$product) {
             $productModel = Product::find($productId);
             $product['unit_price'] = $this->applyDiscount($productModel);
+            $product['discount'] = $productModel->discount; // Asegúrate de incluir el descuento
             $product['price_with_discount'] = $this->calculatePriceWithDiscount($product['unit_price'], $productModel->discount);
         }
 
@@ -332,7 +337,9 @@ class OrdersList extends Component
     private function updateTotalAmount($order = null)
     {
         $this->totalAmount = number_format(collect($this->selectedProducts)->sum(function ($product) {
-            return $product['quantity'] * $product['unit_price'];
+            return $this->applyDiscount
+                ? $product['quantity'] * $product['unit_price'] * (1 - $product['discount'] / 100)
+                : $product['quantity'] * $product['unit_price'];
         }), 2, '.', '');
 
         if ($order) {

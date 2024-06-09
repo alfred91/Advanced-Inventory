@@ -229,7 +229,7 @@
                             <td class="px-6 py-4">{{ $order->id }}</td>
                             <td class="px-6 py-4">{{ \Carbon\Carbon::parse($order->order_date)->format('d-m-Y') }}</td>
                             <td class="px-6 py-4">{{ $order->translated_status }}</td>
-                            <td class="px-6 py-4">{{ number_format($order->total_amount, 2) }} €</td>
+                            <td class="px-6 py-4">{{ $this->calculateTotalAmountWithDiscount($order) }} €</td>
                             <td class="px-6 py-4">
                                 <ul>
                                     @foreach ($order->products as $product)
@@ -271,7 +271,7 @@
                 </div>
                 <div>
                     <label for="total_amount" class="block text-sm font-medium text-gray-700">Monto Total</label>
-                    <input type="text" id="total_amount" value="{{ number_format($orderDetails->total_amount, 2) }} €" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" disabled>
+                    <input type="text" id="total_amount" value="{{ $this->calculateTotalAmountWithDiscount($orderDetails) }} €" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" disabled>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Productos</label>

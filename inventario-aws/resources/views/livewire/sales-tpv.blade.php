@@ -11,6 +11,18 @@
             </button>
         </div>
     </div>
+    @elseif (is_null($customerRole) && $isRegistered)
+    <div class="text-center">
+        <h2 class="text-xl mb-4">¿El cliente es Particular o Profesional?</h2>
+        <div class="flex justify-center space-x-4">
+            <button wire:click="selectRole('normal')" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded shadow-lg flex items-center justify-center transition-transform transform hover:scale-105 text-lg">
+                <i class="material-icons mr-2">person</i> Particular
+            </button>
+            <button wire:click="selectRole('professional')" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded shadow-lg flex items-center justify-center transition-transform transform hover:scale-105 text-lg">
+                <i class="material-icons mr-2">business</i> Profesional
+            </button>
+        </div>
+    </div>
     @else
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div class="md:col-span-2">
@@ -112,6 +124,10 @@
                     <li class="mb-4 flex justify-between items-center text-lg">
                         <div>
                             {{ $product['name'] }} ({{ $product['quantity'] }} x {{ number_format($product['price'], 2) }} €)
+                            @if ($customerRole === 'professional')
+                            <p class="text-sm text-green-600">Descuento: {{ $product['discount'] }}%</p>
+                            <p class="text-sm text-green-600">Precio con Descuento: {{ number_format($product['price'] * (1 - $product['discount'] / 100), 2) }} €</p>
+                            @endif
                         </div>
                         <div class="flex items-center">
                             <button class="text-gray-500 hover:text-gray-700 mr-4 text-4xl" wire:click="updateProductQuantity({{ $productId }}, -1)">
@@ -136,29 +152,31 @@
                         <option value="cash">Efectivo</option>
                         <option value="credit_card">Tarjeta de Crédito</option>
                         <option value="bank_transfer">Transferencia Bancaria</option>
+                        <option value="paypal">PayPal</option>
                     </select>
                 </div>
+
                 <button wire:click="placeOrder" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded shadow-lg mt-4 w-full transition-transform transform hover:scale-105 text-lg">
                     <i class="material-icons mr-2">shopping_cart</i> Realizar Pedido
                 </button>
             </div>
         </div>
-    </div>
-    @endif
 
-    @if ($showSmsModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
-            <h2 class="text-xl font-semibold mb-4">¿Desea recibir una copia del pedido por SMS?</h2>
-            <div class="flex justify-around">
-                <button wire:click="confirmSmsSend(true)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded shadow-lg flex items-center justify-center transition-transform transform hover:scale-105 text-lg">
-                    <i class="material-icons mr-2">sms</i> Sí
-                </button>
-                <button wire:click="confirmSmsSend(false)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded shadow-lg flex items-center justify-center transition-transform transform hover:scale-105 text-lg">
-                    <i class="material-icons mr-2">cancel</i> No
-                </button>
+        @endif
+
+        @if ($showSmsModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
+                <h2 class="text-xl font-semibold mb-4">¿Desea recibir una copia del pedido por SMS?</h2>
+                <div class="flex justify-around">
+                    <button wire:click="confirmSmsSend(true)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded shadow-lg flex items-center justify-center transition-transform transform hover:scale-105 text-lg">
+                        <i class="material-icons mr-2">sms</i> Sí
+                    </button>
+                    <button wire:click="confirmSmsSend(false)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded shadow-lg flex items-center justify-center transition-transform transform hover:scale-105 text-lg">
+                        <i class="material-icons mr-2">cancel</i> No
+                    </button>
+                </div>
             </div>
         </div>
+        @endif
     </div>
-    @endif
-</div>

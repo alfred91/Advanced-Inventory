@@ -2,15 +2,16 @@
 
 namespace App\Http\Livewire;
 
+use Carbon\Carbon;
+use App\Models\Order;
+use App\Models\Product;
 use Livewire\Component;
+use App\Models\Category;
+use App\Models\Customer;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
-use App\Models\Customer;
-use App\Models\Product;
-use App\Models\Category;
-use App\Models\Order;
+use App\Services\PayPalService;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class SalesTPV extends Component
 {
@@ -74,12 +75,14 @@ class SalesTPV extends Component
     {
         $this->selectedCustomer = $this->genericCustomer;
         $this->isRegistered = false;
+        $this->customerRole = null;
     }
 
     public function selectRole($role)
     {
         $this->customerRole = $role;
         $this->isRegistered = true;
+        $this->selectedCustomer = null;
     }
 
     public function addProduct($productId)
@@ -94,11 +97,16 @@ class SalesTPV extends Component
             }
         } else {
             if ($product->quantity > 0) {
+                $price = $product->price;
+                $discount = $this->customerRole === 'professional' ? $product->discount : 0;
+                $priceWithDiscount = $price * (1 - $discount / 100);
+
                 $this->selectedProducts[$productId] = [
                     'quantity' => 1,
                     'name' => $product->name,
-                    'price' => $product->price,
-                    'discount' => $product->discount,
+                    'price' => $price,
+                    'discount' => $discount,
+                    'priceWithDiscount' => $priceWithDiscount,
                 ];
             } else {
                 session()->flash('error', 'No hay suficiente stock disponible.');
@@ -107,6 +115,7 @@ class SalesTPV extends Component
 
         $this->updateTotalAmount();
     }
+
 
     public function removeProduct($productId)
     {
@@ -152,7 +161,7 @@ class SalesTPV extends Component
             $order = Order::create([
                 'customer_id' => $this->selectedCustomer ? $this->selectedCustomer->id : null,
                 'total_amount' => $this->totalAmount,
-                'status' => 'completed',
+                'status' => 'pending', // Estado inicial como pendiente
                 'payment_method' => $this->paymentMethod,
                 'order_date' => Carbon::now(),
             ]);
@@ -170,12 +179,23 @@ class SalesTPV extends Component
 
             $this->orderId = $order->id;
 
-            $order->sendStatusChangeEmail();
+            if ($this->paymentMethod === 'paypal') {
+                $paypalService = app(PayPalService::class);
+                $response = $paypalService->createOrder($this->totalAmount);
 
-            if ($this->selectedCustomer && $this->selectedCustomer->id !== $this->genericCustomer->id) {
-                $this->showSmsModal = true;
+                if ($response) {
+                    return redirect($response->result->links[1]->href);
+                } else {
+                    return redirect()->route('orders.index')->with('error', 'Hubo un problema al crear el pago con PayPal.');
+                }
             } else {
-                $this->resetOrder();
+                $order->update(['status' => 'completed']);
+                $order->sendStatusChangeEmail();
+                if ($this->selectedCustomer && $this->selectedCustomer->id !== $this->genericCustomer->id) {
+                    $this->showSmsModal = true;
+                } else {
+                    $this->resetOrder();
+                }
             }
         });
     }
@@ -225,12 +245,22 @@ class SalesTPV extends Component
 
     public function render()
     {
-        $customers = Customer::where('name', 'like', '%' . $this->search . '%')
-            ->orWhere('email', 'like', '%' . $this->search . '%')
-            ->orWhere('phone_number', 'like', '%' . $this->search . '%')
-            ->orWhere('address', 'like', '%' . $this->search . '%')
-            ->orderBy('name')
-            ->paginate(10);
+        $customersQuery = Customer::query();
+
+        if ($this->search) {
+            $customersQuery->where(function ($q) {
+                $q->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhere('email', 'like', '%' . $this->search . '%')
+                    ->orWhere('phone_number', 'like', '%' . $this->search . '%')
+                    ->orWhere('address', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        if ($this->customerRole) {
+            $customersQuery->where('role', $this->customerRole);
+        }
+
+        $customers = $customersQuery->orderBy('name')->paginate(10);
 
         $categories = Category::all();
 
