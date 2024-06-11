@@ -12,6 +12,18 @@
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                     <th class="px-6 py-3">
+                        <button wire:click="sortBy('id')" class="focus:outline-none">
+                            ID
+                            @if($sortField === 'id')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">
                         <button wire:click="sortBy('name')" class="focus:outline-none">
                             Nombre
                             @if($sortField === 'name')
@@ -47,18 +59,7 @@
                             @endif
                         </button>
                     </th>
-                    <th class="px-6 py-3">
-                        <button wire:click="sortBy('quantity')" class="focus:outline-none">
-                            Cantidad
-                            @if($sortField === 'quantity')
-                            @if($sortDirection === 'asc')
-                            &#9650;
-                            @else
-                            &#9660;
-                            @endif
-                            @endif
-                        </button>
-                    </th>
+
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('category_id')" class="focus:outline-none">
                             Categoría
@@ -75,6 +76,18 @@
                         <button wire:click="sortBy('supplier_id')" class="focus:outline-none">
                             Proveedor
                             @if($sortField === 'supplier_id')
+                            @if($sortDirection === 'asc')
+                            &#9650;
+                            @else
+                            &#9660;
+                            @endif
+                            @endif
+                        </button>
+                    </th>
+                    <th class="px-6 py-3">
+                        <button wire:click="sortBy('quantity')" class="focus:outline-none">
+                            Cantidad
+                            @if($sortField === 'quantity')
                             @if($sortDirection === 'asc')
                             &#9650;
                             @else
@@ -127,12 +140,13 @@
             <tbody>
                 @foreach ($products as $product)
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                    <td class="px-6 py-4">{{ $product->id }}</td>
                     <td class="px-6 py-4">{{ $product->name }}</td>
                     <td class="px-6 py-4">{{ Str::limit($product->description, 50) }}</td>
                     <td class="px-6 py-4">{{ number_format($product->price, 2) }} €</td>
-                    <td class="px-6 py-4">{{ $product->quantity }}</td>
                     <td class="px-6 py-4">{{ $product->category->name ?? 'N/A' }}</td>
                     <td class="px-6 py-4">{{ $product->supplier->name ?? 'N/A' }}</td>
+                    <td class="px-6 py-4">{{ $product->quantity }}</td>
                     <td class="px-6 py-4">{{ $product->minimum_stock }}</td>
                     <td class="px-6 py-4">
                         @if($product->quantity <= $product->minimum_stock)

@@ -92,27 +92,29 @@
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div class="md:col-span-3">
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex justify-between items-center">
                 <button class="text-gray-500 hover:text-gray-700 text-4xl" wire:click="previousPage">
                     <i class="material-icons">chevron_left</i>
                 </button>
+                <div class="flex-1 mx-2">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2">
+                        @foreach ($products as $product)
+                        <div class="border p-4 rounded cursor-pointer transition-transform transform hover:scale-105 hover:bg-gray-100" wire:click="addProduct({{ $product->id }})">
+                            <div class="w-full h-24 mb-2 flex items-center justify-center overflow-hidden">
+                                <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="object-contain h-full transition-transform transform hover:scale-110">
+                            </div>
+                            <h3 class="text-sm font-semibold">{{ $product->name }}</h3>
+                            <p class="text-gray-600">{{ number_format($product->price, 2) }} €</p>
+                        </div>
+                        @endforeach
+                    </div>
+                    <div class="mt-4">
+                        {{ $products->links() }}
+                    </div>
+                </div>
                 <button class="text-gray-500 hover:text-gray-700 text-4xl" wire:click="nextPage">
                     <i class="material-icons">chevron_right</i>
                 </button>
-            </div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2">
-                @foreach ($products as $product)
-                <div class="border p-4 rounded cursor-pointer transition-transform transform hover:scale-105 hover:bg-gray-100" wire:click="addProduct({{ $product->id }})">
-                    <div class="w-full h-24 mb-2 flex items-center justify-center overflow-hidden">
-                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="object-contain h-full transition-transform transform hover:scale-110">
-                    </div>
-                    <h3 class="text-sm font-semibold">{{ $product->name }}</h3>
-                    <p class="text-gray-600">{{ number_format($product->price, 2) }} €</p>
-                </div>
-                @endforeach
-            </div>
-            <div class="mt-4">
-                {{ $products->links() }}
             </div>
         </div>
 
@@ -161,22 +163,22 @@
                 </button>
             </div>
         </div>
+    </div>
+    @endif
 
-        @endif
-
-        @if ($showSmsModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
-                <h2 class="text-xl font-semibold mb-4">¿Desea recibir una copia del pedido por SMS?</h2>
-                <div class="flex justify-around">
-                    <button wire:click="confirmSmsSend(true)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded shadow-lg flex items-center justify-center transition-transform transform hover:scale-105 text-lg">
-                        <i class="material-icons mr-2">sms</i> Sí
-                    </button>
-                    <button wire:click="confirmSmsSend(false)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded shadow-lg flex items-center justify-center transition-transform transform hover:scale-105 text-lg">
-                        <i class="material-icons mr-2">cancel</i> No
-                    </button>
-                </div>
+    @if ($showSmsModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2">
+            <h2 class="text-xl font-semibold mb-4">¿Desea recibir una copia del pedido por SMS?</h2>
+            <div class="flex justify-around">
+                <button wire:click="confirmSmsSend(true)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded shadow-lg flex items-center justify-center transition-transform transform hover:scale-105 text-lg">
+                    <i class="material-icons mr-2">sms</i> Sí
+                </button>
+                <button wire:click="confirmSmsSend(false)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded shadow-lg flex items-center justify-center transition-transform transform hover:scale-105 text-lg">
+                    <i class="material-icons mr-2">cancel</i> No
+                </button>
             </div>
         </div>
-        @endif
     </div>
+    @endif
+</div>

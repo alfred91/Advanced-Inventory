@@ -133,6 +133,16 @@ class CustomersList extends Component
         session()->flash('message', 'Cliente eliminado correctamente.');
         $this->resetPage();
     }
+    public function getTranslatedRole($role)
+    {
+        $translations = [
+            'normal' => 'Particular',
+            'professional' => 'Profesional',
+        ];
+
+        return $translations[$role] ?? $role;
+    }
+
 
     // Order methods
     public function showCustomerOrders($customerId)

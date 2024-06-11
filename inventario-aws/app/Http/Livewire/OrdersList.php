@@ -136,6 +136,18 @@ class OrdersList extends Component
         return $translations[$status] ?? $status;
     }
 
+    public function getTranslatedRole($role)
+    {
+        switch ($role) {
+            case 'normal':
+                return 'Particular';
+            case 'professional':
+                return 'Profesional';
+            default:
+                return $role;
+        }
+    }
+
     public function saveChanges()
     {
         $this->validate();

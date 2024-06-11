@@ -90,7 +90,7 @@
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer" wire:click="showOrderDetails({{ $order->id }}, false)">
                     <td class="px-6 py-4">{{ $order->id }}</td>
                     <td class="px-6 py-4">{{ $order->customer->name }}</td>
-                    <td class="px-6 py-4">{{ $order->customer->role }}</td>
+                    <td class="px-6 py-4">{{ $this->getTranslatedRole($order->customer->role) }}</td>
                     <td class="px-6 py-4">{{ number_format($order->total_amount, 2) }} €</td>
                     <td class="px-6 py-4">{{ $this->getTranslatedStatus($order->status) }}</td>
                     <td class="px-6 py-4">{{ \Carbon\Carbon::parse($order->order_date)->format('d-m-Y') }}</td>
@@ -135,7 +135,7 @@
                 </div>
                 @if($applyDiscount)
                 <div class="flex items-center">
-                    <input type="checkbox" wire:model="applyDiscount" class="form-checkbox" disabled>
+                    <input type="checkbox" wire:model="applyDiscount" class="form-checkbox">
                     <label for="apply_discount" class="ml-2 block text-sm font-medium text-gray-700">Aplicar Descuento Profesional</label>
                 </div>
                 @endif
@@ -229,7 +229,6 @@
     </div>
     @endif
 
-
     <!-- Modal Detalles/Editar Pedido-->
     @if ($showModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeModal">
@@ -254,7 +253,7 @@
                 </div>
                 @if($applyDiscount)
                 <div class="flex items-center">
-                    <input type="checkbox" wire:model="applyDiscount" class="form-checkbox" disabled>
+                    <input type="checkbox" wire:model="applyDiscount" class="form-checkbox">
                     <label for="apply_discount" class="ml-2 block text-sm font-medium text-gray-700">Aplicar Descuento Profesional</label>
                 </div>
                 @endif
@@ -355,7 +354,6 @@
         </div>
     </div>
     @endif
-
 
     <!-- Modal Confirmación de Guardar Cambios-->
     @if ($showConfirmModal)

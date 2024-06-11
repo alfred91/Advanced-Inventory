@@ -118,15 +118,7 @@
                     <td class="px-6 py-4">{{ $customer->email }}</td>
                     <td class="px-6 py-4">{{ $customer->phone_number }}</td>
                     <td class="px-6 py-4">{{ $customer->address }}</td>
-                    <td class="px-6 py-4">
-                        @if ($customer->role == 'normal')
-                        Particular
-                        @elseif ($customer->role == 'professional')
-                        Profesional
-                        @else
-                        {{ $customer->role }}
-                        @endif
-                    </td>
+                    <td class="px-6 py-4">{{ $this->getTranslatedRole($customer->role) }}</td>
                     <td class="px-6 py-4">
                         @if($customer->orders()->count() > 0)
                         <div class="flex items-center gap-2">
@@ -153,7 +145,6 @@
             {{ $customers->links() }}
         </div>
     </div>
-
     <!-- Modal Crear/Editar Clientes -->
     @if ($showModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeModal">
