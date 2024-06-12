@@ -159,6 +159,9 @@ class SalesTPV extends Component
     public function placeOrder()
     {
         DB::transaction(function () {
+            // Recalcular el totalAmount por si hay algún cambio no reflejado
+            $this->updateTotalAmount();
+
             $order = Order::create([
                 'customer_id' => $this->selectedCustomer ? $this->selectedCustomer->id : null,
                 'total_amount' => $this->totalAmount,
@@ -184,8 +187,15 @@ class SalesTPV extends Component
             $order->sendStatusChangeEmail();
 
             if ($this->paymentMethod === 'paypal') {
+                // Calcular el total a enviar a PayPal
+                $totalAmountToSend = $this->customerRole === 'professional'
+                    ? collect($this->selectedProducts)->sum(function ($product) {
+                        return $product['quantity'] * $product['priceWithDiscount'];
+                    })
+                    : $this->totalAmount;
+
                 $paypalService = app(PayPalService::class);
-                $response = $paypalService->createOrder($this->totalAmount);
+                $response = $paypalService->createOrder($totalAmountToSend);
 
                 if ($response) {
                     return redirect($response->result->links[1]->href);
@@ -202,6 +212,7 @@ class SalesTPV extends Component
             }
         });
     }
+
 
 
     public function confirmSmsSend($sendSms)
