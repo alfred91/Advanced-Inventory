@@ -27,13 +27,13 @@ class PayPalController extends Controller
             $order->save();
 
             // Enviar correo de confirmación u otras acciones necesarias
+            $order->sendStatusChangeEmail();
 
             return redirect()->route('orders.index')->with('success', 'Pago realizado con éxito.');
         }
 
         return redirect()->route('orders.index')->with('error', 'El pago no se pudo completar.');
     }
-
 
     public function cancel()
     {
