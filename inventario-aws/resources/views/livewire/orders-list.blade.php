@@ -116,7 +116,7 @@
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeModal">
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-2" wire:click.stop>
             <h2 class="text-xl font-semibold mb-4">Crear Nuevo Pedido</h2>
-            <form wire:submit.prevent="confirmSave(false)" class="space-y-4">
+            <form wire:submit.prevent="saveChanges(false)" class="space-y-4">
                 <div>
                     <label for="customer_id" class="block text-sm font-medium text-gray-700">Cliente</label>
                     <select wire:model="customerId" id="customer_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" wire:change="updateDiscountStatus">
@@ -228,6 +228,7 @@
         </div>
     </div>
     @endif
+
 
     <!-- Modal Detalles/Editar Pedido-->
     @if ($showModal)
@@ -354,7 +355,6 @@
         </div>
     </div>
     @endif
-
     <!-- Modal Confirmación de Guardar Cambios-->
     @if ($showConfirmModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeModal">
@@ -372,4 +372,6 @@
         </div>
     </div>
     @endif
+
+
 </div>

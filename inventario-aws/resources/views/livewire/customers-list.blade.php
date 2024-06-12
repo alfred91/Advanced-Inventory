@@ -273,7 +273,9 @@
                                     <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
                                     <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Unitario</th>
                                     <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
+                                    @if($orderDetails->customer->role === 'professional')
                                     <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio con Descuento</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -282,13 +284,11 @@
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ $product->name }}</td>
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ number_format($product->pivot->unit_price, 2) }} €</td>
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ $product->pivot->quantity }}</td>
+                                    @if($orderDetails->customer->role === 'professional')
                                     <td class="px-4 py-2 text-sm text-gray-700">
-                                        @if($orderDetails->customer->role === 'professional')
                                         {{ number_format($product->pivot->unit_price * (1 - ($product->discount / 100)), 2) }} €
-                                        @else
-                                        N/A
-                                        @endif
                                     </td>
+                                    @endif
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -304,5 +304,6 @@
         </div>
     </div>
     @endif
+
 
 </div>

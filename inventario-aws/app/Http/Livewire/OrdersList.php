@@ -67,8 +67,9 @@ class OrdersList extends Component
         $this->isEdit = false;
         $this->showCreateModal = true;
 
-        $customer = Customer::find($this->customerId);
-        $this->applyDiscount = $customer && $customer->role === 'professional';
+        if ($this->customerId) {
+            $this->updateDiscountStatus();
+        }
     }
 
     public function showOrderDetails($orderId, $isEdit = false)
@@ -88,7 +89,7 @@ class OrdersList extends Component
                 'quantity' => $product->pivot->quantity,
                 'unit_price' => $product->pivot->unit_price,
                 'available_quantity' => $product->quantity + $product->pivot->quantity,
-                'discount' => $product->discount, // Asegúrate de incluir el descuento
+                'discount' => $product->discount,
                 'price_with_discount' => $this->calculatePriceWithDiscount($product->pivot->unit_price, $product->discount)
             ]];
         })->toArray();
@@ -100,7 +101,7 @@ class OrdersList extends Component
     public function closeModal()
     {
         $this->showModal = false;
-        $this->showCreateModal = false; // Cerrar el modal de creación si está abierto
+        $this->showCreateModal = false;
         $this->resetInputFields();
     }
 
@@ -148,7 +149,7 @@ class OrdersList extends Component
         }
     }
 
-    public function saveChanges()
+    public function saveChanges($isEdit)
     {
         $this->validate();
 
@@ -262,7 +263,7 @@ class OrdersList extends Component
                 'quantity' => $this->newProductQuantity,
                 'unit_price' => $price,
                 'available_quantity' => $product->quantity,
-                'discount' => $product->discount, // Asegúrate de incluir el descuento
+                'discount' => $product->discount,
                 'price_with_discount' => $this->calculatePriceWithDiscount($price, $product->discount)
             ];
         }
@@ -281,7 +282,7 @@ class OrdersList extends Component
         foreach ($this->selectedProducts as $productId => &$product) {
             $productModel = Product::find($productId);
             $product['unit_price'] = $this->applyDiscount($productModel);
-            $product['discount'] = $productModel->discount; // Asegúrate de incluir el descuento
+            $product['discount'] = $productModel->discount;
             $product['price_with_discount'] = $this->calculatePriceWithDiscount($product['unit_price'], $productModel->discount);
         }
 
@@ -290,14 +291,9 @@ class OrdersList extends Component
 
     private function applyDiscount($product)
     {
-        $customer = Customer::find($this->customerId);
-
-        if ($customer && $customer->role === 'professional') {
-            $this->applyDiscount = true;
+        if ($this->applyDiscount) {
             return $product->price * (1 - ($product->discount / 100));
         }
-
-        $this->applyDiscount = false;
         return $product->price;
     }
 
