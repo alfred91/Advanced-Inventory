@@ -188,9 +188,9 @@ class SalesTPV extends Component
                 $response = $paypalService->createOrder($this->totalAmount);
 
                 if ($response) {
-                    return redirect($response->result->links[1]->href);
+                    $this->dispatchBrowserEvent('paypalRedirect', ['url' => $response->result->links[1]->href]);
                 } else {
-                    return redirect()->route('orders.index')->with('error', 'Hubo un problema al crear el pago con PayPal.');
+                    session()->flash('error', 'Hubo un problema al crear el pago con PayPal.');
                 }
             } else {
                 $order->update(['status' => 'completed']);

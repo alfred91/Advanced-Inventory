@@ -183,3 +183,9 @@
     @endif
 
 </div>
+<script>
+    window.addEventListener('paypalRedirect', event => {
+        window.open(event.detail.url, '_blank');
+    });
+
+</script>
