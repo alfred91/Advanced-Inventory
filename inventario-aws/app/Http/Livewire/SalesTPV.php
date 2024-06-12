@@ -34,6 +34,7 @@ class SalesTPV extends Component
     public $showCustomerModal = false;
     public $customerRole = null;
 
+
     protected $queryString = ['search'];
 
     public function mount()
@@ -161,7 +162,7 @@ class SalesTPV extends Component
             $order = Order::create([
                 'customer_id' => $this->selectedCustomer ? $this->selectedCustomer->id : null,
                 'total_amount' => $this->totalAmount,
-                'status' => 'pending', // Estado inicial como pendiente
+                'status' => 'pending', // Estado inicial pendiente
                 'payment_method' => $this->paymentMethod,
                 'order_date' => Carbon::now(),
             ]);
@@ -179,6 +180,9 @@ class SalesTPV extends Component
 
             $this->orderId = $order->id;
 
+            // Enviar email de confirmación del pedido
+            $order->sendStatusChangeEmail();
+
             if ($this->paymentMethod === 'paypal') {
                 $paypalService = app(PayPalService::class);
                 $response = $paypalService->createOrder($this->totalAmount);
@@ -190,7 +194,6 @@ class SalesTPV extends Component
                 }
             } else {
                 $order->update(['status' => 'completed']);
-                $order->sendStatusChangeEmail();
                 if ($this->selectedCustomer && $this->selectedCustomer->id !== $this->genericCustomer->id) {
                     $this->showSmsModal = true;
                 } else {
@@ -199,6 +202,7 @@ class SalesTPV extends Component
             }
         });
     }
+
 
     public function confirmSmsSend($sendSms)
     {
@@ -210,6 +214,7 @@ class SalesTPV extends Component
         $this->resetOrder();
         $this->showSmsModal = false;
     }
+
 
     public function resetOrder()
     {
