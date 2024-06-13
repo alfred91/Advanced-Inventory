@@ -21,12 +21,10 @@ class PayPalController extends Controller
         $response = $this->paypalService->captureOrder($orderId);
 
         if ($response && $response->result->status == 'COMPLETED') {
-            // Actualizar el estado del pedido a 'completed'
-            $order = Order::where('id', $orderId)->first();
+            $order = Order::find($orderId);
             $order->status = 'completed';
             $order->save();
 
-            // Enviar correo de confirmación u otras acciones necesarias
             $order->sendStatusChangeEmail();
 
             return redirect()->route('orders.index')->with('success', 'Pago realizado con éxito.');

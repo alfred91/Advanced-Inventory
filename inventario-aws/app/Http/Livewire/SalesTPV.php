@@ -156,45 +156,35 @@ class SalesTPV extends Component
         });
     }
 
+
     public function placeOrder()
     {
         DB::transaction(function () {
-            // Crear el pedido
             $order = Order::create([
                 'customer_id' => $this->selectedCustomer ? $this->selectedCustomer->id : null,
                 'total_amount' => $this->totalAmount,
-                'status' => 'pending', // Estado inicial pendiente
+                'status' => 'pending',
                 'payment_method' => $this->paymentMethod,
                 'order_date' => Carbon::now(),
             ]);
 
-            // Adjuntar productos al pedido
             foreach ($this->selectedProducts as $productId => $product) {
                 $order->products()->attach($productId, [
                     'quantity' => $product['quantity'],
                     'unit_price' => $product['price'],
                 ]);
 
-                // Actualizar la cantidad del producto
                 $productModel = Product::find($productId);
                 $productModel->quantity -= $product['quantity'];
                 $productModel->save();
             }
 
             $this->orderId = $order->id;
-
-            // Enviar email de confirmación del pedido
             $order->sendStatusChangeEmail();
 
-            // Calcular el total a enviar a PayPal
-            $totalAmountToSend = $this->customerRole === 'professional'
-                ? $this->calculateTotalAmountWithDiscount($order)
-                : $this->totalAmount;
-
-            // Crear el pedido en PayPal
             if ($this->paymentMethod === 'paypal') {
                 $paypalService = app(PayPalService::class);
-                $response = $paypalService->createOrder($totalAmountToSend);
+                $response = $paypalService->createOrder($this->totalAmount);
 
                 if ($response) {
                     return redirect($response->result->links[1]->href);
@@ -211,19 +201,6 @@ class SalesTPV extends Component
             }
         });
     }
-
-    public function calculateTotalAmountWithDiscount($order)
-    {
-        $total = 0;
-
-        foreach ($order->products as $product) {
-            $discount = $product->discount;
-            $total += $product->pivot->quantity * ($product->pivot->unit_price * (1 - ($discount / 100)));
-        }
-
-        return number_format($total, 2, '.', '');
-    }
-
 
     public function confirmSmsSend($sendSms)
     {

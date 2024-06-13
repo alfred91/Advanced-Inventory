@@ -30,7 +30,7 @@ class PayPalService
             'purchase_units' => [[
                 'amount' => [
                     'currency_code' => 'EUR',
-                    'value' => $amount
+                    'value' => number_format($amount, 2, '.', '')
                 ]
             ]],
             'application_context' => [
@@ -46,6 +46,7 @@ class PayPalService
             return null;
         }
     }
+
     public function captureOrder($orderId)
     {
         $request = new OrdersCaptureRequest($orderId);
