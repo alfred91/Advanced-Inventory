@@ -48,10 +48,6 @@
                         <span class="material-icons transition-transform transform hover:scale-110">inventory_2</span>
                         {{ __('Gestionar Stock') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')" class="text-gray-700 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
-                        <span class="material-icons transition-transform transform hover:scale-110">local_shipping</span>
-                        {{ __('Proveedores') }}
-                    </x-nav-link>
                     @elseif(Auth::user()->role === 'ventas')
                     <!-- Enlaces para Ventas (TPV) -->
                     <x-nav-link :href="route('sales.tpv')" :active="request()->routeIs('sales.tpv')" class="text-gray-700 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
@@ -139,10 +135,6 @@
             <x-responsive-nav-link :href="route('stock.manager')" :active="request()->routeIs('stock.manager')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
                 <span class="material-icons transition-transform transform hover:scale-110">inventory_2</span>
                 {{ __('Gestionar Stock') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')" class="hover:bg-gray-100 dark:hover:bg-gray-700">
-                <span class="material-icons transition-transform transform hover:scale-110">local_shipping</span>
-                {{ __('Proveedores') }}
             </x-responsive-nav-link>
             @elseif(Auth::user()->role === 'ventas')
             <!-- Enlaces para Ventas (TPV) -->

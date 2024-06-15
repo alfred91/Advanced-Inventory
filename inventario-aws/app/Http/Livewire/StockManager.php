@@ -55,21 +55,6 @@ class StockManager extends Component
         $this->resetPage();
     }
 
-    public function sortBy($field)
-    {
-        if ($field === 'isStockBelowMinimum') {
-            $field = 'stock_alert';
-        }
-
-        if ($this->sortField === $field) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortDirection = 'asc';
-        }
-
-        $this->sortField = $field;
-    }
-
     public function incrementStock($productId, $quantity = 1)
     {
         $product = Product::findOrFail($productId);
@@ -137,11 +122,18 @@ class StockManager extends Component
 
     public function reportIncident()
     {
-        $this->validate([
+        $rules = [
             'customQuantity' => 'required|integer|min:1|max:' . $this->selectedProduct->quantity,
             'incidentReason' => 'required|string|max:255',
-            'incidentDescription' => 'nullable|string|max:1000',
-        ]);
+        ];
+
+        if ($this->incidentReason === 'otros') {
+            $rules['incidentDescription'] = 'required|string|max:1000';
+        } else {
+            $rules['incidentDescription'] = 'nullable|string|max:1000';
+        }
+
+        $this->validate($rules);
 
         $this->decrementStock($this->selectedProduct->id, $this->customQuantity);
 
@@ -168,6 +160,7 @@ class StockManager extends Component
         $this->closeIncidentModal();
     }
 
+
     public function openImageModal($imageUrl)
     {
         $this->currentImage = $imageUrl;
@@ -180,17 +173,42 @@ class StockManager extends Component
         $this->currentImage = '';
     }
 
+    public function sortBy($field)
+    {
+        if ($field === 'isStockBelowMinimum') {
+            $field = 'stock_alert';
+        }
+
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortDirection = 'asc';
+        }
+
+        $this->sortField = $field;
+    }
+
     public function render()
     {
-        $query = Product::query()->selectRaw('products.*, (quantity <= minimum_stock) as stock_alert');
+        $query = Product::query()
+            ->select('products.*')
+            ->leftJoin('suppliers', 'products.supplier_id', '=', 'suppliers.id')
+            ->selectRaw('products.*, (products.quantity <= products.minimum_stock) as stock_alert, suppliers.name as supplier_name');
 
         if ($this->search) {
-            $query->where('name', 'like', '%' . $this->search . '%')
-                ->orWhere('description', 'like', '%' . $this->search . '%');
+            $query->where(function ($q) {
+                $q->where('products.name', 'like', '%' . $this->search . '%')
+                    ->orWhere('products.description', 'like', '%' . $this->search . '%')
+                    ->orWhereHas('supplier', function ($q) {
+                        $q->where('name', 'like', '%' . $this->search . '%');
+                    });
+            });
         }
 
         if ($this->sortField === 'stock_alert') {
             $query->orderByRaw('stock_alert ' . ($this->sortDirection === 'asc' ? 'asc' : 'desc'));
+        } elseif ($this->sortField === 'supplier.name') {
+            $query->orderBy('suppliers.name', $this->sortDirection);
         } else {
             $query->orderBy($this->sortField, $this->sortDirection);
         }

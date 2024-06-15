@@ -12,6 +12,18 @@
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
                         <th class="px-6 py-3">
+                            <button wire:click="sortBy('id')" class="focus:outline-none">
+                                ID
+                                @if($sortField === 'id')
+                                @if($sortDirection === 'asc')
+                                &#9650;
+                                @else
+                                &#9660;
+                                @endif
+                                @endif
+                            </button>
+                        </th>
+                        <th class="px-6 py-3">
                             <button wire:click="sortBy('name')" class="focus:outline-none">
                                 Nombre
                                 @if($sortField === 'name')
@@ -66,6 +78,7 @@
                 <tbody>
                     @foreach ($suppliers as $supplier)
                     <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                        <td class="px-6 py-4">{{ $supplier->id }}</td>
                         <td class="px-6 py-4">{{ $supplier->name }}</td>
                         <td class="px-6 py-4">{{ $supplier->email }}</td>
                         <td class="px-6 py-4">{{ $supplier->phone_number }}</td>

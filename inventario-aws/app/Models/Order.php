@@ -68,18 +68,22 @@ class Order extends Model
         $products = $this->products;
 
         $productDetails = '';
+        $totalAmount = 0;
+
         foreach ($products as $product) {
+            $subtotal = $product->pivot->quantity * $product->pivot->unit_price;
             $productDetails .= "Producto: {$product->name}\n";
             $productDetails .= "Cantidad: {$product->pivot->quantity}\n";
             $productDetails .= "Precio unitario: {$product->pivot->unit_price} €\n";
-            $productDetails .= "Subtotal: " . ($product->pivot->quantity * $product->pivot->unit_price) . " €\n\n";
+            $productDetails .= "Subtotal: {$subtotal} €\n\n";
+            $totalAmount += $subtotal;
         }
 
         $orderDateFormatted = Carbon::parse($this->order_date)->format('d/m/Y');
 
         $details = [
             'title' => 'Actualización de Estado del Pedido',
-            'body' => "Hola {$customer->name},\n\nSu pedido con id #{$this->id} realizado el {$orderDateFormatted} está {$this->getTranslatedStatusAttribute()}.\n\nDetalles del pedido:\n\n$productDetails\nTotal: {$this->total_amount} €\n\nGracias por su compra.\n\nSaludos,\nAdvanced Inventory"
+            'body' => "Hola {$customer->name},\n\nSu pedido con id #{$this->id} realizado el {$orderDateFormatted} está {$this->getTranslatedStatusAttribute()}.\n\nDetalles del pedido:\n\n$productDetails\nTotal: {$totalAmount} €\n\nGracias por su compra.\n\nSaludos,\nAdvanced Inventory"
         ];
 
         // Enviar correo electrónico
@@ -91,8 +95,8 @@ class Order extends Model
         // Enviar SMS si se solicita
         if ($sendSms) {
             $smsService = new SmsService();
-            $phoneNumber = $customer->phone_number; // Asegúrate de que el modelo Customer tiene un campo phone_number
-            $smsMessage = "Hola {$customer->name}, su pedido con id #{$this->id} está {$this->getTranslatedStatusAttribute()}. Total: {$this->total_amount} €.";
+            $phoneNumber = $customer->phone_number;
+            $smsMessage = "Hola {$customer->name}, su pedido con id #{$this->id} está {$this->getTranslatedStatusAttribute()}. Total: {$totalAmount} €.";
 
             $smsService->sendSms($phoneNumber, $smsMessage);
         }

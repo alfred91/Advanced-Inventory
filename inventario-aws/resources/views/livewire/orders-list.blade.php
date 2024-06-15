@@ -12,7 +12,7 @@
                 <tr>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('id')" class="focus:outline-none">
-                            ID Pedido
+                            ID
                             @if($sortField === 'id')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -229,7 +229,6 @@
     </div>
     @endif
 
-
     <!-- Modal Detalles/Editar Pedido-->
     @if ($showModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeModal">
@@ -252,12 +251,6 @@
                         </optgroup>
                     </select>
                 </div>
-                @if($applyDiscount)
-                <div class="flex items-center">
-                    <input type="checkbox" wire:model="applyDiscount" class="form-checkbox">
-                    <label for="apply_discount" class="ml-2 block text-sm font-medium text-gray-700">Aplicar Descuento Profesional</label>
-                </div>
-                @endif
                 <div>
                     <label for="status" class="block text-sm font-medium text-gray-700">Estado</label>
                     <select wire:model.defer="status" id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" {{ $isEdit ? '' : 'disabled' }}>
@@ -300,16 +293,8 @@
                                     @if($applyDiscount)
                                     <td class="px-4 py-2 text-sm text-gray-700">{{ intval($product['discount']) }}%</td>
                                     @endif
-                                    <td class="px-4 py-2 flex items-center">
-                                        @if($isEdit)
-                                        <button type="button" wire:click="decreaseProductQuantity({{ $productId }})" class="ml-2 text-gray-500 hover:text-gray-700"><i class="fas fa-minus"></i></button>
-                                        <input type="number" min="0" wire:model.lazy="selectedProducts.{{ $productId }}.quantity" id="product_{{ $productId }}" class="block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad" max="{{ $product['available_quantity'] }}">
-                                        <button type="button" wire:click="increaseProductQuantity({{ $productId }})" class="ml-2 text-gray-500 hover:text-gray-700"><i class="fas fa-plus"></i></button>
-                                        @if(isset($this->selectedProducts[$productId]) && $this->selectedProducts[$productId]['quantity'] <= 0) <button type="button" wire:click="removeProduct({{ $productId }})" class="ml-2 text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button>
-                                            @endif
-                                            @else
-                                            <input type="number" min="0" wire:model.lazy="selectedProducts.{{ $productId }}.quantity" id="product_{{ $productId }}" class="block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad" max="{{ $product['available_quantity'] }}" disabled>
-                                            @endif
+                                    <td class="px-4 py-2 text-sm text-gray-700">
+                                        <input type="number" min="0" wire:model.lazy="selectedProducts.{{ $productId }}.quantity" id="product_{{ $productId }}" class="block w-full form-input rounded-md shadow-sm border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Cantidad" max="{{ $product['available_quantity'] }}" {{ $isEdit ? '' : 'disabled' }}>
                                     </td>
                                     <td class="px-4 py-2 text-sm text-gray-700">
                                         @if($applyDiscount)
@@ -355,6 +340,7 @@
         </div>
     </div>
     @endif
+
     <!-- Modal Confirmación de Guardar Cambios-->
     @if ($showConfirmModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeModal">

@@ -16,7 +16,6 @@ class OrdersList extends Component
     public $search = '';
     public $isLoading = false;
     public $applyDiscount = false;
-
     public $showModal = false;
     public $showCreateModal = false;
     public $isEdit = false;
@@ -149,7 +148,7 @@ class OrdersList extends Component
         }
     }
 
-    public function saveChanges($isEdit)
+    public function saveChanges()
     {
         $this->validate();
 
@@ -163,6 +162,7 @@ class OrdersList extends Component
         if ($this->isEdit) {
             $order = Order::findOrFail($this->orderId);
 
+            // Restaurar las cantidades de los productos antes de actualizar
             foreach ($order->products as $product) {
                 $product->quantity += $product->pivot->quantity;
                 $product->save();
@@ -201,6 +201,8 @@ class OrdersList extends Component
             $order->total_amount = $this->totalAmount;
             $order->save();
 
+            // Volver a cargar el pedido actualizado para asegurarse de que se obtengan todos los productos
+            $order = Order::with('products')->find($this->orderId);
             $order->sendStatusChangeEmail($this->sendSms);
 
             session()->flash('message', 'Order updated successfully.');
@@ -236,6 +238,8 @@ class OrdersList extends Component
                 $order->total_amount = $this->totalAmount;
                 $order->save();
 
+                // Volver a cargar el pedido actualizado para asegurarse de que se obtengan todos los productos
+                $order = Order::with('products')->find($order->id);
                 $order->sendStatusChangeEmail($this->sendSms);
 
                 session()->flash('message', 'Order created successfully.');
@@ -245,7 +249,6 @@ class OrdersList extends Component
         $this->showConfirmModal = false;
         $this->closeModal();
     }
-
     public function addProduct()
     {
         $this->validate([

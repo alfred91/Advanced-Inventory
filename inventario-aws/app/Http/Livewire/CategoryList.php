@@ -131,6 +131,11 @@ class CategoryList extends Component
             'image' => $this->image ? $this->image->store('categories', 'public') : $this->currentImage,
         ];
     }
+    public function viewProducts($categoryName)
+    {
+        return redirect()->to('/products?search=' . urlencode($categoryName));
+    }
+
 
     public function render()
     {
