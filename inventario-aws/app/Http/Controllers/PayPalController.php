@@ -27,14 +27,14 @@ class PayPalController extends Controller
 
             $order->sendStatusChangeEmail();
 
-            return redirect()->route('orders.index')->with('success', 'Pago realizado con éxito.');
+            return redirect()->route('sales.tpv')->with('success', 'Pago realizado con éxito.');
         }
 
-        return redirect()->route('orders.index')->with('error', 'El pago no se pudo completar.');
+        return redirect()->route('sales.tpv')->with('error', 'El pago no se pudo completar.');
     }
 
     public function cancel()
     {
-        return redirect()->route('orders.index')->with('error', 'El pago fue cancelado.');
+        return redirect()->route('sales.tpv')->with('error', 'El pago fue cancelado.');
     }
 }
