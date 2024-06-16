@@ -197,7 +197,8 @@ class StockManager extends Component
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('products.name', 'like', '%' . $this->search . '%')
+                $q->where('products.id', 'like', '%' . $this->search . '%')
+                    ->orWhere('products.name', 'like', '%' . $this->search . '%')
                     ->orWhere('products.description', 'like', '%' . $this->search . '%')
                     ->orWhereHas('supplier', function ($q) {
                         $q->where('name', 'like', '%' . $this->search . '%');

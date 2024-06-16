@@ -142,7 +142,8 @@ class CategoryList extends Component
         $query = Category::query();
 
         if ($this->search) {
-            $query->where('name', 'like', '%' . $this->search . '%');
+            $query->where('name', 'like', '%' . $this->search . '%')
+                ->orWhere('id', 'like', '%' . $this->search . '%');
         }
 
         $query->orderBy($this->sortField, $this->sortDirection);

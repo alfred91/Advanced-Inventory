@@ -287,6 +287,7 @@ class SuppliersList extends Component
         if ($this->search) {
             $query->where(function ($q) {
                 $q->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhere('id', 'like', '%' . $this->search . '%')
                     ->orWhere('email', 'like', '%' . $this->search . '%')
                     ->orWhere('phone_number', 'like', '%' . $this->search . '%')
                     ->orWhere('address', 'like', '%' . $this->search . '%');

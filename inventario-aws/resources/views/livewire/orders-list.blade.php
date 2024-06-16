@@ -1,6 +1,6 @@
 <div class="container mx-auto p-4">
     <div class="flex justify-between items-center mb-4">
-        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por producto, categoría, proveedor..." wire:model="search" wire:input.debounce.500ms="reloadOrders">
+        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por ID, nombre, categoría, proveedor..." wire:model="search" wire:input.debounce.500ms="reloadOrders">
         <button wire:click="openCreateModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
             <i class="material-icons mr-2">add</i> Añadir Pedido
         </button>

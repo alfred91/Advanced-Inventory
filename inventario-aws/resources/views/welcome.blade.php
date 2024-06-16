@@ -7,6 +7,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -26,24 +27,18 @@
                 <p class="text-lg mb-6">Gestiona tu inventario de forma eficiente y moderna con nuestra solución integral.</p>
                 <div class="flex flex-col md:flex-row gap-4">
                     @auth
-                    <a href="{{ url('/products') }}" class="bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded-lg shadow-lg flex items-center justify-center space-x-2">
+                    <a href="{{ url('/products') }}" class="bg-blue-700 hover:bg-blue-800 text-white font-bold py-4 px-6 rounded-lg shadow-lg transform transition hover:scale-105 flex items-center justify-center space-x-2">
                         <span>Ir a Productos</span>
                     </a>
                     @else
-                    <div class="flex flex-col items-center space-y-4">
-                        <a href="{{ route('login') }}" class="bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded-lg shadow-lg flex items-center justify-center space-x-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                                <circle cx="8.5" cy="7" r="4" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 8v6M23 11h-6" />
-                            </svg>
+                    <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
+                        <a href="{{ route('login') }}" class="bg-white hover:bg-gray-200 text-blue-700 font-bold py-4 px-6 rounded-lg shadow-lg transform transition hover:scale-105 flex items-center justify-center space-x-2">
+                            <span class="material-icons">login</span>
                             <span>Log in</span>
                         </a>
                         @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-lg shadow-lg flex items-center justify-center space-x-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                            </svg>
+                        <a href="{{ route('register') }}" class="bg-white hover:bg-gray-200 text-blue-700 font-bold py-4 px-6 rounded-lg shadow-lg transform transition hover:scale-105 flex items-center justify-center space-x-2">
+                            <span class="material-icons">person_add</span>
                             <span>Register</span>
                         </a>
                         @endif

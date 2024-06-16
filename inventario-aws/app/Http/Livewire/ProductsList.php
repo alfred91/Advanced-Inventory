@@ -210,6 +210,9 @@ class ProductsList extends Component
         if ($this->search) {
             $query->where(function ($q) {
                 $q->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhere('id', 'like', '%' . $this->search . '%')
+                    ->orWhere('quantity', 'like', '%' . $this->search . '%')
+                    ->orWhere('price', 'like', '%' . $this->search . '%')
                     ->orWhereHas('category', function ($q) {
                         $q->where('name', 'like', '%' . $this->search . '%');
                     })
