@@ -180,7 +180,6 @@ class SalesTPV extends Component
             }
 
             $this->orderId = $order->id;
-            $order->sendStatusChangeEmail();
 
             if ($this->paymentMethod === 'paypal') {
                 $paypalService = app(PayPalService::class);

@@ -128,7 +128,7 @@
                             {{ $product['name'] }} ({{ $product['quantity'] }} x {{ number_format($product['price'], 2) }} €)
                             @if ($customerRole === 'professional')
                             <p class="text-sm text-green-600">Descuento: {{ $product['discount'] }}%</p>
-                            <p class="text-sm text-green-600">Precio con Descuento: {{ number_format($product['price'] * (1 - $product['discount'] / 100), 2) }} €</p>
+                            <p class="text-sm text-green-600">Precio: {{ number_format($product['price'] * (1 - $product['discount'] / 100), 2) }} €</p>
                             @endif
                         </div>
                         <div class="flex items-center">
