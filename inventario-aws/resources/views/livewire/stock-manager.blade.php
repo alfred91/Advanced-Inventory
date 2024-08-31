@@ -1,10 +1,9 @@
 <div class="container mx-auto p-4">
-
     <!-- Botón de alerta de stock bajo -->
     @if ($hasLowStock)
     <div class="flex justify-between items-center mb-4">
         <div class="flex items-center gap-4">
-            <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-full md:w-auto" placeholder="Buscar por producto..." wire:model="search" wire:input.debounce.500ms="reloadProducts">
+            <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-full md:w-auto text-center" placeholder="Buscar por producto..." wire:model="search" wire:input.debounce.500ms="reloadProducts">
             <button wire:click="openLowStockModal" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
                 <i class="fas fa-exclamation-triangle mr-2"></i> Alerta de Stock Bajo
             </button>
@@ -14,8 +13,8 @@
     @endif
 
     <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <table class="w-full text-sm text-center text-gray-500 dark:text-gray-400">
+            <thead class="text-m text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('id')" class="focus:outline-none">
@@ -31,7 +30,7 @@
                     </th>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('name')" class="focus:outline-none">
-                            Nombre
+                            NOMBRE
                             @if($sortField === 'name')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -43,7 +42,7 @@
                     </th>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('supplier.name')" class="focus:outline-none">
-                            Proveedor
+                            PROVEEDOR
                             @if($sortField === 'supplier.name')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -55,7 +54,7 @@
                     </th>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('description')" class="focus:outline-none">
-                            Descripción
+                            DESCRIPCIÓN
                             @if($sortField === 'description')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -65,10 +64,10 @@
                             @endif
                         </button>
                     </th>
-                    <th class="px-6 py-3">Imagen</th>
+                    <th class="px-6 py-3">IMAGEN</th>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('isStockBelowMinimum')" class="focus:outline-none">
-                            Alerta de Stock
+                            ALERTA STOCK
                             @if($sortField === 'stock_alert')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -80,7 +79,7 @@
                     </th>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('quantity')" class="focus:outline-none">
-                            Cantidad
+                            CANTIDAD
                             @if($sortField === 'quantity')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -90,14 +89,14 @@
                             @endif
                         </button>
                     </th>
-                    <th class="px-6 py-3">Acciones</th>
+                    <th class="px-6 py-3">ACCIONES</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($products as $product)
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                    <td class="px-6 py-4">{{ $product->id }}</td>
-                    <td class="px-6 py-4">
+                    <td class="px-4 py-4">{{ $product->id }}</td>
+                    <td class="px-4 py-2">
                         {{ $product->name }}
                         @if($product->quantity <= $product->minimum_stock)
                             <span class="text-red-500">
@@ -105,14 +104,14 @@
                             </span>
                             @endif
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-4 py-4">
                         {{ optional($product->supplier)->name ?? 'Sin Proveedor' }}
                     </td>
-                    <td class="px-6 py-4">{{ $product->description }}</td>
-                    <td class="px-6 py-4">
+                    <td class="px-4 py-2">{{ $product->description }}</td>
+                    <td class="px-4 py-2">
                         <img src="{{ asset('storage/' . $product->image) }}" alt="Imagen de Producto" class="w-20 h-auto rounded-lg cursor-pointer transition-transform transform hover:scale-110 hover:brightness-110" wire:click="openImageModal('{{ asset('storage/' . $product->image) }}')">
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-4 py-2">
                         @if($product->quantity <= $product->minimum_stock)
                             <span class="text-red-500">
                                 <i class="fas fa-exclamation-triangle"></i>
@@ -125,9 +124,9 @@
                             <span>{{ $product->minimum_stock }}</span>
                             @endif
                     </td>
-                    <td class="px-6 py-4">{{ $product->quantity }}</td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-2">
+                    <td class="px-4 py-2">{{ $product->quantity }}</td>
+                    <td class="px-4 py-2">
+                        <div class="flex items-center gap-2 justify-center">
                             <button wire:click="openIncidentModal({{ $product->id }})" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">-</button>
                             <button wire:click="openCustomQuantityModal({{ $product->id }})" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">+</button>
                         </div>

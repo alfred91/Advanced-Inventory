@@ -1,14 +1,14 @@
 <div class="container mx-auto p-4">
     <div class="flex justify-between items-center mb-4">
-        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por ID, nombre, email, teléfono, DNI..." wire:model="search" wire:input.debounce.500ms="reloadCustomers">
+        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto text-center" placeholder="Buscar por ID, nombre, email, teléfono, DNI..." wire:model="search" wire:input.debounce.500ms="reloadCustomers">
         <button wire:click="showCreateModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
             <i class="material-icons mr-2">add</i> Añadir Cliente
         </button>
     </div>
 
     <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <table class="w-full text-sm text-center text-gray-500 dark:text-gray-400">
+            <thead class="text-m text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('id')" class="focus:outline-none">
@@ -24,7 +24,7 @@
                     </th>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('dni')" class="focus:outline-none">
-                            DNI / CIF
+                            DNI/CIF
                             @if($sortField === 'dni')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -36,7 +36,7 @@
                     </th>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('name')" class="focus:outline-none">
-                            Nombre
+                            NOMBRE
                             @if($sortField === 'name')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -48,7 +48,7 @@
                     </th>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('email')" class="focus:outline-none">
-                            Email
+                            EMAIL
                             @if($sortField === 'email')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -60,7 +60,7 @@
                     </th>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('phone_number')" class="focus:outline-none">
-                            Teléfono
+                            TELÉFONO
                             @if($sortField === 'phone_number')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -72,7 +72,7 @@
                     </th>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('address')" class="focus:outline-none">
-                            Dirección
+                            DIRECCIÓN
                             @if($sortField === 'address')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -84,7 +84,7 @@
                     </th>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('role')" class="focus:outline-none">
-                            Rol
+                            ROL
                             @if($sortField === 'role')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -96,7 +96,7 @@
                     </th>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('orders_count')" class="focus:outline-none">
-                            Pedidos
+                            PEDIDOS
                             @if($sortField === 'orders_count')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -106,22 +106,22 @@
                             @endif
                         </button>
                     </th>
-                    <th class="px-6 py-3">Acciones</th>
+                    <th class="px-6 py-3">ACCIONES</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($customers as $customer)
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                    <td class="px-6 py-4">{{ $customer->id }}</td>
-                    <td class="px-6 py-4">{{ $customer->dni }}</td>
-                    <td class="px-6 py-4">{{ $customer->name }}</td>
-                    <td class="px-6 py-4">{{ $customer->email }}</td>
-                    <td class="px-6 py-4">{{ $customer->phone_number }}</td>
-                    <td class="px-6 py-4">{{ $customer->address }}</td>
-                    <td class="px-6 py-4">{{ $this->getTranslatedRole($customer->role) }}</td>
-                    <td class="px-6 py-4">
+                    <td class="px-4 py-4">{{ $customer->id }}</td>
+                    <td class="px-4 py-4">{{ $customer->dni }}</td>
+                    <td class="px-4 py-4">{{ $customer->name }}</td>
+                    <td class="px-4 py-4">{{ $customer->email }}</td>
+                    <td class="px-4 py-4">{{ $customer->phone_number }}</td>
+                    <td class="px-4 py-4">{{ $customer->address }}</td>
+                    <td class="px-4 py-4">{{ $this->getTranslatedRole($customer->role) }}</td>
+                    <td class="px-4 py-4">
                         @if($customer->orders()->count() > 0)
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 justify-center">
                             {{ $customer->orders()->count() }}
                             <button wire:click="showCustomerOrders({{ $customer->id }})" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
                                 <i class="material-icons">visibility</i>
@@ -129,11 +129,11 @@
                         </div>
                         @endif
                     </td>
-                    <td class="px-6 py-4 flex items-center gap-2">
+                    <td class="px-6 py-4 flex items-center gap-2 justify-center">
                         <button wire:click="showEditModal({{ $customer->id }})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
                             <i class="material-icons">edit</i>
                         </button>
-                        <button class="bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded shadow-lg transition-transform transform hover:scale-110" onclick="confirm('¿Está seguro de que desea eliminar este cliente?') || event.stopImmediatePropagation()" wire:click="deleteCustomer({{ $customer->id }})">
+                        <button class="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-110" onclick="confirm('¿Está seguro de que desea eliminar este cliente?') || event.stopImmediatePropagation()" wire:click="deleteCustomer({{ $customer->id }})">
                             <i class="material-icons">delete</i>
                         </button>
                     </td>
@@ -145,6 +145,7 @@
             {{ $customers->links() }}
         </div>
     </div>
+
     <!-- Modal Crear/Editar Clientes -->
     @if ($showModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" wire:click.self="closeModal">

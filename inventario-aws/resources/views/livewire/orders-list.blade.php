@@ -1,14 +1,14 @@
 <div class="container mx-auto p-4">
     <div class="flex justify-between items-center mb-4">
-        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar por ID, nombre, categoría, proveedor..." wire:model="search" wire:input.debounce.500ms="reloadOrders">
+        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto text-center" placeholder="Buscar por ID, nombre, categoría, proveedor..." wire:model="search" wire:input.debounce.500ms="reloadOrders">
         <button wire:click="openCreateModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
             <i class="material-icons mr-2">add</i> Añadir Pedido
         </button>
     </div>
 
     <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <table class="w-full text-sm text-center text-gray-500 dark:text-gray-400">
+            <thead class="text-m text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('id')" class="focus:outline-none">
@@ -24,7 +24,7 @@
                     </th>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('customer_name')" class="focus:outline-none">
-                            Cliente
+                            CLIENTE
                             @if($sortField === 'customer_name')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -36,7 +36,7 @@
                     </th>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('customer_role')" class="focus:outline-none">
-                            Rol
+                            ROL
                             @if($sortField === 'customer_role')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -48,7 +48,7 @@
                     </th>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('total_amount')" class="focus:outline-none">
-                            Monto Total
+                            MONTO TOTAL
                             @if($sortField === 'total_amount')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -60,7 +60,7 @@
                     </th>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('status')" class="focus:outline-none">
-                            Estado
+                            ESTADO
                             @if($sortField === 'status')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -72,7 +72,7 @@
                     </th>
                     <th class="px-6 py-3">
                         <button wire:click="sortBy('order_date')" class="focus:outline-none">
-                            Fecha de Pedido
+                            FECHA PEDIDO
                             @if($sortField === 'order_date')
                             @if($sortDirection === 'asc')
                             &#9650;
@@ -88,13 +88,13 @@
             <tbody>
                 @foreach ($orders as $order)
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer" wire:click="showOrderDetails({{ $order->id }}, false)">
-                    <td class="px-6 py-4">{{ $order->id }}</td>
-                    <td class="px-6 py-4">{{ $order->customer->name }}</td>
-                    <td class="px-6 py-4">{{ $this->getTranslatedRole($order->customer->role) }}</td>
-                    <td class="px-6 py-4">{{ number_format($order->total_amount, 2) }} €</td>
-                    <td class="px-6 py-4">{{ $this->getTranslatedStatus($order->status) }}</td>
-                    <td class="px-6 py-4">{{ \Carbon\Carbon::parse($order->order_date)->format('d-m-Y') }}</td>
-                    <td class="px-6 py-4 flex items-center gap-2" wire:click.stop>
+                    <td class="px-4 py-4">{{ $order->id }}</td>
+                    <td class="px-4 py-4">{{ $order->customer->name }}</td>
+                    <td class="px-4 py-4">{{ $this->getTranslatedRole($order->customer->role) }}</td>
+                    <td class="px-4 py-4">{{ number_format($order->total_amount, 2) }} €</td>
+                    <td class="px-4 py-4">{{ $this->getTranslatedStatus($order->status) }}</td>
+                    <td class="px-4 py-4">{{ \Carbon\Carbon::parse($order->order_date)->format('d-m-Y') }}</td>
+                    <td class="px-4 py-4 flex items-center gap-2 justify-center" wire:click.stop>
                         <button wire:click="showOrderDetails({{ $order->id }}, true)" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105 flex items-center justify-center">
                             <span class="material-icons">edit</span>
                         </button>

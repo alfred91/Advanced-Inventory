@@ -1,6 +1,6 @@
 <div class="container mx-auto p-4">
     <div class="flex justify-between items-center mb-4">
-        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto" placeholder="Buscar Proveedor..." wire:model="search" wire:input.debounce.500ms="reloadSuppliers">
+        <input type="text" class="form-input rounded-md shadow-sm mt-1 block w-auto md:w-auto text-center" placeholder="Buscar Proveedor..." wire:model="search" wire:input.debounce.500ms="reloadSuppliers">
         <button wire:click="openModal(false)" class="inline-flex items-center justify-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105">
             <span class="material-icons mr-2">add</span> Añadir Proveedor
         </button>
@@ -8,8 +8,8 @@
 
     <div wire:loading.class="opacity-50">
         <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
-            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <table class="w-full text-sm text-center text-gray-500 dark:text-gray-400">
+                <thead class="text-m text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
                         <th class="px-6 py-3">
                             <button wire:click="sortBy('id')" class="focus:outline-none">
@@ -25,7 +25,7 @@
                         </th>
                         <th class="px-6 py-3">
                             <button wire:click="sortBy('name')" class="focus:outline-none">
-                                Nombre
+                                NOMBRE
                                 @if($sortField === 'name')
                                 @if($sortDirection === 'asc')
                                 &#9650;
@@ -37,7 +37,7 @@
                         </th>
                         <th class="px-6 py-3">
                             <button wire:click="sortBy('email')" class="focus:outline-none">
-                                Email
+                                EMAIL
                                 @if($sortField === 'email')
                                 @if($sortDirection === 'asc')
                                 &#9650;
@@ -49,7 +49,7 @@
                         </th>
                         <th class="px-6 py-3">
                             <button wire:click="sortBy('phone_number')" class="focus:outline-none">
-                                Teléfono
+                                TELÉFONO
                                 @if($sortField === 'phone_number')
                                 @if($sortDirection === 'asc')
                                 &#9650;
@@ -61,7 +61,7 @@
                         </th>
                         <th class="px-6 py-3">
                             <button wire:click="sortBy('address')" class="focus:outline-none">
-                                Dirección
+                                DIRECCIÓN
                                 @if($sortField === 'address')
                                 @if($sortDirection === 'asc')
                                 &#9650;
@@ -71,19 +71,19 @@
                                 @endif
                             </button>
                         </th>
-                        <th class="px-6 py-3">Imagen</th>
-                        <th class="px-6 py-3">Acciones</th>
+                        <th class="px-6 py-3">IMAGEN</th>
+                        <th class="px-6 py-3">ACCIONES</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($suppliers as $supplier)
                     <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                        <td class="px-6 py-4">{{ $supplier->id }}</td>
-                        <td class="px-6 py-4">{{ $supplier->name }}</td>
-                        <td class="px-6 py-4">{{ $supplier->email }}</td>
-                        <td class="px-6 py-4">{{ $supplier->phone_number }}</td>
-                        <td class="px-6 py-4">{{ $supplier->address }}</td>
-                        <td class="px-6 py-4">
+                        <td class="px-4 py-2">{{ $supplier->id }}</td>
+                        <td class="px-4 py-2">{{ $supplier->name }}</td>
+                        <td class="px-4 py-2">{{ $supplier->email }}</td>
+                        <td class="px-4 py-2">{{ $supplier->phone_number }}</td>
+                        <td class="px-4 py-2">{{ $supplier->address }}</td>
+                        <td class="px-4 py-2">
                             @if ($supplier->image)
                             <div class="w-20 h-20 overflow-hidden rounded-lg flex items-center justify-center cursor-pointer">
                                 <img src="{{ Storage::url($supplier->image) }}" alt="Proveedor" class="max-h-full max-w-full object-contain transition-transform transform hover:scale-110 hover:brightness-110" wire:click="openImageModal('{{ Storage::url($supplier->image) }}')">
@@ -95,7 +95,7 @@
                             @endif
                         </td>
 
-                        <td class="px-6 py-4 flex items-center gap-2">
+                        <td class="px-6 py-2 flex items-center gap-2 justify-center">
                             <button wire:click="openModal(true, {{ $supplier->id }})" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow-lg transition-transform transform hover:scale-105 flex items-center justify-center">
                                 <span class="material-icons">edit</span>
                             </button>

@@ -249,6 +249,7 @@ class OrdersList extends Component
         $this->showConfirmModal = false;
         $this->closeModal();
     }
+
     public function addProduct()
     {
         $this->validate([
