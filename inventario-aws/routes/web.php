@@ -28,6 +28,25 @@ Route::get('/token', function (Request $request) {
 });
 
 
+Route::get('/login-demo', function (Request $request) {
+    // Credenciales para iniciar sesión
+    $credentials = [
+        'email' => $request->query('email'),
+        'password' => $request->query('password'),
+    ];
+
+    // Intento de autenticación
+    if (Auth::attempt($credentials)) {
+        $request->session()->regenerate();
+        
+        // Redirige al usuario a la página de inicio (o a otra ruta específica según el rol)
+        return redirect()->intended('/products');
+    }
+
+    return redirect('/')->withErrors(['error' => 'Credenciales incorrectas']);
+})->name('login.demo');
+
+
 // Rutas con autenticación
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
