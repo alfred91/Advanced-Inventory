@@ -1,5 +1,12 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data x-init="
+    (function(){
+        var t = localStorage.getItem('theme');
+        if (t === 'dark' || (!t || t === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+    })()
+">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -32,7 +39,7 @@
         @endif
 
         <!-- Page Content -->
-        <main>
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             {{ $slot }}
         </main>
     </div>

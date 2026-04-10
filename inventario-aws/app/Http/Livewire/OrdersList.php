@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use App\Models\Order;
 use App\Models\Customer;
 use App\Models\Product;
+use App\Models\InventoryTransaction;
 use Illuminate\Support\Facades\DB;
 
 class OrdersList extends Component
@@ -109,8 +110,18 @@ class OrdersList extends Component
         $order = Order::find($orderId);
         if ($order) {
             foreach ($order->products as $product) {
+                $before = $product->quantity;
                 $product->quantity += $product->pivot->quantity;
                 $product->save();
+                InventoryTransaction::create([
+                    'product_id'       => $product->id,
+                    'user_id'          => auth()->id(),
+                    'transaction_type' => 'devolucion_pedido',
+                    'quantity'         => $product->pivot->quantity,
+                    'before_quantity'  => $before,
+                    'after_quantity'   => $product->quantity,
+                    'reason'           => 'Pedido cancelado #' . $orderId,
+                ]);
             }
 
             $order->delete();
@@ -191,8 +202,18 @@ class OrdersList extends Component
                             'unit_price' => $price
                         ]);
 
+                        $before = $productModel->quantity;
                         $productModel->quantity -= $product['quantity'];
                         $productModel->save();
+                        InventoryTransaction::create([
+                            'product_id'       => $productModel->id,
+                            'user_id'          => auth()->id(),
+                            'transaction_type' => 'venta',
+                            'quantity'         => $product['quantity'],
+                            'before_quantity'  => $before,
+                            'after_quantity'   => $productModel->quantity,
+                            'reason'           => 'Pedido #' . $order->id,
+                        ]);
                     }
                 }
             });
@@ -229,8 +250,18 @@ class OrdersList extends Component
                             'unit_price' => $price
                         ]);
 
+                        $before = $productModel->quantity;
                         $productModel->quantity -= $product['quantity'];
                         $productModel->save();
+                        InventoryTransaction::create([
+                            'product_id'       => $productModel->id,
+                            'user_id'          => auth()->id(),
+                            'transaction_type' => 'venta',
+                            'quantity'         => $product['quantity'],
+                            'before_quantity'  => $before,
+                            'after_quantity'   => $productModel->quantity,
+                            'reason'           => 'Nuevo pedido',
+                        ]);
                     }
                 }
 

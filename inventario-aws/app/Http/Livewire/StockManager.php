@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\InventoryTransaction;
 use Illuminate\Support\Facades\Mail;
 
 class StockManager extends Component
@@ -55,18 +56,42 @@ class StockManager extends Component
         $this->resetPage();
     }
 
-    public function incrementStock($productId, $quantity = 1)
+    public function incrementStock($productId, $quantity = 1, $reason = null, $description = null)
     {
         $product = Product::findOrFail($productId);
+        $before = $product->quantity;
         $product->increment('quantity', $quantity);
+        $product->refresh();
+        InventoryTransaction::create([
+            'product_id'       => $product->id,
+            'user_id'          => auth()->id(),
+            'transaction_type' => 'entrada',
+            'quantity'         => $quantity,
+            'before_quantity'  => $before,
+            'after_quantity'   => $product->quantity,
+            'reason'           => $reason,
+            'description'      => $description,
+        ]);
         $this->dispatch('productUpdated');
     }
 
-    public function decrementStock($productId, $quantity = 1)
+    public function decrementStock($productId, $quantity = 1, $reason = null, $description = null)
     {
         $product = Product::findOrFail($productId);
         if ($product->quantity >= $quantity) {
+            $before = $product->quantity;
             $product->decrement('quantity', $quantity);
+            $product->refresh();
+            InventoryTransaction::create([
+                'product_id'       => $product->id,
+                'user_id'          => auth()->id(),
+                'transaction_type' => 'salida',
+                'quantity'         => $quantity,
+                'before_quantity'  => $before,
+                'after_quantity'   => $product->quantity,
+                'reason'           => $reason,
+                'description'      => $description,
+            ]);
             $this->dispatch('productUpdated');
         }
     }
@@ -103,7 +128,7 @@ class StockManager extends Component
     public function addCustomQuantity()
     {
         $this->validate(['customQuantity' => 'required|integer|min:1']);
-        $this->incrementStock($this->selectedProduct->id, $this->customQuantity);
+        $this->incrementStock($this->selectedProduct->id, $this->customQuantity, 'entrada_manual');
         $this->closeCustomQuantityModal();
     }
 
@@ -135,7 +160,7 @@ class StockManager extends Component
 
         $this->validate($rules);
 
-        $this->decrementStock($this->selectedProduct->id, $this->customQuantity);
+        $this->decrementStock($this->selectedProduct->id, $this->customQuantity, $this->incidentReason, $this->incidentDescription);
 
         $product = $this->selectedProduct;
         $quantity = $this->customQuantity;

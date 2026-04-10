@@ -7,6 +7,8 @@ use App\Http\Livewire\OrdersList;
 use App\Http\Livewire\CategoryList;
 use App\Http\Livewire\ProductsList;
 use App\Http\Livewire\StockManager;
+use App\Http\Livewire\StockHistory;
+use App\Http\Livewire\Dashboard;
 use App\Http\Livewire\CustomersList;
 use App\Http\Livewire\SuppliersList;
 use Illuminate\Support\Facades\Route;
@@ -56,6 +58,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/paypal/cancel', [PayPalController::class, 'cancel'])->name('paypal.cancel');
 
     Route::middleware('role:administrativo')->group(function () {
+        Route::get('/dashboard', Dashboard::class)->name('dashboard');
         Route::get('/products', ProductsList::class)->name('products.index');
         Route::get('/suppliers', SuppliersList::class)->name('suppliers.index');
         Route::get('/orders', OrdersList::class)->name('orders.index');
@@ -66,6 +69,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Rutas específicas para Mozo de Almacén
     Route::middleware('role:mozo_almacen,administrativo')->group(function () {
         Route::get('/stock-manager', StockManager::class)->name('stock.manager');
+        Route::get('/stock-history', StockHistory::class)->name('stock.history');
     });
 
     // Ruta específica para Ventas
